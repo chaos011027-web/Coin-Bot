@@ -1,23 +1,29 @@
 const baseApi = "https://api.dexscreener.com/latest/dex/pairs"
 
-async function getPair(chainId, PairAdressId){
+export async function getPair(chainId, PairAdressId){
    const address = `${baseApi}/${chainId}/${PairAdressId}`
    const res = await fetch(address)
 
    if(!res.ok){
     console.log("this is an error")
    }
-   console.log("success")
+   
    return (res.json())
+   
+   
 
 }
 
-async function getInfo(){
-    const chainId = "solana"
-    const pairId = "J3s2eaBdxaTEJd9NgHAvsRv88PuGSQWmrggyWxoEL587"
+export async function getInfo(chainId, pairId){
+    //const chainId = "solana"
+    //const pairId = "EUabMnyQkcomQDcknKyFpFPdKGfFyGe361b9w2Nz5wCV"
 
     const data = await getPair(chainId,pairId)
+    //console.log(data)
     const dataOutput = [
+        {chainId : data.pair.chainId},
+        {dexId : data.pair.dexId},
+        {url : data.pair.url},
         {PairAddress : data.pair.pairAddress},
         {PriceUsd : data.pair.priceUsd},
         {mcapUsd : data.pair.marketCap},
@@ -30,7 +36,8 @@ async function getInfo(){
     ]
 
     console.log(dataOutput)
+    return(dataOutput)
 
 }
 
-getInfo()
+getInfo("solana","EUabMnyQkcomQDcknKyFpFPdKGfFyGe361b9w2Nz5wCV")
