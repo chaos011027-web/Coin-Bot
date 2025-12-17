@@ -1,0 +1,44 @@
+2025-12-16 23:00:57,522 - MAIN - INFO - 🚀 系统初始化中...
+2025-12-16 23:00:57,522 - MAIN - INFO - 👂 启动监听进程...
+2025-12-16 23:00:57,522 - MAIN - ERROR - 🛑 严重错误: module 'modules.listener' has no attribute 'start'
+2025-12-16 23:00:57,522 - MAIN - INFO - 🧹 正在清理资源...
+2025-12-16 23:00:58,547 - Commander - INFO - 🤖 Commander 已启动 (Admin ID: 7230042939)
+2025-12-16 23:00:58,752 - asyncio - ERROR - Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x0000017CFF916CD0>
+2025-12-16 23:05:37,117 - MAIN - INFO - 🚀 系统初始化中...
+2025-12-16 23:05:37,117 - MAIN - INFO - 👂 启动监听进程...
+2025-12-16 23:05:37,117 - Listener - INFO - 🎧 正在启动监听... 有效目标源: 1 个
+2025-12-16 23:05:37,134 - telethon.network.mtprotosender - INFO - Connecting to 149.154.167.51:443/TcpFull...
+2025-12-16 23:05:37,135 - Commander - INFO - 🤖 Commander 已启动 (Admin ID: 7230042939)
+2025-12-16 23:05:37,370 - aiogram.dispatcher - INFO - Start polling
+2025-12-16 23:05:37,459 - aiogram.dispatcher - INFO - Run polling for bot @Strategie37242_bot id=8549679187 - '金狗信号分析策略'
+2025-12-16 23:05:38,513 - telethon.network.mtprotosender - INFO - Connection to 149.154.167.51:443/TcpFull complete!
+2025-12-16 23:07:46,505 - Listener - ERROR - ❌ Telegram 登录失败: 
+2025-12-16 23:07:46,505 - MAIN - INFO - 🧹 正在清理资源...
+2025-12-16 23:07:47,526 - aiogram.dispatcher - ERROR - Failed to fetch updates - TelegramNetworkError: HTTP Client says - Request timeout error
+2025-12-16 23:07:47,526 - aiogram.dispatcher - WARNING - Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8549679187)
+2025-12-16 23:07:47,526 - aiogram.dispatcher - INFO - Polling stopped
+2025-12-16 23:07:58,773 - aiogram.dispatcher - INFO - Connection established (tryings = 1, bot id = 8549679187)
+2025-12-16 23:08:54,486 - asyncio - ERROR - Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x000002A04952FD50>
+2025-12-16 23:08:54,486 - asyncio - ERROR - Task was destroyed but it is pending!
+task: <Task cancelling name='Task-8' coro=<Dispatcher._polling() running at C:\Users\DELL\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\aiogram\dispatcher\dispatcher.py:345> wait_for=<Future pending cb=[Task.task_wakeup()]> cb=[gather.<locals>._done_callback() at C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\tasks.py:764]>
+2025-12-16 23:08:54,487 - aiogram.dispatcher - INFO - Polling stopped for bot @Strategie37242_bot id=8549679187 - '金狗信号分析策略'
+2025-12-16 23:39:17,372 - MAIN - INFO - 🚀 系统初始化中...
+2025-12-16 23:39:17,372 - MAIN - INFO - 👂 启动监听进程...
+2025-12-16 23:39:17,373 - Listener - INFO - 🎧 正在启动监听... 有效目标源: 1 个
+2025-12-16 23:39:17,373 - telethon.network.mtprotosender - INFO - Connecting to 149.154.167.51:443/TcpFull...
+2025-12-16 23:39:17,373 - Commander - INFO - 🤖 Commander 已启动 (Admin ID: 7230042939)
+2025-12-16 23:39:17,410 - telethon.network.mtprotosender - INFO - Connection to 149.154.167.51:443/TcpFull complete!
+2025-12-16 23:39:17,524 - aiogram.dispatcher - INFO - Start polling
+2025-12-16 23:39:17,566 - aiogram.dispatcher - INFO - Run polling for bot @Strategie37242_bot id=8549679187 - '金狗信号分析策略'
+2025-12-16 23:39:17,746 - Listener - INFO - ✅ Telegram 登录成功: @🌚 (ID: 7230042939)
+2025-12-16 23:39:17,747 - Listener - INFO - 🚀 监听器正在运行... (Ctrl+C 停止)
+2025-12-16 23:39:50,801 - telethon.client.updates - INFO - Cannot get difference since the account is not logged in: AuthKeyUnregisteredError
+2025-12-16 23:39:50,802 - telethon.network.mtprotosender - INFO - Disconnecting from 149.154.167.51:443/TcpFull...
+2025-12-16 23:39:50,803 - telethon.network.mtprotosender - INFO - Disconnection from 149.154.167.51:443/TcpFull complete!
+2025-12-16 23:39:50,803 - telethon.network.mtprotosender - INFO - Not disconnecting (already have no connection)
+2025-12-16 23:39:50,820 - MAIN - ERROR - 🛑 严重错误: The key is not registered in the system (caused by GetDifferenceRequest)
+2025-12-16 23:39:50,820 - MAIN - INFO - 🧹 正在清理资源...
+2025-12-16 23:39:51,841 - aiogram.dispatcher - INFO - Polling stopped for bot @Strategie37242_bot id=8549679187 - '金狗信号分析策略'
+2025-12-16 23:39:51,841 - aiogram.dispatcher - INFO - Polling stopped

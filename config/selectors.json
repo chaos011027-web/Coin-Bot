@@ -1,0 +1,6 @@
+{
+"gmgn": {
+"smart_money": "div.smart-money-section span.value",
+"cluster_size": "div.cluster-ownership span.percent"
+}
+}
