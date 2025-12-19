@@ -21,3 +21,5 @@ def open_gmgn_link(ca: str):
 # 可选：用于手动测试
 if __name__ == "__main__":
     open_gmgn_link("DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263")
+
+hhd
