@@ -33,7 +33,7 @@ def open_gmgn_link(ca: str):
 
     try:
         # 建议用更常见的路径；如你确认 /sol/token 更快，也可改成 env 可配置
-        url = f"https://gmgn.ai/solana/token/{ca}"
+        url = f"https://gmgn.ai/sol/token/{ca}"
         webbrowser.open(url, new=2)
         logger.info(f"🌍 [浏览器] 已打开 GMGN: {url}")
     except Exception as e:
