@@ -3,43 +3,38 @@ import html
 import asyncio
 import os
 import math
-from typing import Optional, Any, Dict, Callable
+from typing import Optional, Any, Callable, Dict, Tuple, List
 
 from aiogram.enums import ParseMode
-from aiogram.types import FSInputFile
+from aiogram.types import FSInputFile, InputMediaPhoto
 from aiogram.exceptions import TelegramAPIError, TelegramBadRequest, TelegramRetryAfter
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram import Router
+refresh_router = Router()
 
 from modules.commander import bot
-from config.settings import REPORT_GROUP_ID
 
 from modules.score_engine import calc_score_breakdown
 from modules.strategy_engine import detect_strategy, render_strategy_plan
 from modules.stats_engine import stats_engine
-from modules.tp_tracker import tp_tracker
-from modules.performance_engine import performance_engine
 from modules.risk_engine import get_risk_level
+from modules.tp_tracker import tp_tracker
 
-# position_engine / position_manager 兼容
-try:
-    from modules.position_engine import calc_position_size
-except Exception:
-    from modules.position_manager import calc_position_size  # type: ignore
-
+from modules.position_engine import calc_position_size
 logger = logging.getLogger("Notifier")
 
-# Telegram 限制常数
 MAX_TEXT_LEN = 3800
 MAX_CAPTION_LEN = 950
 
+DEBOT_URL_TMPL = "https://debot.ai/sol/token/{ca}"
 
-# ===========================
-# 🛠️ 格式化工具
-# ===========================
+
 def _clip(s: str, max_len: int) -> str:
-    if not s:
-        return ""
-    return s if len(s) <= max_len else (s[: max_len - 3] + "...")
+    s = s or ""
+    if len(s) <= max_len:
+        return s
+    return s[: max_len - 12] + "\n...(truncated)"
+
 
 def _safe_float(x: Any) -> Optional[float]:
     try:
@@ -54,313 +49,489 @@ def _safe_float(x: Any) -> Optional[float]:
     except Exception:
         return None
 
-def format_number(num: Any) -> str:
-    n = _safe_float(num)
-    if n is None:
-        return "N/A"
-    if n == 0:
+
+def _fmt_num_compact(num):
+    try:
+        if num is None: return "0"
+        num = float(num)
+        if num >= 1_000_000_000:
+            return f"{num/1_000_000_000:.2f}B"
+        if num >= 1_000_000:
+            return f"{num/1_000_000:.1f}M"
+        if num >= 1_000:
+            return f"{num/1_000:.1f}K"
+        return f"{num:.1f}"
+    except:
         return "0"
-    abs_n = abs(n)
-    if abs_n >= 1_000_000_000:
-        return f"{n / 1_000_000_000:.2f}B"
-    if abs_n >= 1_000_000:
-        return f"{n / 1_000_000:.2f}M"
-    if abs_n >= 1_000:
-        return f"{n / 1_000:.1f}K"
-    return f"{n:,.0f}"
 
-def format_price(price: Any) -> str:
-    p = _safe_float(price)
-    if p is None:
-        return "-"
-    if p == 0:
+
+def _fmt_price_raw(v):
+    try:
+        if v is None: return "0"
+        x = float(v)
+        if x < 0.0001:
+            return f"{x:.8f}".rstrip("0")
+        return f"{x:.5f}"
+    except:
+        return "0"
+
+
+def _fmt_price_usd(v):
+    try:
+        if v is None: return "$0"
+        x = float(v)
+        if x < 0.0001:
+            return f"${x:.8f}".rstrip("0")
+        return f"${x:.5f}"
+    except:
         return "$0"
-    if p < 0.000001:
-        return f"${p:.10f}".rstrip("0")
-    if p < 0.001:
-        return f"${p:.8f}".rstrip("0")
-    if p < 1.0:
-        return f"${p:.5f}"
-    return f"${p:,.2f}"
-
-def _get_verdict_emoji(action: str, score: int, is_auto_push: bool) -> str:
-    if is_auto_push:
-        return "🚀"
-    action = (action or "").upper()
-    if action == "BUY":
-        return "🟢"
-    if action == "WATCH":
-        return "👀"
-    if score < 30:
-        return "🔴"
-    return "🟡"
 
 
-# ===========================
-# 🔘 Keyboard（按你的要求：去掉 Dex / Pump，只留 GMGN；也可直接 return None）
-# ===========================
-def _build_keyboard(ca: str):
-    if not ca:
-        return None
-    kb = InlineKeyboardBuilder()
-    kb.button(text="⚡ GMGN", url=f"https://gmgn.ai/sol/token/{ca}")
-    kb.adjust(1)
-    return kb
+def _yn_icon(v: Any) -> str:
+    if v is True: return "✅"
+    if v is False: return "❌"
+    return "❓"
 
 
-# ===========================
-# 🧩 渲染组件
-# ===========================
-def _render_gmgn_section(token_data: dict) -> str:
-    """
-    渲染 GMGN 链上结构（优先结构化字段；兼容旧 tags）
-    """
-    smart = int(token_data.get("gmgn_smart", 0) or 0)
-    kol = int(token_data.get("gmgn_kol", 0) or 0)
-    sniper = int(token_data.get("gmgn_sniper", 0) or 0)
-    degen = int(token_data.get("gmgn_degen", 0) or 0)
-    dev = int(token_data.get("gmgn_dev", 0) or 0)
-    rat = int(token_data.get("gmgn_rat", 0) or 0)
-    bundle = int(token_data.get("gmgn_bundle", 0) or 0)
-
-    # 没结构化数据则尝试 tags
-    if smart == 0 and kol == 0 and sniper == 0 and bundle == 0 and rat == 0 and degen == 0 and dev == 0:
-        tags = token_data.get("gmgn_tags", []) or []
-        if tags:
-            return f"🕵️‍♂️ <b>GMGN 标签:</b>\n{' | '.join(map(html.escape, map(str, tags)))}\n"
-        return ""
-
-    warn = " ⚠️" if (bundle >= 100 or sniper >= 50) else ""
-    return (
-        "🕵️‍♂️ <b>GMGN 深度扫描</b>\n"
-        f"Smart x{smart} | KOL x{kol} | Sniper x{sniper}\n"
-        f"Degen x{degen} | Rat x{rat} | Dev x{dev}\n"
-        f"Bundle x{bundle}{warn}\n"
-    )
-
-def _render_score_section(score_data: dict) -> str:
-    lines = ["📊 <b>评分拆解</b>"]
-    bd = score_data.get("breakdown", {}) or {}
-    for k, v in bd.items():
-        sign = "+" if v > 0 else ""
-        lines.append(f"- {html.escape(str(k))}: {sign}{v}")
-    lines.append(f"➡️ 综合得分: <b>{int(score_data.get('total', 0) or 0)} / 100</b>")
-    return "\n".join(lines) + "\n"
-
-def _render_strategy_section(strategy_id: str, pos_info: dict, strategy_tag: str) -> str:
-    if not pos_info:
-        return ""
-    plan = render_strategy_plan(strategy_id).strip()
-    return (
-        f"🎯 <b>策略:</b> {html.escape(strategy_tag)}\n"
-        f"{plan}\n"
-        f"📦 <b>仓位:</b> <b>{html.escape(pos_info.get('size','0%'))}</b>（{html.escape(pos_info.get('level','未知'))}）\n"
-        f"📝 逻辑: <i>{html.escape(pos_info.get('reason',''))}</i>\n"
-    )
-
-def _render_tracker_section(track_info: dict) -> str:
-    """
-    兼容：
-    - {"event": "TP1", "pnl": 25.0}
-    - {"should_push": True, ...}
-    - {"cur_pnl":..., "max_pnl":...}
-    """
-    if not track_info:
-        return ""
-
-    # TP/SL 事件（dict形式）
-    if isinstance(track_info, dict) and "event" in track_info:
-        event = str(track_info.get("event"))
-        pnl = _safe_float(track_info.get("pnl")) or 0.0
-        emoji = "🚀" if pnl > 0 else "🛑"
-        return f"{emoji} <b>触发 {html.escape(event)}:</b> PnL <b>{pnl:+.2f}%</b>\n"
-
-    # 自动推送触发提示（翻倍推送）
-    if track_info.get("should_push") is True:
-        return "🚀 <b>翻倍推送触发:</b> 已满足自动推送条件\n"
-
-    # 追踪浮盈
-    if "cur_pnl" in track_info or "max_pnl" in track_info:
-        cur = _safe_float(track_info.get("cur_pnl")) or 0.0
-        ath = _safe_float(track_info.get("max_pnl")) or 0.0
-        return f"📉 <b>当前浮盈:</b> {cur:+.1f}%（最高 {ath:+.1f}%）\n"
-
-    return ""
-
-def _render_performance_panel(strategy_id: str) -> str:
-    rep = performance_engine.get_report(strategy_id)
-    lines = ["📈 <b>策略回测面板</b>"]
-
-    for window in ("7d", "30d"):
-        r = rep.get(window)
-        if not r:
-            lines.append(f"- {window}: 无数据")
-            continue
-        risk = get_risk_level(r["win_rate"], r["r_ratio"])
-        lines.append(
-            f"- {window}: {risk['color']} {risk['level']} | 胜率 {r['win_rate']}% | R {r['r_ratio']} | 交易 {r['trades']}"
-        )
-
-    if performance_engine.should_eliminate(strategy_id):
-        lines.append("🧨 <b>建议:</b> 该策略30d表现过差，建议淘汰/降权。")
-
-    return "\n".join(lines) + "\n"
+def _int0(v: Any) -> int:
+    try:
+        return int(float(v))
+    except Exception:
+        return 0
 
 
-# ===========================
-# 🧱 组装最终消息（不同模式不同 UI）
-# ===========================
-def _build_message_text(ca: str, token_data: dict, decision: dict) -> str:
+def _get_token_avatar_payload(token_data: dict):
     token_data = token_data or {}
-    decision = decision or {}
-
-    # 模式判断：翻倍推送优先看 track_info.should_push
-    track_info = token_data.get("track_info", {}) or {}
-    is_auto_push = bool(track_info.get("should_push"))
-
-    score_data = calc_score_breakdown(token_data)
-    score_total = int(score_data.get("total", 0) or 0)
-
-    # 策略：若 main 没注入 strategy_id/pos_info，这里兜底自动计算
-    strategy_id = token_data.get("strategy_id") or detect_strategy(token_data)
-    strategy_tag = stats_engine.get_tag(strategy_id)
-    pos_info = token_data.get("pos_info") or calc_position_size(strategy_id)
-
-    # decision（AI 只作为补充）
-    ai_score = int(_safe_float(decision.get("score")) or 0)
-    action = (decision.get("action") or decision.get("verdict") or "PASS").upper()
-    reason = _clip(html.escape(decision.get("reason") or "无"), 500)
-
-    emoji = _get_verdict_emoji(action, score_total if score_total > 0 else ai_score, is_auto_push)
-
-    # 市场数据（优先 cap_usd）
-    price = format_price(token_data.get("price_usd"))
-    mcap = format_number(token_data.get("cap_usd") or token_data.get("mcap") or token_data.get("fdv"))
-    liq = format_number(token_data.get("liquidity_usd"))
-    vol = format_number(token_data.get("volume_h24"))
-
-    # 外部喊单（可选）
-    ext_pnl = _safe_float(token_data.get("external_pnl"))
-    pnl_line = f"📣 喊单涨幅: <b>+{ext_pnl:.1f}%</b>\n" if ext_pnl is not None else ""
-
-    # 标题：首次发现 vs 翻倍推送
-    if is_auto_push:
-        header = f"🚀 <b>翻倍推送</b> | Score: <b>{score_total}</b>"
-    else:
-        header = f"{emoji} <b>{action}</b> | Score: <b>{score_total}</b>"
-
-    gmgn_block = _render_gmgn_section(token_data)
-    score_block = _render_score_section(score_data)
-    strat_block = _render_strategy_section(strategy_id, pos_info, strategy_tag)
-    tracker_block = _render_tracker_section(track_info)
-    perf_block = _render_performance_panel(strategy_id)
-
-    # 你的“AI观点”保留，但降级为“AI补充”
-    return (
-        f"{header}\n"
-        f"<code>{html.escape(ca)}</code>\n"
-        f"━━━━━━━━━━━━━━\n"
-        f"💰 <b>{price}</b> | 📊 <b>{mcap}</b>\n"
-        f"💧 池子: {liq} | 📈 24h: {vol}\n\n"
-        f"{gmgn_block}"
-        f"{score_block}"
-        f"💡 <b>判断:</b> {html.escape(score_data.get('summary',''))}\n\n"
-        f"{strat_block}"
-        f"{pnl_line}"
-        f"{tracker_block}"
-        f"{perf_block}"
-        f"🤖 <b>AI补充:</b>\n"
-        f"<i>{reason}</i>\n"
-    )
-
-
-# ===========================
-# 🚀 发送逻辑（带重试）
-# ===========================
-async def _send_with_retry(send_factory: Callable[[], Any], attempts: int = 3):
-    for attempt in range(1, attempts + 1):
+    p = (token_data.get("token_image_path") or "").strip()
+    if p and os.path.exists(p):
         try:
-            return await send_factory()
-        except TelegramRetryAfter as e:
-            wait_s = int(getattr(e, "retry_after", 2) or 2)
-            logger.warning(f"⏱️ 限流等待 {wait_s}s (attempt {attempt}/{attempts})")
-            await asyncio.sleep(wait_s)
-        except TelegramBadRequest as e:
-            logger.error(f"❌ 请求格式错误: {e}")
-            raise
-        except TelegramAPIError as e:
-            logger.error(f"❌ TelegramAPIError: {e}")
-            await asyncio.sleep(1)
-        except Exception as e:
-            logger.exception(f"💥 发送异常: {e}")
-            await asyncio.sleep(1)
+            return FSInputFile(p)
+        except Exception:
+            pass
+    url = (token_data.get("token_image_url") or "").strip()
+    if url.startswith("http://") or url.startswith("https://"):
+        return url
     return None
 
 
-async def notify_user(ca: str, token_data: dict, visual_score: str, decision: dict):
+def _build_keyboard(ca: str):
+    try:
+        kb = InlineKeyboardBuilder()
+        ca_esc = html.escape(ca or "")
+        # 第一排：极具商业价值的深度 AI 分析入口
+        kb.button(text="🤖 深度 AI 矩阵分析", callback_data=f"deep_ai:{ca_esc}")
+        # 第二排：常规工具
+        kb.button(text="🤖 Debot", url=f"https://debot.ai/token/{ca_esc}")
+        kb.button(text="🔍 GMGN", url=f"https://gmgn.ai/sol/token/{ca_esc}")
+        # 第三排：刷新数据
+        kb.button(text="🔄 极速刷新", callback_data=f"refresh:{ca_esc}")
+        kb.adjust(1, 2, 1)
+        return kb
+    except Exception:
+        return None
+
+
+def _tp_sl_block(ca: str, token_data: dict) -> str:
+    ca = (ca or "").strip()
+    td = token_data or {}
+    pos = None
+    try:
+        pos = tp_tracker.data.get(ca)
+    except Exception:
+        pos = None
+
+    if not pos: return "" 
+
+    try: entry = float(pos.get("entry") or 0)
+    except: entry = 0.0
+    try: sl_price = float(pos.get("sl_price") or 0)
+    except: sl_price = 0.0
+
+    tp_targets = pos.get("tp_targets") or []
+    try: tp_hit = int(pos.get("tp_hit_index") or -1)
+    except: tp_hit = -1
+
+    status = str(pos.get("status") or "ACTIVE").upper()
+    strat = str(pos.get("strategy") or "UNKNOWN")
+
+    try: curr = float(td.get("price_usd") or td.get("priceUsd") or 0)
+    except: curr = 0.0
+
+    pnl_txt = "—"
+    if entry > 0 and curr > 0:
+        pnl = (curr - entry) / entry * 100.0
+        sign = "+" if pnl > 0 else ""
+        pnl_txt = f"{sign}{pnl:.2f}%"
+
+    tp_prices = []
+    for i, m in enumerate(tp_targets):
+        try:
+            mult = float(m)
+            if mult > 0 and entry > 0:
+                price_i = entry * mult
+                tag = "✅" if i <= tp_hit else "▫️"
+                tp_prices.append(f"{tag}TP{i+1}:{_fmt_price_usd(price_i)}")
+        except Exception:
+            continue
+
+    st_icon = "🟢" if status == "ACTIVE" else ("✅" if status == "WIN" else "🔴")
+    sl_tag = "🛡️SL"
+    if bool(pos.get("sl_moved_to_entry")):
+        sl_tag = "🛡️SL(保本)"
+
+    lines = []
+    lines.append(f"🎯 <b>追踪</b>：{st_icon} {status} | 策略: {strat}")
+    lines.append(f"• 成本: <b>{_fmt_price_usd(entry)}</b>  • PnL: <b>{pnl_txt}</b>")
+    lines.append(f"• {sl_tag}: <b>{_fmt_price_usd(sl_price)}</b>")
+    if tp_prices:
+        tp_line = "  ".join(tp_prices[:3]) 
+        lines.append(f"• {tp_line}")
+    return "\n".join(lines)
+
+
+# 保持原始标签原汁原味
+def _gmgn_grid_layout(token_data: dict) -> str:
+    def _c(key): return int(float(token_data.get(f"gmgn_{key}", 0) or 0))
+    smart = _c("smart")
+    kol = _c("kol")
+    blue = _c("blue_chip")
+    sniper = _c("sniper")
+    fish = _c("phishing_wallets")
+    rat = _c("rat")
+    dev = _c("dev")
+    bundle = _c("bundle")
+    
+    line1 = f"🧠 x{smart} | 💎 x{blue} | 👨‍💻 x{kol}"
+    line2 = f"🎣 x{fish} | 🐀 x{rat} | 🔫 x{sniper}"
+    line3 = f"📦 <b>Bundler: x{bundle}</b> | 👨‍🔧 <b>Dev: x{dev}</b>"
+    return f"{line1}\n{line2}\n{line3}"
+
+
+def _safety_verdict_block(token_data: dict) -> str:
+    mint = token_data.get("mint_authority_present") 
+    freeze = token_data.get("freeze_authority_present")
+    dex_paid = token_data.get("dex_paid")
+    top10_str = str(token_data.get("top10_ratio", "0")).replace("%","")
+    try: top10 = float(top10_str)
+    except: top10 = 0
+    risks = []
+    if mint: risks.append("Mint未丢")
+    if freeze: risks.append("可冻结")
+    if top10 > 50: risks.append(f"Top10高({top10:.0f}%)")
+    if not risks: verdict = "🟢 <b>安全</b>"
+    elif len(risks) >= 2 or top10 > 70: verdict = f"🔴 <b>危险</b> ({','.join(risks)})"
+    else: verdict = f"🟡 <b>警告</b> ({','.join(risks)})"
+
+    def _yn(val, good_is_true=True):
+        if val is None: return "❓"
+        if good_is_true: return "✅" if val else "❌"
+        else: return "❌" if val else "✅"
+
+    burned = token_data.get("is_burned")
+    locked = token_data.get("is_locked") 
+    return (
+        f"🛡️ <b>基本面</b>: {verdict}\n"
+        f"• Mint: {_yn(mint, False)}  • Freeze: {_yn(freeze, False)}  • Top10: {top10:.1f}%\n"
+        f"• Dex付费: {_yn(dex_paid, True)}  • 烧池: {_yn(burned, True)}  • 锁定: {_yn(locked, True)}"
+    )
+
+
+def _pnl_tracking_block(token_data: dict) -> str:
+    baseline = token_data.get("baseline")
+    if not baseline or not isinstance(baseline, dict): return ""
+    cur = baseline.get("rel_change_pct", 0)
+    peak = baseline.get("peak_change_pct", 0)
+    def _clr(v): return f"+{v:.1f}%" if v >= 0 else f"{v:.1f}%"
+    return f"📉 <b>信号追踪</b> (自发现)\n• 当前: <b>{_clr(cur)}</b>  • 最高: <b>{_clr(peak)}</b>\n"
+
+
+# ==========================================
+# 🟢 核心重构：主卡片排版调整 (去价格，移位币龄和成交量)
+# ==========================================
+def _build_message_text(ca: str, token_data: dict, decision: dict, stage: str = "FAST") -> str:
+    td = token_data or {}
+    mcap = _fmt_num_compact(td.get("cap_usd", 0))
+    liq = _fmt_num_compact(td.get("liquidity_usd", 0))
+    vol = _fmt_num_compact(td.get("volume_h24", 0))
+    
+    def _chg(k): 
+        v = td.get(k)
+        if v is None: return "—"
+        try: 
+            val = float(v)
+            sign = "+" if val > 0 else ""
+            return f"{sign}{val:.0f}%"
+        except: return "—"
+
+    # 1. 顶部数据行：将币龄放在原价格位置
+    age = _int0(td.get("token_age_min", 0))
+    age_str = f"{age}m" if age < 60 else f"{age/60:.1f}h"
+    header_line = (
+        f"⏳ 龄: <b>{age_str}</b> | 📊 {mcap} | 💧 {liq}\n"
+        f"⏱️ 1m:<b>{_chg('chg_1m')}</b> | 5m:<b>{_chg('chg_5m')}</b> | 15m:<b>{_chg('chg_15m')}</b> | 30m:<b>{_chg('chg_30m')}</b>\n"
+        f"📈 1H:<b>{_chg('chg_1h')}</b> | 3H:<b>{_chg('chg_3h')}</b> | 6H:<b>{_chg('chg_6h')}</b> | 24H:<b>{_chg('chg_24h')}</b>"
+    )
+    
+    symbol = html.escape(td.get("symbol", "UNK"))
+    name = html.escape(td.get("name", ""))
+    
+    # 2. 子标题行：将成交量放至原币龄位置
+    bs_ratio = td.get("buy_sell_ratio", 0)
+    try: bs_val = float(bs_ratio)
+    except: bs_val = 0
+    bs_str = f"{bs_val:.1f}" if bs_val < 999 else "∞"
+    sub_header = f"💰 24H量: <b>{vol}</b>  •  ⚖️ 买卖比: <b>{bs_str}</b>"
+
+    lines = [
+        f"🪙 <b>{symbol}</b> ({name})",
+        f"<code>{ca}</code>",
+        "",
+        header_line,
+        sub_header, 
+        "",
+        _safety_verdict_block(td),
+        ""
+    ]
+    
+    tp_block = _tp_sl_block(ca, td)
+    if tp_block: 
+        lines.extend([tp_block, ""])
+    else:
+        pnl = _pnl_tracking_block(td)
+        if pnl: lines.extend([pnl, ""])
+    
+    if stage == "FAST":
+        lines.append("⏳ <b>正在进行深度扫描 (底层节点获取中)...</b>")
+    else:
+        lines.append("🧷 <b>地址标签深度扫描</b>")
+        lines.append(_gmgn_grid_layout(td))
+        lines.append("")
+        
+        # 主卡片保留一句极简 AI 建议
+        ai_reason = decision.get("reason", "")
+        if not ai_reason or len(ai_reason) < 3:
+            ai_reason = "数据不足或正在监控中，请留意价格异动。"
+        lines.append("🤖 <b>闪电 AI 评测</b>")
+        lines.append(f"• <b>结论</b>: {decision.get('verdict', 'WATCH')} ({html.escape(ai_reason)})")
+
+    return "\n".join(lines)
+
+
+# ==========================================
+# 🟢 专供盖楼使用的模版引擎
+# ==========================================
+def build_ai_report_text(ca: str, token_data: dict, decision: dict) -> str:
+    """生成深度 AI 矩阵分析副卡片"""
+    td = token_data or {}
+    symbol = html.escape(td.get("symbol", "UNK"))
+    lines = [
+        f"🧠 <b>【{symbol}】深度 AI 矩阵分析报告</b>",
+        f"<code>{ca}</code>",
+        "",
+        f"📜 <b>静态叙事基础</b>:\n{html.escape(decision.get('ai_narrative', '暂无'))}",
+        "",
+        f"🎨 <b>视觉基因诊断</b>:\n{html.escape(decision.get('ai_image_read', '暂无'))}",
+        "",
+        f"🎯 <b>即时操盘策略 ({decision.get('verdict', 'WATCH')})</b>:\n{html.escape(decision.get('reason', ''))}",
+        f"🟢 <b>入场纪律</b>: {html.escape(decision.get('ai_entry', ''))}",
+        f"🔴 <b>防守退场</b>: {html.escape(decision.get('ai_exit', ''))}"
+    ]
+    return "\n".join(lines)
+
+
+def build_milestone_text(ca: str, token_data: dict, decision: dict, multiplier: float) -> str:
+    """生成涨跌倍数战报副卡片"""
+    td = token_data or {}
+    symbol = html.escape(td.get("symbol", "UNK"))
+    # 虽然去掉了具体价格，但在暴涨战报中附带一个现价也许是好的，如果不需要，后续可随时调整
+    price = _fmt_price_raw(td.get("price_usd"))
+    mcap = _fmt_num_compact(td.get("cap_usd", 0))
+    lines = [
+        f"🚨 <b>【{symbol}】链上异动战报: {multiplier:.2f}X !</b>",
+        f"💰 极速现价: <b>${price}</b> | 📊 最新市值: <b>{mcap}</b>",
+        "",
+        f"🤖 <b>操盘手即时决断 ({decision.get('verdict', 'WATCH')})</b>:",
+        f"• {html.escape(decision.get('reason', ''))}",
+        f"• 建议: {html.escape(decision.get('ai_exit', ''))}"
+    ]
+    return "\n".join(lines)
+
+
+async def _send_with_retry(send_func: Callable[[], Any], max_retry: int = 3):
+    last_exc = None
+    for _ in range(max_retry):
+        try:
+            return await send_func()
+        except TelegramRetryAfter as e:
+            await asyncio.sleep(float(getattr(e, "retry_after", 2.0)) + 0.5)
+            last_exc = e
+        except TelegramAPIError as e:
+            last_exc = e
+            await asyncio.sleep(0.8)
+        except Exception as e:
+            last_exc = e
+            await asyncio.sleep(0.8)
+    if last_exc:
+        raise last_exc
+
+
+def _resolve_target_chat_id(token_data: dict) -> int:
+    rcid = token_data.get("reply_chat_id")
+    try:
+        if rcid is not None:
+            return int(rcid)
+    except Exception:
+        pass
+    from config.settings import ADMIN_CHAT_ID
+    return int(ADMIN_CHAT_ID)
+
+
+async def notify_user_fast(ca: str, token_data: dict) -> Optional[int]:
     token_data = token_data or {}
-    decision = decision or {}
-    target_chat_id = REPORT_GROUP_ID
+    target_chat_id = _resolve_target_chat_id(token_data)
 
-    message_text = _clip(_build_message_text(ca, token_data, decision), MAX_TEXT_LEN)
+    pending_decision = {
+        "score": 0,
+        "verdict": "WATCH",
+        "risk_flags": ["PENDING"],
+        "reason": "⏳ 深度分析进行中..."
+    }
 
+    text = _clip(_build_message_text(ca, token_data, pending_decision, stage="FAST"), MAX_TEXT_LEN)
     kb = _build_keyboard(ca)
     kb_markup = kb.as_markup() if kb else None
 
-    # 图片处理
-    photo_file = None
-    if isinstance(visual_score, str) and visual_score and os.path.exists(visual_score):
-        photo_file = FSInputFile(visual_score)
+    avatar_payload = _get_token_avatar_payload(token_data)
 
-    # A: 发图（caption不够则拆分）
-    if photo_file:
-        if len(message_text) <= MAX_CAPTION_LEN:
-            async def send_photo_direct():
-                return await bot.send_photo(
-                    chat_id=target_chat_id,
-                    photo=photo_file,
-                    caption=_clip(message_text, MAX_CAPTION_LEN),
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=kb_markup
-                )
-            try:
-                await _send_with_retry(send_photo_direct)
-                return
-            except TelegramBadRequest:
-                photo_file = None
-
-        short_caption = f"📊 <b>{html.escape(str(token_data.get('symbol','UNK')))}</b> 数据快照\n<code>{html.escape(ca)}</code>"
-
-        async def send_split():
-            await bot.send_photo(
+    if avatar_payload is not None:
+        async def send_photo():
+            return await bot.send_photo(
                 chat_id=target_chat_id,
-                photo=photo_file,
-                caption=_clip(short_caption, MAX_CAPTION_LEN),
-                parse_mode=ParseMode.HTML
-            )
-            await bot.send_message(
-                chat_id=target_chat_id,
-                text=_clip(message_text, MAX_TEXT_LEN),
+                photo=avatar_payload,
+                caption=_clip(text, MAX_CAPTION_LEN),
                 parse_mode=ParseMode.HTML,
-                disable_web_page_preview=True,
                 reply_markup=kb_markup
             )
-
+        msg = await _send_with_retry(send_photo)
         try:
-            await _send_with_retry(send_split)
-            return
-        except TelegramBadRequest:
-            photo_file = None
+            return int(getattr(msg, "message_id"))
+        except Exception:
+            return None
 
-    # B: 纯文本
     async def send_text():
         return await bot.send_message(
             chat_id=target_chat_id,
-            text=_clip(message_text, MAX_TEXT_LEN),
+            text=_clip(text, MAX_TEXT_LEN),
             parse_mode=ParseMode.HTML,
             disable_web_page_preview=True,
             reply_markup=kb_markup
         )
 
-    await _send_with_retry(send_text)
+    msg = await _send_with_retry(send_text)
+    try:
+        return int(getattr(msg, "message_id"))
+    except Exception:
+        return None
 
+
+async def update_user_message(chat_id: int, message_id: int, ca: str, token_data: dict, decision: dict) -> bool:
+    token_data = token_data or {}
+    decision = decision or {}
+    text = _clip(_build_message_text(ca, token_data, decision, stage="DEEP"), MAX_TEXT_LEN)
+
+    kb = _build_keyboard(ca)
+    kb_markup = kb.as_markup() if kb else None
+
+    avatar_payload = _get_token_avatar_payload(token_data)
+
+    if avatar_payload and isinstance(avatar_payload, FSInputFile):
+        for _ in range(2):
+            try:
+                await bot.edit_message_media(
+                    media=InputMediaPhoto(media=avatar_payload, caption=_clip(text, MAX_CAPTION_LEN), parse_mode=ParseMode.HTML),
+                    chat_id=int(chat_id),
+                    message_id=int(message_id),
+                    reply_markup=kb_markup
+                )
+                return True
+            except TelegramBadRequest as e:
+                msg_str = str(e).lower()
+                if "message is not modified" in msg_str:
+                    return True
+                if "there is no media" in msg_str or "can't be edited" in msg_str:
+                    break
+                await asyncio.sleep(0.4)
+            except TelegramRetryAfter as e:
+                await asyncio.sleep(float(getattr(e, "retry_after", 2.0)) + 0.5)
+            except Exception:
+                await asyncio.sleep(0.4)
+
+    for _ in range(3):
+        try:
+            await bot.edit_message_caption(
+                chat_id=int(chat_id),
+                message_id=int(message_id),
+                caption=_clip(text, MAX_CAPTION_LEN),
+                parse_mode=ParseMode.HTML,
+                reply_markup=kb_markup
+            )
+            return True
+        except TelegramBadRequest as e:
+            msg = str(e).lower()
+            if "message is not modified" in msg:
+                return True
+            if "there is no caption" in msg or "message can't be edited" in msg:
+                break
+            await asyncio.sleep(0.4)
+        except TelegramRetryAfter as e:
+            await asyncio.sleep(float(getattr(e, "retry_after", 2.0)) + 0.5)
+        except Exception:
+            await asyncio.sleep(0.4)
+
+    for _ in range(3):
+        try:
+            await bot.edit_message_text(
+                chat_id=int(chat_id),
+                message_id=int(message_id),
+                text=_clip(text, MAX_TEXT_LEN),
+                parse_mode=ParseMode.HTML,
+                disable_web_page_preview=True,
+                reply_markup=kb_markup
+            )
+            return True
+        except TelegramBadRequest as e:
+            msg = str(e).lower()
+            if "message is not modified" in msg:
+                return True
+            await asyncio.sleep(0.4)
+        except TelegramRetryAfter as e:
+            await asyncio.sleep(float(getattr(e, "retry_after", 2.0)) + 0.5)
+        except Exception:
+            await asyncio.sleep(0.4)
+
+    return False
+
+
+# ==========================================
+# 🟢 核心重构：发送纯文字“盖楼”回复消息
+# ==========================================
+async def send_thread_reply(chat_id: int, reply_to_msg_id: int, text: str) -> Optional[int]:
+    """
+    发送盖楼回复消息（用于发送 AI 深度报告或战报，挂在原始主卡片下方）
+    """
+    try:
+        msg = await bot.send_message(
+            chat_id=int(chat_id),
+            text=_clip(text, MAX_TEXT_LEN),
+            parse_mode=ParseMode.HTML,
+            disable_web_page_preview=True,
+            reply_to_message_id=int(reply_to_msg_id)
+        )
+        return int(getattr(msg, "message_id"))
+    except Exception as e:
+        logger.error(f"❌ 盖楼回复发送失败: {e}")
+        return None
+
+
+async def notify_user(ca: str, token_data: dict, visual_score: Optional[str], decision: dict):
+    pass

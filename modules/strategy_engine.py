@@ -69,11 +69,11 @@ def detect_strategy(td: dict) -> Tuple[str, Dict[str, Any]]:
 
 def render_strategy_plan(strategy_id: str) -> str:
     cfg = STRATEGY_CONFIGS.get(strategy_id, STRATEGY_CONFIGS["MIXED"])
-    
+
     tps = cfg["tp_targets"]
-    tp_text = "\n".join([f"- TP{i+1}: +{int((tp-1)*100)}%" for i, tp in enumerate(tps)])
-    sl_text = f"- SL：-{int((1-cfg['sl_threshold'])*100)}%"
-    
+    tp_text = "\n".join([f"- 止盈{i+1}: +{int((tp-1)*100)}%" for i, tp in enumerate(tps)])
+    sl_text = f"- 止损：-{int((1-cfg['sl_threshold'])*100)}%"
+
     return (
         f"{cfg['emoji']} <b>策略类型：{cfg['name']}</b>\n"
         f"- 建议仓位: ≤ {cfg['pos_size']}\n"

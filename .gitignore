@@ -1,21 +1,25 @@
-# 敏感配置
+# 隐私配置与密钥
 .env
-config.json
+config.py
+
+# 虚拟环境
+venv/
+env/
 
 # Python 缓存
 __pycache__/
 *.pyc
 
-# 日志
+# 数据文件夹：忽略所有自动生成的图表、头像、缓存和日志
+data/charts/
+data/token_avatars/
+data/milestones/
+data/browser_profile/
 *.log
-logs/
+*.db
 
-# 数据与会话
-data/
-sessions/
-*.session
-*.session-journal
-
-# IDE 配置
-.vscode/
-.idea/
+# ⚠️ 仅仅保留以下核心状态文件和背景图（如果有的话）
+!data/my_bg.jpg
+!data/price_history.json
+!data/strategy_performance.json
+!data/tp_tracker.json

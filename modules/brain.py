@@ -1,9 +1,9 @@
 import os
 import re
 import json
-import time
-import asyncio
 import logging
+import asyncio
+import base64
 from typing import Any, Dict, List, Optional
 
 from openai import AsyncOpenAI
@@ -12,331 +12,562 @@ logger = logging.getLogger("Brain")
 
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 DEEPSEEK_BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+XAI_API_KEY = os.getenv("XAI_API_KEY")
 
-DEFAULT_DECISION = {
+DEFAULT_DECISION: Dict[str, Any] = {
     "score": 0,
     "verdict": "PASS",
     "risk_flags": ["AI_ERROR"],
-    "reason": "AI不可用或返回异常"
+    "reason": "AI不可用或返回异常",
+    "ai_entry": "",
+    "ai_exit": "",
+    "ai_narrative": "",
+    "ai_image_read": "",
 }
 
 ALLOWED_VERDICTS = {"BUY", "WATCH", "PASS"}
 
-# =========================================
-# 🧮 算法评分引擎 (硬指标计算)
-# =========================================
-def calc_algo_score(token_data: dict) -> dict:
+
+# ===========================
+# Algo Scoring (fallback)
+# ===========================
+def _to_int(x: Any) -> int:
+    try:
+        return int(float(x))
+    except Exception:
+        return 0
+
+
+def _to_float(x: Any) -> float:
+    try:
+        if x is None or x == "":
+            return 0.0
+        if isinstance(x, str):
+            x = x.replace(",", "").strip()
+        v = float(x)
+        if v != v or v in (float("inf"), float("-inf")):
+            return 0.0
+        return v
+    except Exception:
+        return 0.0
+
+
+def calc_algo_score(token_data: dict) -> Dict[str, Any]:
     """
-    基于硬指标计算基准分，不依赖 AI。
-    返回: {"score": int, "details": str, "risk_flags": list}
+    只作为 AI 不可用时兜底：稳健 > 激进。
     """
-    score = 60  # 及格线起步
-    breakdown = []
-    risk_flags = []
+    td = token_data or {}
 
-    # 1. 标签解析
-    tags_list = token_data.get("gmgn_tags", [])
-    tags_str = " ".join(tags_list)
+    price = _to_float(td.get("price_usd") or td.get("priceUsd"))
+    mcap = _to_float(td.get("cap_usd") or td.get("mcap") or td.get("fdv"))
+    liq = _to_float(td.get("liquidity_usd"))
+    vol = _to_float(td.get("volume_h24"))
 
-    def get_tag_count(keywords):
-        kw_pattern = "|".join([re.escape(k) for k in keywords])
-        match = re.search(f"(?:{kw_pattern}).*?(\d+)", tags_str, re.IGNORECASE)
-        return int(match.group(1)) if match else 0
+    sniper = _to_int(td.get("gmgn_sniper"))
+    rat = _to_int(td.get("gmgn_rat"))
+    bundle = _to_int(td.get("gmgn_bundle"))
+    smart = _to_int(td.get("gmgn_smart"))
+    dev = _to_int(td.get("gmgn_dev"))
 
-    smart_count = get_tag_count(["Smart Money", "聪明钱", "Smart"])
-    rat_count = get_tag_count(["Rat", "老鼠仓"])
-    sniper_count = get_tag_count(["Sniper", "狙击手"])
-    
-    # 2. 市场基本面
-    mcap = float(token_data.get("mcap") or token_data.get("fdv") or 0)
-    liq = float(token_data.get("liquidity_usd", 0) or 0)
+    top10_ratio = td.get("top10_ratio")
+    mint_present = td.get("mint_authority_present")
+    freeze_present = td.get("freeze_authority_present")
+    non_honeypot = td.get("non_honeypot")
+    liq_locked = td.get("liquidity_locked")
+    dex_paid = td.get("dex_paid")
 
-    if mcap < 5_000:
-        score -= 20
-        breakdown.append("市值过低")
-        risk_flags.append("LOW_MCAP")
-    elif 5_000 <= mcap < 100_000:
-        score += 10
-        breakdown.append("早期红利")
-    
-    if liq > 0 and mcap > 0:
-        ratio = liq / mcap
-        if ratio < 0.05: 
-            score -= 15
-            breakdown.append("池子太薄")
-            risk_flags.append("THIN_LIQ")
+    score = 50
+    risks: List[str] = []
+    details: List[str] = []
 
-    # 3. 筹码分布 (Top 10)
-    top10_str = str(token_data.get("top10_ratio", "0")).replace("%", "")
-    try: top10 = float(top10_str)
-    except: top10 = 0
+    try:
+        t10 = float(str(top10_ratio).replace("%", "")) if top10_ratio is not None else None
+    except Exception:
+        t10 = None
 
-    if top10 > 50:
-        score -= 30
-        breakdown.append(f"Top10控盘{top10}%")
-        risk_flags.append("HIGH_CONCENTRATION")
-    elif 0 < top10 < 15:
-        score += 5
-        breakdown.append("筹码分散")
+    if t10 is not None:
+        if t10 >= 60:
+            score -= 25
+            risks.append("TOP10_60")
+            details.append(f"Top10 {t10:.1f}%")
+        elif t10 >= 50:
+            score -= 12
+            risks.append("TOP10_50")
+            details.append(f"Top10 {t10:.1f}%")
+        else:
+            score += 4
+            details.append(f"Top10 {t10:.1f}%")
 
-    # 4. GMGN 链上行为 (核心加分项)
-    if smart_count > 0:
-        pts = min(20, smart_count * 2)
-        score += pts
-        breakdown.append(f"聪明钱x{smart_count}")
-    
-    if rat_count > 0:
-        penalty = rat_count * 10
-        score -= penalty
-        breakdown.append(f"老鼠仓x{rat_count}")
-        risk_flags.append("RAT_FARM")
+    if mint_present is True:
+        score -= 10
+        risks.append("MINT_ON")
+        details.append("Mint未丢弃")
+    elif mint_present is False:
+        score += 3
+        details.append("Mint已丢弃")
 
-    # 5. 交易动能
-    vol = float(token_data.get("volume_h24", 0) or 0)
-    if vol > liq * 5:
-        score += 5
-        breakdown.append("超高换手")
+    if freeze_present is True:
+        score -= 10
+        risks.append("FREEZE_ON")
+        details.append("Freeze未丢弃")
+    elif freeze_present is False:
+        score += 3
+        details.append("Freeze已丢弃")
+
+    if non_honeypot is False:
+        score -= 18
+        risks.append("HONEY")
+        details.append("疑似貔貅")
+    elif non_honeypot is True:
+        score += 2
+        details.append("非貔貅")
+
+    if liq_locked is True:
+        score += 3
+        details.append("流动性锁定")
+    elif liq_locked is False:
+        score -= 4
+        risks.append("NO_LOCK")
+        details.append("未锁定")
+
+    if dex_paid is True:
+        score += 2
+        details.append("Dex付费")
+    elif dex_paid is False:
+        score -= 1
+        details.append("Dex未付费")
+
+    if mcap > 0 and mcap < 5_000_000:
+        score += 4
+        details.append("小市值")
+    if liq > 0 and liq < 5_000:
+        score -= 8
+        risks.append("LOW_LIQ")
+        details.append("流动性偏低")
+    if vol > 0 and liq > 0 and (vol / max(liq, 1)) > 5:
+        score += 3
+        details.append("成交活跃")
+
+    if sniper >= 20:
+        score -= 8
+        risks.append("SNIPER")
+        details.append(f"狙击{sniper}")
+    if rat >= 10:
+        score -= 12
+        risks.append("RAT")
+        details.append(f"老鼠仓{rat}")
+    if bundle >= 10:
+        score -= 8
+        risks.append("BUNDLE")
+        details.append(f"捆绑{bundle}")
+    if dev >= 1:
+        score -= 4
+        risks.append("DEV_TAG")
+        details.append(f"Dev标签{dev}")
+    if smart >= 5:
+        score += 2
+        details.append(f"聪明钱{smart}")
 
     score = max(0, min(100, int(score)))
-    
+    if not risks:
+        risks = ["NONE"]
     return {
         "score": score,
-        "details": ", ".join(breakdown) if breakdown else "无明显特征",
-        "risk_flags": risk_flags
+        "risk_flags": risks,
+        "details": "；".join(details[:8]) if details else "—"
     }
 
 
+# ===========================
+# Brain (AI 矩阵架构)
+# ===========================
 class Brain:
-    def __init__(
-        self,
-        model: str = "deepseek-chat",
-        temperature: float = 0.6, # 稍微降低随机性，让它更听话
-        max_tokens: int = 256,
-        timeout_sec: float = 25.0,
-        max_retries: int = 2,
-        concurrency: int = 5,
-    ):
-        self.model = model
-        self.temperature = temperature
-        self.max_tokens = max_tokens
-        self.timeout_sec = timeout_sec
-        self.max_retries = max_retries
-        self._sem = asyncio.Semaphore(concurrency)
+    def __init__(self):
+        self.client: Optional[AsyncOpenAI] = None
+        self.oai_client: Optional[AsyncOpenAI] = None
+        self.xai_client: Optional[AsyncOpenAI] = None
+        
+        if DEEPSEEK_API_KEY:
+            try:
+                self.client = AsyncOpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_BASE_URL)
+                logger.info("✅ DeepSeek 董事长已就位")
+            except Exception as e:
+                logger.error(f"❌ DeepSeek 初始化失败: {e}")
 
-        if not DEEPSEEK_API_KEY:
-            logger.error("❌ 未找到 DEEPSEEK_API_KEY，AI 模块将降级为纯算法模式！")
-            self.client = None
-        else:
-            self.client = AsyncOpenAI(
-                api_key=DEEPSEEK_API_KEY,
-                base_url=DEEPSEEK_BASE_URL
-            )
+        if OPENAI_API_KEY:
+            try:
+                self.oai_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+                logger.info("✅ OpenAI 视觉分析师已就位")
+            except Exception:
+                pass
+                
+        if XAI_API_KEY:
+            try:
+                self.xai_client = AsyncOpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
+                logger.info("✅ Grok 情报局长已就位")
+            except Exception:
+                pass
 
-    # -------------------------
-    # Helpers
-    # -------------------------
-    def _safe_str(self, s: Any, max_len: int = 60) -> str:
-        if s is None: return ""
-        s = str(s)
-        s = re.sub(r"[\x00-\x1f\x7f]", " ", s)
-        s = s.strip()
-        if len(s) > max_len: s = s[:max_len] + "…"
-        return s
-
-    def _safe_num(self, v: Any) -> float:
-        try:
-            if v is None: return 0.0
-            x = float(v)
-            if x != x or x == float("inf") or x == float("-inf"): return 0.0
-            return x
-        except: return 0.0
-
-    def _strip_code_fences(self, text: str) -> str:
-        text = re.sub(r"```(?:json)?\s*", "", text, flags=re.IGNORECASE)
-        text = re.sub(r"\s*```", "", text)
-        return text.strip()
+    def _safe_str(self, x: Any, n: int = 160) -> str:
+        s = "" if x is None else str(x)
+        s = s.replace("\u0000", "").strip()
+        return s[:n] if len(s) > n else s
 
     def _extract_outer_json_object(self, text: str) -> Optional[str]:
-        if not text: return None
-        text = self._strip_code_fences(text)
-        start = text.find("{")
-        if start == -1: return None
-        depth = 0
-        in_str = False
-        escape = False
-        for i in range(start, len(text)):
-            ch = text[i]
-            if in_str:
-                if escape: escape = False
-                elif ch == "\\": escape = True
-                elif ch == '"': in_str = False
-                continue
-            else:
-                if ch == '"': in_str = True; continue
-                if ch == "{": depth += 1
-                elif ch == "}":
-                    depth -= 1
-                    if depth == 0: return text[start:i + 1]
-        return None
+        if not text:
+            return None
+        text = text.strip()
+        text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+        text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
+        text = re.sub(r"\s*```$", "", text)
+        m = re.search(r"\{[\s\S]*\}", text)
+        return m.group(0) if m else None
 
     def _fix_common_json_issues(self, s: str) -> str:
-        if not s: return s
         s = s.strip()
-        s = re.sub(r"\bNaN\b", "0", s)
-        s = re.sub(r"\bInfinity\b", "0", s)
-        s = re.sub(r"\b-inf\b", "0", s, flags=re.IGNORECASE)
-        s = re.sub(r",\s*([}\]])", r"\1", s)
-        if s.count('"') < 2 and s.count("'") >= 4: s = s.replace("'", '"')
+        s = re.sub(r",\s*}", "}", s)
+        s = re.sub(r",\s*]", "]", s)
         return s
 
-    def _parse_decision(self, raw_text: str) -> Dict[str, Any]:
-        if not raw_text: return dict(DEFAULT_DECISION)
-        json_text = self._extract_outer_json_object(raw_text)
-        if not json_text:
-            logger.error(f"❌ AI 返回无 JSON：{raw_text}")
-            return dict(DEFAULT_DECISION)
-
-        json_text = self._fix_common_json_issues(json_text)
-
+    def _encode_image(self, image_path: str) -> str:
+        if not image_path or not os.path.exists(image_path):
+            return ""
         try:
-            obj = json.loads(json_text)
+            with open(image_path, "rb") as image_file:
+                return base64.b64encode(image_file.read()).decode('utf-8')
         except Exception:
-            logger.error(f"❌ JSON解析失败。raw={raw_text}")
-            return dict(DEFAULT_DECISION)
+            return ""
 
-        score = obj.get("score", 0)
-        verdict = obj.get("verdict", "PASS")
-        risk_flags = obj.get("risk_flags", [])
+    # ---------------------------
+    # 多模态子代理 (Sub-Agents)
+    # ---------------------------
+    async def _analyze_avatar(self, path: str, symbol: str) -> str:
+        if not self.oai_client or not path: return "未启用视觉或无头像"
+        img = self._encode_image(path)
+        if not img: return "头像读取失败"
+        try:
+            res = await self.oai_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": [
+                    {"type": "text", "text": f"代币{symbol}的头像，是一眼假的劣质图还是高质量/魔性原创图？用一句简短的话评价。"}, 
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img}"}}
+                ]}]
+            )
+            return res.choices[0].message.content
+        except Exception: return "头像分析报错"
+
+    async def _analyze_chart(self, path: str) -> str:
+        if not self.oai_client or not path: return "未启用视觉或无K线图"
+        img = self._encode_image(path)
+        if not img: return "K线截图读取失败"
+        try:
+            res = await self.oai_client.chat.completions.create(
+                model="gpt-4o",
+                messages=[{"role": "user", "content": [
+                    {"type": "text", "text": "作为顶级交易员，一句话分析这张DexK线图：处于拉升初盘、洗盘诱空还是典型的暴跌画门？"}, 
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img}"}}
+                ]}]
+            )
+            return res.choices[0].message.content
+        except Exception: return "K线分析报错"
+
+    async def _analyze_social(self, symbol: str) -> str:
+        if not self.xai_client: return "未启用 Grok"
+        try:
+            res = await self.xai_client.chat.completions.create(
+                model="grok-3-mini",
+                messages=[
+                    {"role": "system", "content": "你是最懂 Crypto X (推特) 文化的 Degen。"},
+                    {"role": "user", "content": f"代币名称: {symbol}。用一句极简的Crypto黑话评判它在推特可能的潜在热度或危险信号。"}
+                ]
+            )
+            return res.choices[0].message.content
+        except Exception: return "社交分析报错"
+
+    # ---------------------------
+    # JSON 兜底解析引擎
+    # ---------------------------
+    def _parse_decision(
+        self,
+        raw_text: str,
+        algo_score: int,
+        algo_verdict: str,
+        algo_risks: List[str],
+        algo_details: str
+    ) -> Dict[str, Any]:
+        if not raw_text:
+            return self._fallback_decision(algo_score, algo_verdict, algo_risks + ["AI_EMPTY"], f"AI空响应: {algo_details}")
+
+        js = self._extract_outer_json_object(raw_text)
+        if not js:
+            return self._fallback_decision(algo_score, algo_verdict, algo_risks + ["AI_NO_JSON"], f"AI无JSON: {algo_details}")
+
+        js = self._fix_common_json_issues(js)
+        try:
+            obj = json.loads(js)
+        except Exception:
+            return self._fallback_decision(algo_score, algo_verdict, algo_risks + ["AI_BAD_JSON"], f"JSON解析失败: {algo_details}")
+
+        score = obj.get("score", algo_score)
+        verdict = obj.get("verdict", algo_verdict)
+        risk_flags = obj.get("risk_flags", algo_risks)
         reason = obj.get("reason", "")
 
-        try: score = int(float(score))
-        except: score = 0
+        try:
+            score = int(float(score))
+        except Exception:
+            score = algo_score
         score = max(0, min(100, score))
 
         verdict = str(verdict).upper().strip()
-        if verdict not in ALLOWED_VERDICTS: verdict = "PASS"
+        if verdict not in ALLOWED_VERDICTS:
+            verdict = algo_verdict
 
-        if not isinstance(risk_flags, list): risk_flags = [str(risk_flags)]
-        risk_flags = [self._safe_str(x, 20).upper() for x in risk_flags if str(x).strip()]
-        if not risk_flags: risk_flags = ["NONE"]
-
-        reason = self._safe_str(reason, 100)
-        if not reason: reason = "信息不足"
+        if not isinstance(risk_flags, list):
+            risk_flags = [str(risk_flags)]
+        risk_flags = [self._safe_str(x, 24).upper() for x in risk_flags if str(x).strip()]
+        if not risk_flags:
+            risk_flags = algo_risks or ["NONE"]
 
         return {
             "score": score,
             "verdict": verdict,
             "risk_flags": risk_flags,
-            "reason": reason
+            "reason": self._safe_str(reason, 120) or "信息不足",
+            "ai_entry": self._safe_str(obj.get("ai_entry", ""), 220),
+            "ai_exit": self._safe_str(obj.get("ai_exit", ""), 220),
+            "ai_narrative": self._safe_str(obj.get("ai_narrative", ""), 240),
+            "ai_image_read": self._safe_str(obj.get("ai_image_read", ""), 240),
         }
 
-    async def _call_deepseek(self, system_prompt: str, user_prompt: str) -> str:
-        if not self.client: raise RuntimeError("No Client")
-        async with self._sem:
-            last_err = None
-            for attempt in range(self.max_retries + 1):
-                try:
-                    coro = self.client.chat.completions.create(
-                        model=self.model,
-                        messages=[
-                            {"role": "system", "content": system_prompt},
-                            {"role": "user", "content": user_prompt},
-                        ],
-                        temperature=self.temperature,
-                        max_tokens=self.max_tokens,
-                    )
-                    resp = await asyncio.wait_for(coro, timeout=self.timeout_sec)
-                    return resp.choices[0].message.content or ""
-                except asyncio.TimeoutError as e:
-                    last_err = e
-                    logger.warning(f"⏱️ AI超时 {attempt+1}")
-                except Exception as e:
-                    last_err = e
-                    msg = str(e).lower()
-                    retriable = any(x in msg for x in ["429", "rate", "timeout", "502", "503"])
-                    if not retriable: break
-                    if attempt < self.max_retries: await asyncio.sleep(1 * (2 ** attempt))
-            raise last_err or RuntimeError("DeepSeek failed")
+    def _fallback_decision(self, score: int, verdict: str, risks: List[str], reason: str) -> Dict[str, Any]:
+        d = dict(DEFAULT_DECISION)
+        d.update({
+            "score": score,
+            "verdict": verdict,
+            "risk_flags": risks,
+            "reason": reason,
+            "ai_entry": "数据或网络受限：建议观望，等待信号明确再操作。",
+            "ai_exit": "严格设置止损，避免剧烈波动带来的滑点亏损。",
+        })
+        return d
 
-    # -------------------------
-    # Public: analyze token
-    # -------------------------
-    async def analyze_token(self, token_data: dict) -> Dict[str, Any]:
-        """
-        混合分析模式：算法 + AI
-        """
-        token_data = token_data or {}
-        
-        # 1. 先跑算法 (硬指标兜底)
-        algo_result = calc_algo_score(token_data)
-        algo_score = algo_result["score"]
-        algo_details = algo_result["details"]
-        algo_risks = algo_result["risk_flags"]
-        
-        # 算法建议
-        algo_verdict = "BUY" if algo_score >= 80 else "WATCH" if algo_score >= 60 else "PASS"
-
-        # 如果没有 Client，直接返回算法结果
+    # =======================================================
+    # 🟢 核心重构：大模型路由引擎 (Model Routing)
+    # =======================================================
+    async def _call_reasoning_model(self, system_prompt: str, user_prompt: str) -> str:
+        """【左脑专用】调用带有思考过程的慢模型 (R1/o1)"""
         if not self.client:
-            return {
-                "score": algo_score,
-                "verdict": algo_verdict,
-                "risk_flags": algo_risks + ["NO_AI_KEY"],
-                "reason": f"AI未配置，基于算法: {algo_details}"
-            }
-
-        # 2. 准备数据给 AI
-        symbol = self._safe_str(token_data.get("symbol", "UNK"), 24)
-        name = self._safe_str(token_data.get("name", "Unknown"), 48)
-        mcap = self._safe_num(token_data.get("mcap", 0))
-        liq = self._safe_num(token_data.get("liquidity_usd", 0))
-        vol = self._safe_num(token_data.get("volume_h24", 0))
+            raise RuntimeError("No reasoning AI client available")
+            
+        combined_prompt = system_prompt + "\n\n" + user_prompt
+        # 自动读取 .env 配置，默认使用 deepseek-reasoner
+        model_name = os.getenv("DEEPSEEK_MODEL", "deepseek-reasoner")
         
-        # GMGN 数据
-        tags = ", ".join(token_data.get("gmgn_tags", [])) or "None"
-        top10 = token_data.get("top10_ratio", "Unknown")
-        avg_hold = token_data.get("avg_hold", "Unknown")
+        # 思考模型不支持 response_format="json_object"，必须普通调用
+        resp = await self.client.chat.completions.create(
+            model=model_name,
+            messages=[{"role": "user", "content": combined_prompt}]
+        )
+        try:
+            return resp.choices[0].message.content or ""
+        except Exception:
+            return ""
 
-        # 外部涨幅
-        ext_pnl = token_data.get("external_pnl")
-        pnl_context = f"Signal claims +{ext_pnl}%." if ext_pnl else "No signal pnl."
+    async def _call_fast_json_model(self, system_prompt: str, user_prompt: str) -> str:
+        """【右脑专用】强制调用极速模型，100% 确保输出干净的 JSON 且不超时"""
+        
+        # 1. 🥇 首选：如果有 OpenAI 钥匙，调用地表最稳最快的 gpt-4o-mini
+        if self.oai_client:
+            try:
+                resp = await self.oai_client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    response_format={"type": "json_object"}
+                )
+                return resp.choices[0].message.content or ""
+            except Exception as e:
+                logger.warning(f"⚠️ OpenAI 快模型调用失败，尝试回退 DeepSeek: {e}")
 
-        system_prompt = (
-            "You are a Solana Degen Analyst. "
-            "I have already calculated a base score using an algorithm. "
-            "Review the data, adjust the score if necessary, and output JSON."
+        # 2. 🥈 备选：如果只有 DeepSeek 钥匙，强行调用非思考版的 V3 (deepseek-chat)
+        if self.client:
+            try:
+                resp = await self.client.chat.completions.create(
+                    model="deepseek-chat",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    response_format={"type": "json_object"}
+                )
+                return resp.choices[0].message.content or ""
+            except Exception as e:
+                logger.error(f"❌ DeepSeek V3 快模型调用失败: {e}")
+                return ""
+                
+        raise RuntimeError("No fast AI client available")
+
+    # =======================================================
+    # 第一脑 (静态深度研究员) - 负责看图和解构文化
+    # =======================================================
+    async def analyze_static_narrative(self, token_data: dict, analytics: dict = None) -> Dict[str, str]:
+        token_data = token_data or {}
+        symbol = self._safe_str(token_data.get("symbol", "UNK"), 24)
+        name = self._safe_str(token_data.get("name", ""), 48)
+        avatar_path = token_data.get("token_image_path", "")
+        
+        av_res, so_res = await asyncio.gather(
+            self._analyze_avatar(avatar_path, symbol),
+            self._analyze_social(symbol)
         )
 
+        system_prompt = (
+            "你是一个无情且敏锐的 Crypto Web3 Meme 文化研究员。你的唯一目标是穿透表象，评估代币的‘纯叙事价值’和‘视觉传播力’。\n"
+            "【严格约束】：\n"
+            "1. 拒绝任何废话和免责声明。\n"
+            "2. 必须输出合法的纯JSON对象，绝对不要使用 ```json 等Markdown语法包裹，直接输出花括号 {} 及内部内容。\n"
+        )
+        
         user_prompt = (
             f"Token: {symbol} ({name})\n"
-            f"Mcap: ${mcap:.0f} | Liq: ${liq:.0f} | Vol: ${vol:.0f}\n"
-            f"GMGN: Tags=[{tags}] Top10={top10} AvgHold={avg_hold}\n"
-            f"Context: {pnl_context}\n\n"
-            f"🤖 Algo Analysis:\n"
-            f"- Base Score: {algo_score}/100\n"
-            f"- Logic: {algo_details}\n"
-            f"- Risks: {algo_risks}\n\n"
-            f"Task:\n"
-            f"1. Final Score (0-100). Trust Algo unless you see extra narrative/risk.\n"
-            f"2. Verdict: BUY / WATCH / PASS.\n"
-            f"3. Reason: Short Chinese summary (max 20 words).\n\n"
-            f"JSON Format:\n"
-            f'{{"score":85,"verdict":"BUY","risk_flags":["TAG"],"reason":"..."}}'
+            f"视觉部情报(头像): {av_res}\n"
+            f"社交部情报(推特): {so_res}\n\n"
+            "请基于以上碎片信息进行定性分析。若某项情报缺失，请直接指出“数据不足属于盲盒阶段”，禁止编造。\n\n"
+            "输出JSON字段严格遵循以下定义：\n"
+            "- ai_narrative：<=60字。必须点出它的IP原创度（是老IP仿盘还是新文化）、是否有Cult潜力、叙事生命周期预判。\n"
+            "- ai_image_read：<=40字。评价其视觉质量（是AI粗劣生成还是极具魔性/二创潜力的精美素材）。\n\n"
+            "【正确输出示例】：\n"
+            '{"ai_narrative": "典型的Pepe换皮仿盘，叙事极度疲软且同质化严重，无长期Cult潜力。","ai_image_read": "AI生成的廉价网图，缺乏视觉记忆点和二创空间。"}'
         )
 
         try:
-            raw = await self._call_deepseek(system_prompt, user_prompt)
-            decision = self._parse_decision(raw)
-            return decision
-
-        except Exception as e:
-            logger.error(f"❌ AI请求最终失败: {e}")
-            # 兜底：AI 挂了就用算法结果
+            # 🟢 左脑：调用慢速思考模型
+            raw = await self._call_reasoning_model(system_prompt, user_prompt)
+            js = self._extract_outer_json_object(raw)
+            js = self._fix_common_json_issues(js) if js else "{}"
+            obj = json.loads(js)
             return {
-                "score": algo_score,
-                "verdict": algo_verdict,
-                "risk_flags": algo_risks + ["AI_NET_ERR"],
-                "reason": f"AI超时，回退至算法评分: {algo_details}"
+                "ai_narrative": self._safe_str(obj.get("ai_narrative", "叙事未知"), 100),
+                "ai_image_read": self._safe_str(obj.get("ai_image_read", "视觉未知"), 100)
             }
+        except Exception as e:
+            logger.error(f"❌ 静态叙事分析失败: {e}")
+            return {"ai_narrative": "获取叙事失败", "ai_image_read": "获取视觉失败"}
+
+    # =======================================================
+    # 第二脑 (动态极速操盘手) - 负责瞬间计算盈亏比下指令
+    # =======================================================
+    async def analyze_dynamic_strategy(self, token_data: dict, terminal_states: dict = None, analytics: dict = None) -> Dict[str, Any]:
+        token_data = token_data or {}
+        terminal_states = terminal_states or {}
+        analytics = analytics or {}
+        
+        algo = calc_algo_score(token_data)
+        algo_score = int(algo["score"])
+        algo_risks = list(algo.get("risk_flags") or ["NONE"])
+        algo_verdict = "BUY" if algo_score >= 80 else "WATCH" if algo_score >= 60 else "PASS"
+
+        symbol = self._safe_str(token_data.get("symbol", "UNK"), 24)
+        price = _to_float(token_data.get("price_usd") or token_data.get("priceUsd"))
+        mcap = _to_float(token_data.get("cap_usd") or token_data.get("mcap") or token_data.get("fdv"))
+        liq = _to_float(token_data.get("liquidity_usd"))
+        
+        ai_narrative = terminal_states.get("ai_narrative", "无")
+        ai_image_read = terminal_states.get("ai_image_read", "无")
+        entry_price = _to_float(terminal_states.get("entry_price", 0))
+        
+        delta_str = ""
+        if entry_price > 0 and price > 0:
+            mult = price / entry_price
+            delta_str = f"当前价格倍数: {mult:.2f}X (相较于系统初始发现价格)"
+
+        smart = _to_int(token_data.get("gmgn_smart"))
+        sniper = _to_int(token_data.get("gmgn_sniper"))
+        rat = _to_int(token_data.get("gmgn_rat"))
+        is_burned = token_data.get("is_burned")
+        top10 = token_data.get("top10_ratio", "未知")
+
+        screenshot_path = analytics.get("screenshot", "")
+        ch_res = await self._analyze_chart(screenshot_path) if screenshot_path else "暂无最新K线图"
+
+        # 🟢 如果两个接口都没有，直接启动硬编码兜底
+        if not self.client and not self.oai_client:
+            res = self._fallback_decision(algo_score, algo_verdict, algo_risks + ["NO_AI"], "AI未配置，回退算法")
+            res.update({"ai_narrative": ai_narrative, "ai_image_read": ai_image_read})
+            return res
+
+        system_prompt = (
+            "你是华尔街级别的顶级加密货币短线高频交易员(Degen Sniper)。你冷血、客观，只看盈亏比、筹码结构和价格动量。\n"
+            "【操盘纪律】：\n"
+            "1. 你的建议必须具体的、带有明确触发条件的(If...Then...)。\n"
+            "2. 禁止说“建议观望”这种废话，要指出观望到什么指标出现才动手。\n"
+            "3. 必须输出合法的纯JSON对象，绝对不要使用 ```json 等Markdown语法包裹。\n"
+        )
+
+        user_prompt = (
+            f"【目标标的】: {symbol}\n"
+            f"【历史静态底牌】: 叙事内核: {ai_narrative} | 视觉基因: {ai_image_read}\n"
+            f"【最新盘面异动】: 当前市值: {mcap} USD | 流动性: {liq} USD | {delta_str}\n"
+            f"【筹码结构扫描】: 狙击手剩 {sniper} | 老鼠仓 {rat} | 聪明钱 {smart} | 前十总持仓 {top10} | 池子是否烧毁: {is_burned}\n"
+            f"【交易部即时扫描】: {ch_res}\n\n"
+            "请结合其【底牌】与当下的【筹码/盘面】，给出最冷酷的交易决策。\n\n"
+            "输出JSON字段严格遵循以下定义：\n"
+            "- score: 0-100的整数。\n"
+            "- verdict: 只能从 [BUY, WATCH, PASS] 中选一。\n"
+            "- risk_flags: 数组，包含1-3个英文简写风险标签。\n"
+            "- reason: 中文<=25字。给出做出该Verdict的一针见血的核心原因。\n"
+            "- ai_entry: 中文<=60字。极简入场条件。\n"
+            "- ai_exit: 中文<=60字。明确的止损条件和分批止盈策略。\n"
+        )
+
+        try:
+            # 🟢 右脑：强行路由至快模型 (gpt-4o-mini 或 deepseek-chat)
+            raw = await self._call_fast_json_model(system_prompt, user_prompt)
+            res = self._parse_decision(raw, algo_score, algo_verdict, algo_risks, "")
+            res["ai_narrative"] = ai_narrative
+            res["ai_image_read"] = ai_image_read
+            return res
+        except Exception as e:
+            logger.error(f"❌ 动态策略分析失败: {e}")
+            res = self._fallback_decision(algo_score, algo_verdict, algo_risks + ["AI_NET_ERR"], "AI网络异常")
+            res.update({"ai_narrative": ai_narrative, "ai_image_read": ai_image_read})
+            return res
+
+    # =======================================================
+    # 兼容旧版的统一入口
+    # =======================================================
+    async def analyze_token(self, *args, **kwargs) -> Dict[str, Any]:
+        ca = ""
+        token_data: dict = {}
+        analytics: Optional[dict] = None
+
+        if args:
+            if isinstance(args[0], dict):
+                token_data = args[0]
+            else:
+                ca = str(args[0] or "")
+                if len(args) >= 2 and isinstance(args[1], dict):
+                    token_data = args[1]
+                if len(args) >= 3 and isinstance(args[2], dict):
+                    analytics = args[2]
+
+        token_data = token_data or {}
+        analytics = analytics or kwargs.get("analytics") or {}
+        
+        static_res = await self.analyze_static_narrative(token_data, analytics)
+        
+        terminal_states = {
+            "ai_narrative": static_res.get("ai_narrative"),
+            "ai_image_read": static_res.get("ai_image_read"),
+            "entry_price": token_data.get("price_usd", 0)
+        }
+        
+        final_decision = await self.analyze_dynamic_strategy(token_data, terminal_states, analytics)
+        
+        return final_decision
 
 brain = Brain()

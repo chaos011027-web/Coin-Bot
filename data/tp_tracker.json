@@ -1,0 +1,4681 @@
+{
+  "FLRYgk1w9sQpMegKHTtRBGrmETLXEfcbQv8cqA2hpump": {
+    "strategy": "SNIPER_PLAY",
+    "entry": 3.498e-06,
+    "tp_targets": [
+      1.25,
+      1.5
+    ],
+    "sl_price": 3.07824e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1767097194.8806114
+  },
+  "GyViXBNE279XKRMJrio9jTgx3NjJbdqTUNfoUjKEpump": {
+    "strategy": "SNIPER_PLAY",
+    "entry": 3.907e-05,
+    "tp_targets": [
+      1.25,
+      1.5
+    ],
+    "sl_price": 3.4381599999999996e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1767097220.537685
+  },
+  "6efy5qr35QiYUU27ShFYoxTYz7vN783YfZWaZ2qA9ViP": {
+    "strategy": "MIXED",
+    "entry": 5.893e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 5.00905e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1767108413.667307
+  },
+  "5bg8JuCqT8c1Ckm2Zz9fTVtuhjfJbzroD1d4kER9pump": {
+    "strategy": "MIXED",
+    "entry": 1.009e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 8.5765e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1767108929.090809
+  },
+  "AHaMHC5Uxj5nt5c7j3G3QSitT5hmqR2KHTPqrZGQpump": {
+    "strategy": "MIXED",
+    "entry": 2.026e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.7221e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1767109084.910565
+  },
+  "GUm4HZXZPPm31mFTsJHwKrdoDgDoU3y6Nohg9tyCpump": {
+    "strategy": "MIXED",
+    "entry": 7.498e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 6.3733e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1767109288.1621947
+  },
+  "9xuYoyaX9rgW4T9yy2K3Nu1HQ9pysv8LHaVxEo64mNoz": {
+    "strategy": "MIXED",
+    "entry": 1.98e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.683e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1767110512.5774608
+  },
+  "9jJvCZo51mQoS3hW5UimD6iGuNzMor41fE4P3JPKpump": {
+    "strategy": "MIXED",
+    "entry": 2.477e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 2.1054499999999996e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1767110947.4487884
+  },
+  "Dxyp4vbxKeTuUvHSWuFgkxeaSKVFa1KsUEdRrmEqpump": {
+    "strategy": "MIXED",
+    "entry": 1.288e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.0948e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1768415433.5810897
+  },
+  "TVKv96p5SD93veeWTZzppv17r867ij6tmnDpUhZpump": {
+    "strategy": "MIXED",
+    "entry": 0.0009683,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 0.0008230549999999999,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1768415524.9444354
+  },
+  "ANrzpHbMZ3DDjxgTYw5KFygAVeV3P3fQyKnvJoFUpump": {
+    "strategy": "MIXED",
+    "entry": 1.401e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.19085e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1768416061.0766885
+  },
+  "GqNrch3w1vBXHH8GuZM3NqHiP2YWZS4Vjp483TzqC1TY": {
+    "strategy": "MIXED",
+    "entry": 2.123e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.80455e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1768416265.2563303
+  },
+  "Cx3cBd8Bfk8pLUwhTYXDi6udr2pKtJbBgev3RYt8TZav": {
+    "strategy": "MIXED",
+    "entry": 0.000108,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 9.18e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1768416524.45104
+  },
+  "DXWWPKipdFX6dKWcffQainPpGEYpb2PFs2Jzfz1Epump": {
+    "strategy": "MIXED",
+    "entry": 2.366e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 2.0111e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1768430334.7226017
+  },
+  "B3EpybJTxQDZjNHby8QofC7RTsW8VLzwtgXYtNewpump": {
+    "strategy": "MIXED",
+    "entry": 3.759e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.1951499999999994e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1768430616.974442
+  },
+  "vFQEmkRq35sC2FJcZnhdFjFEJD9mnWBGn9cz7pkpump": {
+    "strategy": "MIXED",
+    "entry": 1.542e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.3107e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1768430650.9739516
+  },
+  "CxfgV8ww7bCdjab6wX2jViqj8uZY4r8fS6Lfxpcfpump": {
+    "strategy": "MIXED",
+    "entry": 1.595e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.35575e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1768431227.535447
+  },
+  "Df94RdPLZEztsrADFFVPzZME4UY6Kq56bQAm2V8Epump": {
+    "strategy": "MIXED",
+    "entry": 1.481e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.25885e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1768431235.2876928
+  },
+  "Ak1SybNx3Z9mmonsqb62akkVbswT35kqH1sDtucapump": {
+    "strategy": "MIXED",
+    "entry": 1.647e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.3999499999999999e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1768431975.7789996
+  },
+  "2LM8m69TDVZTHeKL9rsFX39enVRxPm3B2YyHxoh3pump": {
+    "strategy": "MIXED",
+    "entry": 1.766e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.5010999999999999e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1768432003.559377
+  },
+  "2wKJFnA7Lq8Lj4ew8nUvH2xvvHgMA4siQjRDyqC3pump": {
+    "strategy": "MIXED",
+    "entry": 2.287e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.94395e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1768473974.7321815
+  },
+  "4vTFFQFWP298AbSUgXQJb12aQ3qJGjppUVyFBB2opump": {
+    "strategy": "MIXED",
+    "entry": 0.0001121,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 9.528499999999999e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1768473977.4687603
+  },
+  "GVT6GP22s27p6ghMnmxV2ftgQMk4fKG6pHbmtWmxpump": {
+    "strategy": "MIXED",
+    "entry": 1.017e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 8.644499999999998e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1768474200.3655558
+  },
+  "Fsbvy5Pijqf3EfjEWkMyqEmE8FgbGEJfWG29krBw7Xuy": {
+    "strategy": "MIXED",
+    "entry": 1.316e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.1186e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1768474330.3417377
+  },
+  "9mNtTjBgG1PqM2pRRgifKdmgssyu8DLSy4C8WUtMpump": {
+    "strategy": "MIXED",
+    "entry": 5.508e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 4.6818e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1768647106.6774654
+  },
+  "CsUvFrbEvHmHJpWyGjR9DtisdTpxc9GLj1smJSXDpump": {
+    "strategy": "MIXED",
+    "entry": 1.006e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 8.551e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1768653041.8368773,
+    "reply_chat_id": -1002809834135
+  },
+  "7NpZSmpszCDzARFaG2WjUUewaGweL749p2zy9bSEpump": {
+    "strategy": "MIXED",
+    "entry": 1.071e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 9.1035e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1768653113.6268184,
+    "reply_chat_id": -1002809834135
+  },
+  "96KSRgU3mbbpgFnrTnAWGA6XMXC163M9CpMAiso7pump": {
+    "strategy": "MIXED",
+    "entry": 4.095e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.48075e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1768681982.0536594,
+    "reply_chat_id": 7553100552
+  },
+  "6wUGYU16uBDF1kU1W4dwK1AkCzyh8tnR9z4B1tuupump": {
+    "strategy": "MIXED",
+    "entry": 4.194e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 4.194e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1768686400.992771,
+    "reply_chat_id": 7553100552,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "FWGCzb6nsohoEnkfE6UMpsx5rEZHeE7AK2Gda6oA4BBf": {
+    "strategy": "MIXED",
+    "entry": 0.0003114,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 0.00026469,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1768686505.3909032,
+    "reply_chat_id": 7553100552,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "AfVvZ58yVoyzs7ZUmgkGyZBYafLywaoAHwWhukPHpump": {
+    "strategy": "MIXED",
+    "entry": 4.326e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 4.326e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769036497.8742397,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "D3h6kriq1JFkUZA5pHJYT4H2VC3fSF87kGCNFFqrpump": {
+    "strategy": "MIXED",
+    "entry": 1.578e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.3413e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769036644.308965,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "HKWqwDuUYAJSsk7gUufDaDg5gaQqK7xx3mR8ygUspump": {
+    "strategy": "MIXED",
+    "entry": 1.07e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.07e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769037737.9078407,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "HYCpSiqq37SvxeDdyeE5ajFaM2PQCEUAbhkP32aupump": {
+    "strategy": "MIXED",
+    "entry": 1.394e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.1849e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769037905.9846835,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "42xnkvbkgbJuTuxGcBsccLRovVL3DfSPxSuFqcxHpump": {
+    "strategy": "MIXED",
+    "entry": 4.02e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.4169999999999996e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769070847.7808237,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false,
+    "baseline_price": 3.484e-06,
+    "peak_price": 3.484e-06,
+    "last_price": 3.484e-06,
+    "last_seen": 1769550644.1513994
+  },
+  "54VQtq8nnFHBQTcHED326BDnQSuUg5cs5Cezg6qNpump": {
+    "strategy": "MIXED",
+    "entry": 4.323e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.67455e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769070851.945906,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "Cq55Knvu6S4QcsWE11N4to5LgpwhvMxb66mjQYevpump": {
+    "strategy": "MIXED",
+    "entry": 4.252e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.6142e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769070855.261517,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false,
+    "baseline_price": 3.715e-06,
+    "peak_price": 3.715e-06,
+    "last_price": 3.425e-06,
+    "last_seen": 1769746722.6630054
+  },
+  "AufiGaAYoZgnLVBm7Nrhooz382DKW9Sc5pUx56Hupump": {
+    "strategy": "MIXED",
+    "entry": 3.659e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.1101499999999998e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769070855.7150886,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "MQbmhMD1UFTWRWhGdN4d4hZ2axxSMU5yyy4NYhJpump": {
+    "strategy": "MIXED",
+    "entry": 2.555e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 2.17175e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769070858.6844022,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false,
+    "baseline_price": 2.376e-06,
+    "peak_price": 2.439e-06,
+    "last_price": 2.439e-06,
+    "last_seen": 1769550637.3840733
+  },
+  "4fAD4XnhpuHhLdjMNi88ok571XR4EwHpmqke4jk1pump": {
+    "strategy": "MIXED",
+    "entry": 1.93e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.93e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769070858.9687388,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "8Jx8AAHj86wbQgUTjGuj6GTTL5Ps3cqxKRTvpaJApump": {
+    "strategy": "MIXED",
+    "entry": 0.002997,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 0.002997,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769070862.6719167,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "CPWXhAb9RSXYLwAtwh3DZoVZcCjHfmnEyFbbDYu1pump": {
+    "strategy": "MIXED",
+    "entry": 3.639e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.0931499999999998e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769070863.542066,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "73MRJww5MeMfPtVVcn1SFWQGeYVtc2xvuRioynw1pump": {
+    "strategy": "MIXED",
+    "entry": 0.0001385,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 0.0001385,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769070863.6040287,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "E5e49JBLbc6FEZb9CGaWTRbeA8UpzXThhzdxqierpump": {
+    "strategy": "MIXED",
+    "entry": 5.319e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 5.319e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769070866.1421363,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "D1TpdcXPJydQSjtEiC5BBeTZiPV5xMKM212qqDTgpump": {
+    "strategy": "MIXED",
+    "entry": 3.657e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.10845e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769070867.038573,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "8YTf8rhCw2HQ8hnmHNXQo61Asb3u8DerBN8wEHoWpump": {
+    "strategy": "MIXED",
+    "entry": 4.267e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.62695e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769070867.2408829,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "GX9EPAAWNrT4ian97vLXircZZYd4oZ7UEUqgVE19pump": {
+    "strategy": "MIXED",
+    "entry": 4.543e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.86155e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769070870.3417394,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "GbK7xpGjfZCRuMqcUHVwQB1QAntouKfWZWaJaXwxpump": {
+    "strategy": "MIXED",
+    "entry": 3.638e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.0923e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769070871.2716763,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "AmEXjtfXAc3nQa8ngqdPojrRAGNEzxRVmpFEXBmFpump": {
+    "strategy": "MIXED",
+    "entry": 3.652e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.1042e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769070871.4014587,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "BzMEoAM4tRePKL8j8Zfi6FcjvsA8sHtrmgsmTKDPpump": {
+    "strategy": "MIXED",
+    "entry": 2.551e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 2.16835e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769070874.010387,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "6ZpdJwpxsFWUnNqmG4wCZVJmbQbnaKCzGLGzqWZMpump": {
+    "strategy": "MIXED",
+    "entry": 1.55e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.3175e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769070875.251074,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "JRjHS7Xdzn966du6PVFeEagXL1RDPyQFkE9UJaKpump": {
+    "strategy": "MIXED",
+    "entry": 3.653e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.10505e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769070875.3931751,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "A3FRr6L1UXBYk4upnaDewYoCs3f6GqxBN2Lx5zaRpump": {
+    "strategy": "MIXED",
+    "entry": 4.547e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.86495e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769070878.5701418,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "2ttMu4UBsPNteQigUEYEnFUNPhucvUe7sM6w6Ngnpump": {
+    "strategy": "MIXED",
+    "entry": 5.306e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 4.510099999999999e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769070879.1384113,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "B1Uf11VwTzX1S7mv5Bxk4frGKfx4MYhKG2JxBqSjpump": {
+    "strategy": "MIXED",
+    "entry": 5.435e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 4.619749999999999e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769070882.8686152,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "BoxMZoguYcEnMr4pRouLCfPpqaKCaxwKA1YMYvgCpump": {
+    "strategy": "MIXED",
+    "entry": 3.725e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.16625e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769070883.0119886,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "8tgGBRJMboWLA3Rtc9fZYgQUUf4FZ2VhQhXd8574pump": {
+    "strategy": "MIXED",
+    "entry": 3.732e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.1722e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769070885.970596,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false,
+    "baseline_price": 3.504e-06,
+    "peak_price": 3.504e-06,
+    "last_price": 3.461e-06,
+    "last_seen": 1769730940.0060177
+  },
+  "6aaRxx22PzTSgEmXDn3VYwGVFbiRm6BNGUC2FDaepump": {
+    "strategy": "MIXED",
+    "entry": 4.185e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.5572499999999997e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769070886.5066955,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "GkvcyQdcM3DBKVzwgZajdvJMU3tQ6TxWqjBiKzqMpump": {
+    "strategy": "MIXED",
+    "entry": 3.849e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.27165e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769070889.5483153,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false,
+    "baseline_price": 3.48e-06,
+    "peak_price": 3.48e-06,
+    "last_price": 3.48e-06,
+    "last_seen": 1769550639.968142
+  },
+  "swDQNiFcEZN4LwyNuaKwfQPWZL4deJW7p4WLD36pump": {
+    "strategy": "MIXED",
+    "entry": 8.819e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 8.819e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769071771.5309653,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "HmaYAT16PiFfQuFpdtcuJCXsSSscaGs6KSzDSL98pump": {
+    "strategy": "MIXED",
+    "entry": 7.351e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 7.351e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769073849.5815094,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "6ek6RYJoArTAYKgAgtuEawqcaK1EHm8P8rp37DHApump": {
+    "strategy": "MIXED",
+    "entry": 1.042e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.042e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769074547.3324795,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "CmiJtMih5FoUNewdMFq89RbK1GRGvxZYNpXRr3x6pump": {
+    "strategy": "MIXED",
+    "entry": 1.005e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 8.5425e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769075718.9324303,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "GZwQZwhPLh3hWb3eub8gPWTWBRn2msTZQmxTauB7pump": {
+    "strategy": "MIXED",
+    "entry": 1.088e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.088e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769077896.0744393,
+    "reply_chat_id": -1002809834135,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "5sLoTa8u9PMKVq62BphsTYhUP3BhaALJ19g9Szepump": {
+    "strategy": "MIXED",
+    "entry": 1.237e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.237e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769079951.820234,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "Cy1tx3FTNCapX7iz3Md4qkKCa8M7QciaBi365ybmpump": {
+    "strategy": "MIXED",
+    "entry": 1.205e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.0242499999999999e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769081485.6077101,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "4HX5VSjszacfWKTGapVhNHKLjBzGQvZvni9qJE6Rpump": {
+    "strategy": "MIXED",
+    "entry": 1.532e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.532e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769083837.976258,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "A7gDCWse9WZuWGyHEp7dKf1B8WnxyhLth1SQQZZrpump": {
+    "strategy": "MIXED",
+    "entry": 1.036e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.036e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769085862.7595243,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "C2nBMSrdu6XhiUjctVTcV7eQZu9srqsnRJDPMizqpump": {
+    "strategy": "MIXED",
+    "entry": 1.081e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.081e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769087032.5276952,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "8PAsXrx991DPSEqbzZ6FeQurUjdZGNeEFwoBo7gmpump": {
+    "strategy": "MIXED",
+    "entry": 1.71e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.4534999999999999e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769087798.129675,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "B2AA3QMGpGnZUry9UKuRXygHrMHaJn1ZMYjh5ocDpump": {
+    "strategy": "MIXED",
+    "entry": 1.023e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 8.6955e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769088694.9372466,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "4QonzoF1T2ZYiG1hdC7xb1nyF1idTtJhogW8STGFpump": {
+    "strategy": "MIXED",
+    "entry": 6.221e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 5.28785e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769088714.5838637,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "29XphNuyCj7yEvARKPBEGPYDPUvJNL18C3ueh8Pcpump": {
+    "strategy": "MIXED",
+    "entry": 7.122e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 6.053699999999999e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769089247.644969,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "ij5usnodgYdaSZ9YxY83QuHhM79yfk5UdHvUXCppump": {
+    "strategy": "MIXED",
+    "entry": 6.675e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 6.675e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769090144.1303554,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "7hH3KvCmgVPQAQJ3hqdCkSKJ3XkL9efRiw3trqW4pump": {
+    "strategy": "MIXED",
+    "entry": 9.565e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 9.565e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769091037.3235338,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "9FM5VsiRvBhFoFKgtARBLAnACb52jvSvGQMB1TQUpump": {
+    "strategy": "MIXED",
+    "entry": 4.388e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.7298e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769111353.7754998,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "9hMD21XjGzBGAbb7rEKpGU3vKsYJxLbGDWDVb4mMpump": {
+    "strategy": "MIXED",
+    "entry": 1.731e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.731e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769111353.790016,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "5FRvBQKMBAoseZiNrwNqU6rK62TgdVLF4iufo8jQpump": {
+    "strategy": "MIXED",
+    "entry": 2.374e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 2.0178999999999998e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769111354.0266306,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "G9Mx9KUx1VXQfWsBvSpsnoBmu3Lk6HSr5ErwEStxpump": {
+    "strategy": "MIXED",
+    "entry": 9.584e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 8.1464e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769111356.5473514,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "7GMJvsKVkwAufRJaLG4aS5PPtTsNiw9vZnAiehKepump": {
+    "strategy": "MIXED",
+    "entry": 3.615e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.07275e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769111356.8531637,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "2jsw79kvPpCWxWc2YtXLpqiHXdgdeh9Ua6VwYcdqpump": {
+    "strategy": "MIXED",
+    "entry": 1.538e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.3072999999999998e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769111356.9848676,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "AcckRcu1TJaNQBewXA7GAcQJ8mQVFiW6nyCCkAbCpump": {
+    "strategy": "MIXED",
+    "entry": 3.833e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.25805e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769111359.687439,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false,
+    "baseline_price": 3.301e-06,
+    "peak_price": 3.301e-06,
+    "last_price": 3.301e-06,
+    "last_seen": 1769746765.066236
+  },
+  "H3bwAsTvUBHnhRkwdmG2HKWq5fZQrKFY2owpsG8Qpump": {
+    "strategy": "MIXED",
+    "entry": 4.399e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.7391499999999996e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769111359.847153,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false,
+    "baseline_price": 3.48e-06,
+    "peak_price": 3.48e-06,
+    "last_price": 3.48e-06,
+    "last_seen": 1769385216.8429537
+  },
+  "7yQndYK6KNLBCXp7HqonDXTxfodYmqzCPEsHpSGRpump": {
+    "strategy": "MIXED",
+    "entry": 1.349e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.14665e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769111362.459741,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "3VmGht3ZBGEQsFyopRCsWwhJixm7JvJcFURaXX9Ctood": {
+    "strategy": "MIXED",
+    "entry": 1.229e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.0446499999999999e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769111362.4786968,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "7YHcJj2RQW95NrLr7rfUf1msVkeXYombNiGgkttqpump": {
+    "strategy": "MIXED",
+    "entry": 3.653e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.10505e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769111362.7426984,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false,
+    "baseline_price": 3.331e-06,
+    "peak_price": 3.331e-06,
+    "last_price": 3.331e-06,
+    "last_seen": 1769418063.6416576
+  },
+  "DF8LdrS81wdnbXvbYMXa6pe7jAPdPAgVa8vPieYnpump": {
+    "strategy": "MIXED",
+    "entry": 1.219e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.03615e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769111365.684307,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "9R3gcMYuoNUnmyA7vHfhkweEgT1Yg8YH5dzTJAfapump": {
+    "strategy": "MIXED",
+    "entry": 3.908e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.3217999999999997e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769111365.8199282,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false,
+    "baseline_price": 3.583e-06,
+    "peak_price": 3.583e-06,
+    "last_price": 3.532e-06,
+    "last_seen": 1769550640.8050222
+  },
+  "7yoVMLWNwDgL8U4PtPADSq3wzb67KPpDLWsXw88Qpump": {
+    "strategy": "MIXED",
+    "entry": 3.672e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.1212e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769111368.191158,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false,
+    "baseline_price": 3.573e-06,
+    "peak_price": 3.573e-06,
+    "last_price": 2.337e-06,
+    "last_seen": 1771837568.1122258,
+    "last_milestone": 2337
+  },
+  "E4FPYUSr4s35ttu4PEpkr9oAS6BierYtQTvTs8V4pump": {
+    "strategy": "MIXED",
+    "entry": 3.631e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.08635e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769111371.2060156,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "2WnbKT7nZVA6Se3QrAcgka7ZtN3PbcRVxKZEYpNrP1bj": {
+    "strategy": "MIXED",
+    "entry": 0.0001115,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 9.4775e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769111371.6397045,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "2dPaZKNDASVt8XTTQPtC1an1rb7KXAQobWZByd5Tpump": {
+    "strategy": "MIXED",
+    "entry": 3.762e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.1977e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769111371.6806622,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false,
+    "baseline_price": 3.414e-06,
+    "peak_price": 3.414e-06,
+    "last_price": 3.414e-06,
+    "last_seen": 1769418064.6405096
+  },
+  "Ez6xwTpYYyoewmgSugTVEsyf6KBympvsbCykHAKBpump": {
+    "strategy": "MIXED",
+    "entry": 3.603e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.06255e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769111373.5710015,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false,
+    "baseline_price": 3.501e-06,
+    "peak_price": 3.501e-06,
+    "last_price": 3.501e-06,
+    "last_seen": 1769550641.6942945
+  },
+  "CkoyXjm9FXKsEE3PiJiDzQaRR55yzapQf2pKXktupump": {
+    "strategy": "MIXED",
+    "entry": 3.58e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.043e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769111373.9755976,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "E9ZUDkyCyUWSLvKBPRBCaEPmYDfNmECbQz8f6ntFpump": {
+    "strategy": "MIXED",
+    "entry": 3.529e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 2.99965e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769111374.5302417,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "3mkDGRdrEfSNja7d5aiwaY9Pwv1QgrPHRUBL2cvupump": {
+    "strategy": "MIXED",
+    "entry": 1.346e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.346e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769111376.9726539,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "5vTzVmJnoz4sfgu5ovbThooNg5E7EjL1cMPPDWpLpump": {
+    "strategy": "MIXED",
+    "entry": 5.187e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 4.4089499999999995e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769111383.257583,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "2h6EQ8oYnDQK4ppwHqR3JgmfRVpL4L6ga7AhaPnxpump": {
+    "strategy": "MIXED",
+    "entry": 0.0001734,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 0.0001734,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769111384.0093017,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "HpW4y8XUj7PK5npjbjwT7GH1J98ue7WjNB89xrhwpump": {
+    "strategy": "MIXED",
+    "entry": 1.196e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.196e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769111390.5115287,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "Cjsi6wxzuZCiphqjAZhQ7xoRRTrhyh5Rmrajybhtpump": {
+    "strategy": "MIXED",
+    "entry": 2.135e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.81475e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769111396.843095,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "CRDwxrGZNL5d13EkZPFDvQFKyNGj1dA5aTsJSRJrJ6rv": {
+    "strategy": "MIXED",
+    "entry": 7.747e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 6.58495e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769112065.071453,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "6uS7ymw64L1RGAYcDNpMqraV2vt8FxeWMs8aMWdRpump": {
+    "strategy": "MIXED",
+    "entry": 1.082e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.082e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769112230.9216847,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "CZstneJXFbDbsVKHgrGNEY4ZBbNnVa34deGb6wfypump": {
+    "strategy": "MIXED",
+    "entry": 1.917e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.917e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769114373.9915476,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "8kK2UT2yu5UwsjHvnHkRMeFrmdZGZGWboMbffiFwpump": {
+    "strategy": "MIXED",
+    "entry": 2.316e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 2.316e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769114808.612567,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "BzBjSn9pvuesDLoqqRQ57r6vuTQSwR4Q9guQ7ZHLpump": {
+    "strategy": "MIXED",
+    "entry": 9.239e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 7.853150000000001e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769115145.5388196,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "G8BoXYN4jEzi8AthKegUFw5AKdeC2CCQmpS7rMDhpump": {
+    "strategy": "MIXED",
+    "entry": 8.351e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 7.0983499999999996e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769115328.1565306,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "65dxb3XZpYxoduHjztLpiYrSaUufou69MPN1riapump": {
+    "strategy": "MIXED",
+    "entry": 1.181e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.00385e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769115554.6588051,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "DthcRHKY3qbknGpyxPY6ifUVTMNjYnZGptS6xwAKpump": {
+    "strategy": "MIXED",
+    "entry": 7.022e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 5.9687e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769296608.0613916,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "5HigqMe5mkCLNYXVGUeZbnAELs9myKMT4pfrBXh3pump": {
+    "strategy": "MIXED",
+    "entry": 1.744e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.4823999999999999e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769297041.2721083,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "9XfNCXEwiJDpB8XucKp3AUrrYryFFXKdLpoQpbgupump": {
+    "strategy": "MIXED",
+    "entry": 4.837e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 4.837e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769335236.5066698,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "9prG5LppJ91Z9W7Fzrs4XfmibHyuRQAVBPp762btpump": {
+    "strategy": "MIXED",
+    "entry": 5.238e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 5.238e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769335406.5183413,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "5r6Acw8ms9VkFeaxrnFE9sxbh5AA2CG1k4edZmpcpump": {
+    "strategy": "MIXED",
+    "entry": 0.0005624,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 0.00047804,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769335415.228826,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "EGyEUQEGqBfV3i7vPPjsKMkLniCoFUvmQ59vfbWhpump": {
+    "strategy": "MIXED",
+    "entry": 1.118e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 9.503e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769335627.6387177,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "He286Nnaek3HrpBrZppoaqUcaXxirVu37rvpmoYapump": {
+    "strategy": "MIXED",
+    "entry": 1.694e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.4399e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769335948.5415092,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "7qb8gyEKoNKdF6qndQUhzYkh6M8XcZHf8mf2kD8Jpump": {
+    "strategy": "MIXED",
+    "entry": 2.064e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 2.064e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769336104.948262,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "BRyQuJ8L9sEyxX2pgVBPkxP9catVDedzQ6sZef93pump": {
+    "strategy": "MIXED",
+    "entry": 6.166e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 6.166e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769336570.219038,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "6efGSVqEsCCDXJvnaWxcraN6rLSPNRV3wfHKG1ftpump": {
+    "strategy": "MIXED",
+    "entry": 9.874e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 9.874e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769336622.2177687,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "4SBqKyEyX5YKCwcydjBrfcbKjWeptZjUwCt8QPYipump": {
+    "strategy": "MIXED",
+    "entry": 2.572e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 2.1862000000000002e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769336722.8027444,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "3PKuH1rrYYReP9kkTba3KjrUxqEd2NDMV3Bp21vKpump": {
+    "strategy": "MIXED",
+    "entry": 1.377e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.377e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769338485.3812706,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "CUxzmqCEvP7GxhZULmuAy7zWRud41Q21QKa9VNtxpump": {
+    "strategy": "MIXED",
+    "entry": 2.317e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 2.317e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769339909.2558327,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "3LcVbPos3UG92YSgGaLWg8ypVq38Baissoxy7GKopump": {
+    "strategy": "MIXED",
+    "entry": 1.31e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.31e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769340673.0141177,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "9kpGAxasevc9Hr9xAKixWptTgCtLpCJ2szDeZCRepump": {
+    "strategy": "MIXED",
+    "entry": 1.029e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.029e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769341010.3760467,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "6N2jqyQD4uvxD6H8fHYh5hpHUt6K3RGNfYRCeoPx9tCy": {
+    "strategy": "MIXED",
+    "entry": 8.646e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 8.646e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769341542.149746,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "GD4AVovXheGdHAv4m3bnduCX6JJQSQETsPTBzZ2e7bg8": {
+    "strategy": "MIXED",
+    "entry": 1.149e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.149e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769342339.9628632,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "J5G3NtnXY4VyUtL3NwvPmBARHoqePc4KQ7NfQw4Kpump": {
+    "strategy": "MIXED",
+    "entry": 1.59e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.59e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769343816.3889651,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "FGFBvpyy2A3mBjnN1AEY18GzMVm8FEnXHToX8T87pump": {
+    "strategy": "MIXED",
+    "entry": 9.671e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 9.671e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769344490.2139468,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "FNmaCuMGX2gYiEaWBKmRUvTvugj1t4DhyEVdy2qEpump": {
+    "strategy": "MIXED",
+    "entry": 1.304e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.304e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769345445.8258438,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "Gq59s3FS26Pnm7HWbudm5C8so3xn8jmMtgzj1R2kpump": {
+    "strategy": "MIXED",
+    "entry": 1.188e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.188e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769345719.1828918,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "4BVfUxt4E8cQEEqBNdx59QUTRWEtmUgSqTyh2HRDpump": {
+    "strategy": "MIXED",
+    "entry": 6.088e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 6.088e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769346330.631124,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "8XHqoET7eCL3VaYYqcs5wLWYKKzSk4RZ1A1TjN1Gpump": {
+    "strategy": "MIXED",
+    "entry": 1.221e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.0378499999999999e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769346376.7181828,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "3sE1JpcrpyH6kCMwjWN44YW2DBccUWoHZAWE8pSCpump": {
+    "strategy": "MIXED",
+    "entry": 1.54e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.54e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769346842.8489082,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "4y78QCpaTq2Cpd3puzEpcPVbFzjjbfz1cw4Lav1Ypump": {
+    "strategy": "MIXED",
+    "entry": 1.483e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.483e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769347266.5217278,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "GTbWsjDBiAs7NtmqsaQZ4Qfwdnwhsf2HdMKTaha4pump": {
+    "strategy": "MIXED",
+    "entry": 0.0005317,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 0.000451945,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769347638.8892515,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "4YNJHFAfoekeLt6SQiD15Yaw2TspdqpVZAPfhn1fpump": {
+    "strategy": "MIXED",
+    "entry": 1.343e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.343e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769348345.1785495,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "EJzqpRPxgZZVoVVuCXuQBNXp7mQzeH6FENMfuLRbpump": {
+    "strategy": "MIXED",
+    "entry": 7.234e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 7.234e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769348497.4522202,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "Bg9rQE7hGSZJku3rc8xXruBZcftnDCcWzubQXviTRgKj": {
+    "strategy": "MIXED",
+    "entry": 8.511e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 8.511e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769349357.7983391,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "EiPkngsjTyr8A8UhnD8PQpDdosrKq7mTMsBuNngCpump": {
+    "strategy": "MIXED",
+    "entry": 1.517e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.28945e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769349805.3118787,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "3TQZvgpLdQaFYeDB36X74ddof7JeiAYsuPDLdeX3pump": {
+    "strategy": "MIXED",
+    "entry": 1.253e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.253e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769350193.4557173,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "92RjiEqPppkBKraRASu2cbydreXojxRqfkNb2wSzpump": {
+    "strategy": "MIXED",
+    "entry": 5.185e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 5.185e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769350601.318414,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "Gg6ALvLT3Lcj4d5FxfGWr9zsRiwyvvXbfqz5xEUApump": {
+    "strategy": "MIXED",
+    "entry": 1.276e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.276e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769351024.7907922,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "8SWrndXJDBFZVNahCGBbiKaGcn9Ngy7wf9vVmvjTpump": {
+    "strategy": "MIXED",
+    "entry": 1.51e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.51e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769351594.8919227,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "73Qcsc14BnEiV9otGVDRfcrjV3wLMZqsvquEsYzFpump": {
+    "strategy": "MIXED",
+    "entry": 7.912e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 7.912e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769352180.3594947,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "6wSWxeZfbbSusmkrYiRVFE74DTXDdWi4CARtaeVApump": {
+    "strategy": "MIXED",
+    "entry": 1.24e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.0539999999999999e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769354084.1489127,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "DRtYHSAy8jdFRmsuZBFR5GLRHbGEb9sC8iJ4QULdpump": {
+    "strategy": "MIXED",
+    "entry": 3.384e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.384e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769354087.906669,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "EojFTk19EbBt5Y7DfQA9nubfrnshNJo8ivUA5cKdpump": {
+    "strategy": "MIXED",
+    "entry": 2.757e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 2.757e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769354091.0443048,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "2zBQ8QjYXSGNv2rkE1n3avutFggpc9cD5Ss94Gfrpump": {
+    "strategy": "MIXED",
+    "entry": 4.121e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.50285e-06,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769354093.6872725,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false,
+    "baseline_price": 3.485e-06,
+    "peak_price": 3.485e-06,
+    "last_price": 3.485e-06,
+    "last_seen": 1769385218.9206145
+  },
+  "GXyqzhFvCJxVNxYhYWKJwRS3E4mWdzi9TD6nGP7vpump": {
+    "strategy": "MIXED",
+    "entry": 3.578e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 3.0413e-06,
+    "tp_hit_index": -1,
+    "status": "ACTIVE",
+    "start_time": 1769354093.8104274,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false,
+    "baseline_price": 3.315e-06,
+    "peak_price": 3.457e-06,
+    "last_price": 3.457e-06,
+    "last_seen": 1769550642.1969914
+  },
+  "Enom6hWHkqfyouaYz9puU5ptSMP68GMvXGW6JZ3Jpump": {
+    "strategy": "MIXED",
+    "entry": 1.956e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.956e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769354094.685494,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "6MSYm73pCGgBDbJ1uGeWau57hWAuN2QdhRESg9tXpump": {
+    "strategy": "MIXED",
+    "entry": 2.806e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 2.3851e-05,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769354100.1665857,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "8LfWdYxJ9mgu6myxSdfrzjVJsZeCNeCufwzTuRe1pump": {
+    "strategy": "MIXED",
+    "entry": 1.806e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.806e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769354908.3546388,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "Fn8UCBRMAAuK9ivmUv3Fzpxz4McnuqS8CKS15jQrpump": {
+    "strategy": "MIXED",
+    "entry": 1.477e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.477e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769355390.725899,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true,
+    "baseline_price": 0.0003358,
+    "peak_price": 0.0004747,
+    "last_price": 0.0004747,
+    "last_seen": 1769366029.369189
+  },
+  "7r9p5eLdbqFDJsrgwjwtVgqhbA9x4mKVA4nndexZpump": {
+    "strategy": "MIXED",
+    "entry": 4.264e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 4.264e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769355633.02715,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "DMZzavrjFpFidXkRuUBMybnAGu1XMf2Ztfv8LegJpump": {
+    "strategy": "MIXED",
+    "entry": 1.024e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.024e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769355861.3398259,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "9VKu3fhJki9N3MwwFB6huujpQahQ1vA3bykMzginpump": {
+    "strategy": "MIXED",
+    "entry": 1.235e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.235e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769356012.842965,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "GauiHWpsSNU8uvW3yNmr9V4j8JcFFKomyGJYiEuEpump": {
+    "strategy": "MIXED",
+    "entry": 1.194e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.194e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769356055.2567093,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "8CxPuDF9aeoxT3gwRrZrXM8YiQKkWvJPmEuYKPr3pump": {
+    "strategy": "MIXED",
+    "entry": 1.168e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.168e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769356775.2315106,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "7AbAdQjfjFQjbsEGrTM2oXCfeQe71pCyRwK32s92pump": {
+    "strategy": "MIXED",
+    "entry": 1.28e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.28e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769356780.483954,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "88jWqsLB1sUg6EotZtBjygF7eXRBBv1QRSddrLQkpump": {
+    "strategy": "MIXED",
+    "entry": 1.048e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.048e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769358055.0232418,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true,
+    "baseline_price": 3.301e-05,
+    "peak_price": 3.301e-05,
+    "last_price": 3.301e-05,
+    "last_seen": 1769363987.3968265
+  },
+  "J8bQYFkBLprCXyumvKA5sh6Ufb8W8aBugLU72eXMpump": {
+    "strategy": "MIXED",
+    "entry": 1.492e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.492e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769358159.0776896,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "E5yhvfJFzaxQrX26NCEYjyNzZt8WQzE3guwt9dTVpump": {
+    "strategy": "MIXED",
+    "entry": 1.323e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.323e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769359199.0286975,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "G1gq4McGUTn7ygkTWxwFS7Nv7oeyWdM2siVJLsiKpump": {
+    "strategy": "MIXED",
+    "entry": 1.717e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.717e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769359335.6105287,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "HzM9pbkzQsZ14duWhyC4VG1EcsWqyC58E167Vukpump": {
+    "strategy": "MIXED",
+    "entry": 1.488e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.488e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769359670.957876,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "7pHGc3hQD3dKzTAH2M5f7sGAiHgqmF44QsMgiDjTpump": {
+    "strategy": "MIXED",
+    "entry": 9.633e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 9.633e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769360085.6471388,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "BsubhQH6Es95aHdS47shqq2aabc7huwRSd9QvUSapump": {
+    "strategy": "MIXED",
+    "entry": 0.0001975,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 0.000167875,
+    "tp_hit_index": -1,
+    "status": "LOSS",
+    "start_time": 1769360345.4111273,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": false
+  },
+  "846E4cu8sidbPbQJizzM8WH5UMTgqx93kTqzhU1ipump": {
+    "strategy": "MIXED",
+    "entry": 7.721e-06,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 7.721e-06,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769360788.5046487,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "pS6n7k2s7SSVvu4f9Uf3PC8cxFB9WRD4zZ8ETvrpump": {
+    "strategy": "MIXED",
+    "entry": 1.347e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.347e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769360942.7786727,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "BQMfwyw8ZkLzNjEyQnrwMVuV8gCQ5TbQoo1sETAjpump": {
+    "strategy": "MIXED",
+    "entry": 1.077e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.077e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769361197.1367493,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "2prdiESKFMMZXBX87Z2aWxb2zD2ABcD665um1xYopump": {
+    "strategy": "MIXED",
+    "entry": 1.04e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.04e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769361823.9812975,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "4Uzhmky9HmGNaNQ3bGLJXgJSwp7bVMgNUxFXkBzdpump": {
+    "strategy": "MIXED",
+    "entry": 1.194e-05,
+    "tp_targets": [
+      1.3
+    ],
+    "sl_price": 1.194e-05,
+    "tp_hit_index": 0,
+    "status": "WIN",
+    "start_time": 1769361957.9288075,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": null,
+    "move_sl_to_entry_after_tp1": true,
+    "move_sl_buffer_pct": 0.0,
+    "sl_moved_to_entry": true
+  },
+  "p3wGjM9qoxnQ9BRL4mwvzbuFnbCzYxSz1pbCYgRpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769363902.0193162,
+    "baseline_price": 5.02e-05,
+    "peak_price": 7.337e-05,
+    "last_price": 7.337e-05,
+    "last_seen": 1769366186.535753
+  },
+  "92c57GeytDoioGURCJTmB7vMJPGxaDavu8K7G1TfcN5u": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769363980.7990363,
+    "baseline_price": 4.407e-05,
+    "peak_price": 4.407e-05,
+    "last_price": 4.407e-05,
+    "last_seen": 1769363980.7990363
+  },
+  "HNiiQpTS4v5B7J2GL4JtM43KEfR4ZXgaE1Kk4w61pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769364123.378315,
+    "baseline_price": 1.644e-05,
+    "peak_price": 1.644e-05,
+    "last_price": 1.644e-05,
+    "last_seen": 1769364123.378315
+  },
+  "Fy3NskRSSoKX8xovgGKNFCv96R6iRPW7ZiLRJHEopump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769365704.9045563,
+    "baseline_price": 1.266e-05,
+    "peak_price": 1.266e-05,
+    "last_price": 1.266e-05,
+    "last_seen": 1769365704.9045563
+  },
+  "AFHQpFRb8tk49rBt1HZfxGCruwprd55JdbhoiVBqpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769365878.0672498,
+    "baseline_price": 1.917e-05,
+    "peak_price": 2.908e-05,
+    "last_price": 2.908e-05,
+    "last_seen": 1769366011.39747
+  },
+  "9PD4nHFM9eQ9zKKqGKDGYLcgDzHLQdBUDxUci3adpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769366233.5866995,
+    "baseline_price": 1.129e-05,
+    "peak_price": 1.129e-05,
+    "last_price": 1.129e-05,
+    "last_seen": 1769366233.5866995
+  },
+  "Dd9LieN9QKyMiEYSmWt4CRJe2tafR3uVtB5fKmFipump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769366272.9395268,
+    "baseline_price": 1.939e-05,
+    "peak_price": 1.939e-05,
+    "last_price": 1.939e-05,
+    "last_seen": 1769366272.9395268
+  },
+  "AB3dgGHAmmfaKqRE4HHDC8QrDDg9hW9yocHLj5WZpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769385265.123015,
+    "baseline_price": 1.421e-05,
+    "peak_price": 1.766e-05,
+    "last_price": 1.766e-05,
+    "last_seen": 1769385419.5923328,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 784
+  },
+  "452vDZ5LgMAn8sswfkUB77jMZe1eWBaLnRQT7Qfkpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769385285.874836,
+    "baseline_price": 3.032e-05,
+    "peak_price": 3.032e-05,
+    "last_price": 3.032e-05,
+    "last_seen": 1769385285.874836,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 785
+  },
+  "4HcAMSTyDtLsxtcanR7aY8cHCqKkCq1SCWewKEXCpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769385475.8704643,
+    "baseline_price": 7.958e-05,
+    "peak_price": 7.958e-05,
+    "last_price": 7.958e-05,
+    "last_seen": 1769385475.8704643,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 790
+  },
+  "HpJ1uCypVkkBhiUm23Az4hrNrA55QGxKuH1m46K2pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769385567.7423596,
+    "baseline_price": 0.0003024,
+    "peak_price": 0.0003024,
+    "last_price": 0.0003024,
+    "last_seen": 1769385570.9220195,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 791
+  },
+  "9yUotsMTuGL3YJ2skB7obEw9qx2rKiJd6acFFNxNpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769417617.3485003,
+    "baseline_price": 3.473e-05,
+    "peak_price": 3.473e-05,
+    "last_price": 3.473e-05,
+    "last_seen": 1769417617.3485003,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 793
+  },
+  "8CXHD15H3rNAudY3rmfGdxs6Adj4JqarnT5XczVqpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769417850.4672608,
+    "baseline_price": 1.148e-05,
+    "peak_price": 1.148e-05,
+    "last_price": 1.148e-05,
+    "last_seen": 1769417850.4672608,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 794
+  },
+  "9CrY7PsMPx8pHaFKFV1Ty9CBp5GrvVT4dAanZoJHpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769548549.4540782,
+    "baseline_price": 0.0001414,
+    "peak_price": 0.0008618,
+    "last_price": 0.0008618,
+    "last_seen": 1769550097.3013697,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 796
+  },
+  "AJ9UvocGKeuMNj7QtQfUTXgdnVKWMUzchwD7iZDGpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769548608.34094,
+    "baseline_price": 3.247e-05,
+    "peak_price": 9.008e-05,
+    "last_price": 9.008e-05,
+    "last_seen": 1769549972.7105079,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 798
+  },
+  "8fzKuokZP4YjfZs9fNVoFyXqMZ2jdsxzKLmSkVaLpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769549090.0739696,
+    "baseline_price": 4.138e-05,
+    "peak_price": 0.0001218,
+    "last_price": 0.0001218,
+    "last_seen": 1769550633.5864458,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 806
+  },
+  "AyrwA4TEF2YAu4gzB3BjUTFgv5PaZzWHeWScoijZpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769549538.8784912,
+    "baseline_price": 1.346e-05,
+    "peak_price": 2.94e-05,
+    "last_price": 2.94e-05,
+    "last_seen": 1769549620.3273652,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 815
+  },
+  "aTPu8cDEM7P7ifhoTd6NxaLf42tCiVcMCT3ZEGEpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769549687.3699696,
+    "baseline_price": 3.993e-05,
+    "peak_price": 3.993e-05,
+    "last_price": 3.993e-05,
+    "last_seen": 1769549687.3699696,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 825
+  },
+  "HFtLLofzSqJUP5Hk96jyrBjyZq6PcUjfSA8AbKoopump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769549901.211905,
+    "baseline_price": 9.553e-05,
+    "peak_price": 0.0002272,
+    "last_price": 0.0002272,
+    "last_seen": 1769550602.0870292,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 826
+  },
+  "GRLuB2dfMHsfvsbuWjrwN3L35PdvyRTcCwSN85kgpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769549952.9019017,
+    "baseline_price": 1.399e-05,
+    "peak_price": 1.399e-05,
+    "last_price": 1.399e-05,
+    "last_seen": 1769549952.9019017,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 827
+  },
+  "RLutDEpoGX6GZS1CRLSnnSeXzXZMxWpxbRBmHWrpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769718738.6101563,
+    "baseline_price": 1.148e-05,
+    "peak_price": 1.148e-05,
+    "last_price": 1.148e-05,
+    "last_seen": 1769718738.6101563,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 841
+  },
+  "Aydq1RtLWgigwgdEqXCJT1WJJe5DMhThYB26mSHRpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769718748.4655528,
+    "baseline_price": 0.0005607,
+    "peak_price": 0.000667,
+    "last_price": 0.000667,
+    "last_seen": 1769720177.067994,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 842
+  },
+  "FsDdCFtPxw8m2BY22f1mS5Ub5MWyJ7uSs5VWq5Hspump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769718960.7523146,
+    "baseline_price": 0.0001786,
+    "peak_price": 0.0004795,
+    "last_price": 0.0004795,
+    "last_seen": 1769722201.9262757,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 846
+  },
+  "AfD9atePGcNGAgZFTSJN6e3aHgUUkwF5jNCigSqTpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769719478.8933632,
+    "baseline_price": 2.86e-05,
+    "peak_price": 2.86e-05,
+    "last_price": 2.86e-05,
+    "last_seen": 1769719478.8943334,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 854
+  },
+  "2kWZYdAYBErCpmQLqpQd8Wc6ooqNzM4RDHBvPCuFpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769720587.921684,
+    "baseline_price": 1.524e-05,
+    "peak_price": 1.923e-05,
+    "last_price": 1.906e-05,
+    "last_seen": 1769720608.210226,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 874
+  },
+  "AwBCKB3hrhtZs3wEVoCscnEkvCXg4GZJrDpSuFP3pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769720913.1887972,
+    "baseline_price": 1.769e-05,
+    "peak_price": 3.206e-05,
+    "last_price": 3.206e-05,
+    "last_seen": 1769720960.99237,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 877
+  },
+  "9Ht2GrgowXoj1mFgnExiSdoQbgSWtMuzu8WZTwGcpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769721114.7905266,
+    "baseline_price": 1.095e-05,
+    "peak_price": 2.14e-05,
+    "last_price": 2.14e-05,
+    "last_seen": 1769722610.831952,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 879
+  },
+  "B2it17xsh8Xsbk8tWaGZt6yLb78RXbPUuKus45C7pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769721652.557941,
+    "baseline_price": 1.005e-05,
+    "peak_price": 1.734e-05,
+    "last_price": 1.734e-05,
+    "last_seen": 1769721733.1816359,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 880
+  },
+  "8kNYXhQG7eBtnzT6UAGYxZtBehPMvybdvLzwR9Wipump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769722132.514671,
+    "baseline_price": 7.283e-06,
+    "peak_price": 7.283e-06,
+    "last_price": 7.283e-06,
+    "last_seen": 1769722132.514671,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 883
+  },
+  "DQtueG5GuAD3F61ncRoBTzpGdf7KV1W3hvBie17Qpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769722656.498594,
+    "baseline_price": 9.936e-06,
+    "peak_price": 3.461e-05,
+    "last_price": 3.461e-05,
+    "last_seen": 1769722863.284842,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 886
+  },
+  "GkoxsKNhS4hdtTVguveupe8T9emvfq11DJNnFWFkpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769722870.5536978,
+    "baseline_price": 1.925e-05,
+    "peak_price": 1.925e-05,
+    "last_price": 1.925e-05,
+    "last_seen": 1769722870.5536978,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 889
+  },
+  "94RBJDbjkxC4a6n8EfXGdMpohqAYLTEWDiWtRMeYpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769723318.8763516,
+    "baseline_price": 1.542e-05,
+    "peak_price": 1.868e-05,
+    "last_price": 1.868e-05,
+    "last_seen": 1769723331.7182486,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 890
+  },
+  "3Ce4XNtWmgZYox1rdZmyzL1BM2QUrwvFBtyuxeT1pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769723817.5565646,
+    "baseline_price": 1.404e-05,
+    "peak_price": 2.628e-05,
+    "last_price": 2.628e-05,
+    "last_seen": 1769724693.7259192,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 892
+  },
+  "Ay31egrJc9oGNWW4ALdbJwMwZZAYyZeN6L7DmjZbpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769724396.2389934,
+    "baseline_price": 1.09e-05,
+    "peak_price": 4.369e-05,
+    "last_price": 4.369e-05,
+    "last_seen": 1769725637.436893,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 893
+  },
+  "3xGuun8FPEzngEguL9Bd7xbKkpKpSnWeF2RasQx8pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769724482.720415,
+    "baseline_price": 8.676e-06,
+    "peak_price": 8.676e-06,
+    "last_price": 8.676e-06,
+    "last_seen": 1769724482.720415,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 894
+  },
+  "FR9Nv2k8dUbLAnGDDx5g3UAQQ8497e3HUPvfk5Wupump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769725396.0507538,
+    "baseline_price": 1.734e-05,
+    "peak_price": 1.734e-05,
+    "last_price": 1.734e-05,
+    "last_seen": 1769725396.0507538,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 898
+  },
+  "EdaD8ZbPCztTcn3cr32myGw7DNTdbU43nfZebxb3pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769725656.9783995,
+    "baseline_price": 1.136e-05,
+    "peak_price": 1.136e-05,
+    "last_price": 1.136e-05,
+    "last_seen": 1769725656.9783995,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 900
+  },
+  "6kwRSZaP9EXN8YhhJ4XuqvcHfM7jZPzyPBjcEVv2pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769726325.3531747,
+    "baseline_price": 1.369e-05,
+    "peak_price": 1.369e-05,
+    "last_price": 1.369e-05,
+    "last_seen": 1769726325.3531747,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 901
+  },
+  "EQgCRdbZ4MNkV9Ew6vnw3Mr4EGtYgf3RavuBRCZepump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769726455.370714,
+    "baseline_price": 6.727e-06,
+    "peak_price": 6.727e-06,
+    "last_price": 6.727e-06,
+    "last_seen": 1769726455.370714,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 902
+  },
+  "FBNqcJHPAVeLZoL8knyEvin5ZfjKJhHSHvTSPBc5pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769726813.8791358,
+    "baseline_price": 1.109e-05,
+    "peak_price": 1.109e-05,
+    "last_price": 1.109e-05,
+    "last_seen": 1769726813.8791358,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 903
+  },
+  "8HX2ey2LB6csP8pPR4hyk1phEmPc7a3L8B6WiKawpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769726970.4891286,
+    "baseline_price": 1.325e-05,
+    "peak_price": 1.325e-05,
+    "last_price": 1.052e-05,
+    "last_seen": 1769727104.4782526,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 904
+  },
+  "6rEzuaVoX6eTynmcAq2f2dqMP98Nxu7ouTzZv9bYpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769727152.5192103,
+    "baseline_price": 2.552e-05,
+    "peak_price": 2.552e-05,
+    "last_price": 2.351e-05,
+    "last_seen": 1769727243.0100648,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 908
+  },
+  "H3NHZf7qt6e957aa8ScBpACPzQDxkjB3DG9m3pzmpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769727271.6825511,
+    "baseline_price": 7.76e-05,
+    "peak_price": 7.76e-05,
+    "last_price": 7.086e-05,
+    "last_seen": 1769727348.351986,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 912
+  },
+  "Hsyxu5KXttrdL8AYLKS8X3Gkij5kJHqQJqtT4RrK6WHn": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769727508.023819,
+    "baseline_price": 0.0001318,
+    "peak_price": 0.0001384,
+    "last_price": 0.0001363,
+    "last_seen": 1769727618.5914793,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 918
+  },
+  "F2sfqhNJ7jb4Rv5fPeBfSBC7jdJJNizSRD7rTPxvpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769728155.4044223,
+    "baseline_price": 2.656e-05,
+    "peak_price": 7.213e-05,
+    "last_price": 7.213e-05,
+    "last_seen": 1769728654.796072,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 925
+  },
+  "D74xts92JUGuamdonVAj75csnDn9JBTps5QLn7uJpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769728299.9728725,
+    "baseline_price": 2.874e-05,
+    "peak_price": 2.874e-05,
+    "last_price": 2.874e-05,
+    "last_seen": 1769728299.9728725,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 926
+  },
+  "55K6qkbEEFikXNPrCzZBFJjV2dMdE6sD19jZwCMApump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769729676.8193984,
+    "baseline_price": 1.299e-05,
+    "peak_price": 1.299e-05,
+    "last_price": 4.247e-06,
+    "last_seen": 1769746723.0181398,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 928
+  },
+  "HvrEmGJDfV1opTQ8yccPYfArCBzhLLemZaDEE4F7pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746722.5914838,
+    "baseline_price": 6.475e-06,
+    "peak_price": 6.475e-06,
+    "last_price": 6.475e-06,
+    "last_seen": 1769746725.3958964,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 929
+  },
+  "AXUSxGQyQRczvafZTDZBSw53sokGQJQkVDwW4e6hpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746722.6180115,
+    "baseline_price": 3.294e-06,
+    "peak_price": 3.294e-06,
+    "last_price": 3.294e-06,
+    "last_seen": 1769746722.6180115,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 930
+  },
+  "DpNZqTFPxWW4Gtz3PkGr8bLtYMS6y7V59krjz9nppump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746722.8976083,
+    "baseline_price": 7.109e-05,
+    "peak_price": 7.109e-05,
+    "last_price": 7.109e-05,
+    "last_seen": 1769746722.9176042,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 933
+  },
+  "9wPtJimdmfsFKBr8YW6FXUjP3xibnjMiqFaf16wVpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746722.982618,
+    "baseline_price": 4.591e-06,
+    "peak_price": 4.591e-06,
+    "last_price": 4.591e-06,
+    "last_seen": 1769746722.982618,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 978
+  },
+  "GHZC51LUx1mprUWWz9kpNZUkUNPKG9irisRVdeADpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746725.2993736,
+    "baseline_price": 3.189e-06,
+    "peak_price": 3.189e-06,
+    "last_price": 3.189e-06,
+    "last_seen": 1769746725.2993736,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 937
+  },
+  "2tNNpY2QpQCaTqeKRqwNyGWFT3s5uf8yusxYpWPLpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746725.8864,
+    "baseline_price": 4.069e-06,
+    "peak_price": 4.069e-06,
+    "last_price": 4.069e-06,
+    "last_seen": 1769746726.5980642,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 939
+  },
+  "71fT7EaE44wnKwkBHoRzgP3rx4oCJ8YvPGQHEdYvpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746725.9799182,
+    "baseline_price": 1.309e-05,
+    "peak_price": 1.309e-05,
+    "last_price": 1.309e-05,
+    "last_seen": 1769746725.9799182,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 940
+  },
+  "7HqpZoPztHVDk6nXXF2UbrPsbcim3zCQGQvUuMZPpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746726.4850667,
+    "baseline_price": 2.098e-05,
+    "peak_price": 2.098e-05,
+    "last_price": 2.098e-05,
+    "last_seen": 1769746726.4850667,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 942
+  },
+  "J2zH58dmhBVfK5JKKFE5MhMV7q7aDeH94KPMMJEypump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746727.0710645,
+    "baseline_price": 3.359e-06,
+    "peak_price": 3.359e-06,
+    "last_price": 3.359e-06,
+    "last_seen": 1769746727.0710645,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 943
+  },
+  "2dBzzw9H14vtkPBxonhoiNDB6aYy77sJmcNUppebpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746727.2910635,
+    "baseline_price": 3.464e-05,
+    "peak_price": 3.464e-05,
+    "last_price": 3.464e-05,
+    "last_seen": 1769746734.6978612,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 944
+  },
+  "FiBdrvyn96yTutVp3PNeY7Q1Qt6z8Tm3yAejXXjwpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746729.4600627,
+    "baseline_price": 3.319e-05,
+    "peak_price": 3.403e-05,
+    "last_price": 3.403e-05,
+    "last_seen": 1769746736.7288923,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 949
+  },
+  "A19MusKBMTv2QMb7a5sWtx1e89UVBRmpwDhXbAwhpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746729.4790633,
+    "baseline_price": 2.999e-05,
+    "peak_price": 3.023e-05,
+    "last_price": 3.023e-05,
+    "last_seen": 1769746738.7478852,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 950
+  },
+  "N7LqKsc8wupwhYYLza55RCXhHYXMA9mZRhzbi4rpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746731.5584316,
+    "baseline_price": 0.0001345,
+    "peak_price": 0.0001345,
+    "last_price": 0.0001326,
+    "last_seen": 1769746743.8249056,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 956
+  },
+  "Faw1hcqA9SecaJT4ctcuqeJcE4t6ufvP446YMBBMpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746733.1503463,
+    "baseline_price": 3.352e-06,
+    "peak_price": 3.352e-06,
+    "last_price": 3.352e-06,
+    "last_seen": 1769746733.1503463,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 959
+  },
+  "32hM1HvRi6wXSQ1zR6Q6HFpTnaKEUS6dC6P3CJz7pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746735.481861,
+    "baseline_price": 3.418e-06,
+    "peak_price": 3.418e-06,
+    "last_price": 3.418e-06,
+    "last_seen": 1769746735.481861,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 965
+  },
+  "FXNT2CSNCzjA1fxQ5Xj5SgTNopVQXtCD2vBiHwSCpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746736.6708617,
+    "baseline_price": 2.294e-05,
+    "peak_price": 2.294e-05,
+    "last_price": 2.294e-05,
+    "last_seen": 1769746736.6708617,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 969
+  },
+  "CW7ZcUHCVbxHvUiCFSZGKxUEs3WX2xMHBSJNF1T9pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746737.5728486,
+    "baseline_price": 7.835e-06,
+    "peak_price": 8.324e-06,
+    "last_price": 8.324e-06,
+    "last_seen": 1769746738.6478882,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 970
+  },
+  "7WJq5TUAdzC7mzdibGaDdjrZ8d3k7A2R7uNCNPy6pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746741.5402868,
+    "baseline_price": 3.64e-06,
+    "peak_price": 3.64e-06,
+    "last_price": 3.64e-06,
+    "last_seen": 1769746741.5402868,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 983
+  },
+  "5avzhVPNy1fpr8YZqSAFca42A6Rd2Lf6ptD5hPdRpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746741.8309839,
+    "baseline_price": 7.25e-06,
+    "peak_price": 7.25e-06,
+    "last_price": 7.25e-06,
+    "last_seen": 1769746741.8309839,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 985
+  },
+  "2nCenj4JnFUGAWhzhuoHEBLFkdw5gtP5HPUnQoRKpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746744.0978606,
+    "baseline_price": 3.236e-06,
+    "peak_price": 3.236e-06,
+    "last_price": 3.236e-06,
+    "last_seen": 1769746744.0978606,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 992
+  },
+  "Bn6HCYWCgUkGCSivEuwaG7jMaJmK2t6YpEr2RsyNpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746754.630705,
+    "baseline_price": 3.916e-06,
+    "peak_price": 3.916e-06,
+    "last_price": 3.916e-06,
+    "last_seen": 1769746754.630705,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 993
+  },
+  "8W2k6aMkjfy5QBn7Gg47eZrZxjM3oXnvhjpftF3Apump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746755.0032034,
+    "baseline_price": 4.545e-06,
+    "peak_price": 4.545e-06,
+    "last_price": 4.545e-06,
+    "last_seen": 1769746755.0032034,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 994
+  },
+  "EXcmVv2jvQgAcSppHdxMQRWoiB9z94RiJ5hatS7Rpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746755.1063828,
+    "baseline_price": 3.165e-05,
+    "peak_price": 3.165e-05,
+    "last_price": 3.165e-05,
+    "last_seen": 1769746755.2494726,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 995
+  },
+  "GP1CSB33jef16SNZ64mnBauDjYQkUNZiSepz6tGepump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746755.5354712,
+    "baseline_price": 3.579e-06,
+    "peak_price": 3.579e-06,
+    "last_price": 3.579e-06,
+    "last_seen": 1769746755.5354712,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 998
+  },
+  "5rrAHhm46Ctu4VnShG4qkjU3d7VzfeDs17s7Yp5Dpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1769746755.5624719,
+    "baseline_price": 3.525e-05,
+    "peak_price": 3.525e-05,
+    "last_price": 3.525e-05,
+    "last_seen": 1769746755.770264,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 999
+  },
+  "5L3QmuE27vrg5vk3nE6fRWfEXEWEZmoh4rH8vm5Upump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770231763.1766949,
+    "baseline_price": 3.897e-05,
+    "peak_price": 7.426e-05,
+    "last_price": 7.426e-05,
+    "last_seen": 1770233133.8135417
+  },
+  "4fZMMBZDYtXXPw2umtzJU2njioCK7qo3m1d6Uez3pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770233353.8817706,
+    "baseline_price": 0.0001176,
+    "peak_price": 0.0001269,
+    "last_price": 0.0001269,
+    "last_seen": 1770233486.6762044
+  },
+  "6oywr1gX8sj1U2gAgZfWyNxCA9VA3SqnxeEzhRtypump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770233724.3950148,
+    "baseline_price": 1.506e-05,
+    "peak_price": 6.487e-05,
+    "last_price": 6.487e-05,
+    "last_seen": 1770235501.8023877
+  },
+  "EnKTP6cH4jwWtoXuncFFrSsaGn8eRGHnJ49BG5cPUVKL": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770235156.3935328,
+    "baseline_price": 1.44e-05,
+    "peak_price": 1.44e-05,
+    "last_price": 1.44e-05,
+    "last_seen": 1770235156.3935328
+  },
+  "HWReMhyucnMiMGTbE2Qkhq6WTLRdASwy9VwGNFM1pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770235931.7747352,
+    "baseline_price": 1.918e-05,
+    "peak_price": 7.404e-05,
+    "last_price": 7.404e-05,
+    "last_seen": 1770237179.4398491
+  },
+  "F2wr5wkR7eSpGwxoqmoWdBLoUr4m8gVSNxd9FqUGpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770236732.9370987,
+    "baseline_price": 2.032e-05,
+    "peak_price": 2.032e-05,
+    "last_price": 2.032e-05,
+    "last_seen": 1770236732.9370987
+  },
+  "A7iwu4MKmoqsJ8h2GT91wLkgYnXBdVpbkS1xiHJTpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770237042.3993938,
+    "baseline_price": 1.313e-05,
+    "peak_price": 1.313e-05,
+    "last_price": 1.313e-05,
+    "last_seen": 1770237042.3993938
+  },
+  "Cc77u6vaEHLdizDsHPQSPHTMhfmbDErRRcBbS8nGpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770237160.0967073,
+    "baseline_price": 5.635e-05,
+    "peak_price": 5.635e-05,
+    "last_price": 5.635e-05,
+    "last_seen": 1770237160.0967073
+  },
+  "5BGMD1zDFearxGszMdZjw8QHjvV7cQ2EcAGF453kpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770237282.0158312,
+    "baseline_price": 1.55e-05,
+    "peak_price": 2.52e-05,
+    "last_price": 2.466e-05,
+    "last_seen": 1770241605.39772
+  },
+  "HR15MSC1sX6NFn2wtRTwFNHKZDJg7wJ44Xu3oNCEpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770237482.8843377,
+    "baseline_price": 1.295e-05,
+    "peak_price": 1.295e-05,
+    "last_price": 1.295e-05,
+    "last_seen": 1770237482.8843377
+  },
+  "E2gLQ4kh91Ef1HtQ6phH3Gf6FvPtfUunPBvbsqcMpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770238746.2691576,
+    "baseline_price": 1.863e-05,
+    "peak_price": 5.739e-05,
+    "last_price": 5.739e-05,
+    "last_seen": 1770240138.0009832
+  },
+  "Des3cPZGDDT35HeqVFozng1PdW7CFBqja3FaxKgnpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770239873.3523252,
+    "baseline_price": 1.559e-05,
+    "peak_price": 1.559e-05,
+    "last_price": 1.559e-05,
+    "last_seen": 1770239873.3523252
+  },
+  "HJwajCs1v9hvs3DgQ8bJk61M7JzuZF31RpCDM3UHpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770240288.081094,
+    "baseline_price": 2.166e-05,
+    "peak_price": 2.166e-05,
+    "last_price": 2.166e-05,
+    "last_seen": 1770240288.081094
+  },
+  "5VQUrr13D8R3zeizdRM5PYy1cpUQArvjbfgniWKVpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770241633.0920467,
+    "baseline_price": 1.156e-05,
+    "peak_price": 1.156e-05,
+    "last_price": 1.156e-05,
+    "last_seen": 1770241633.0920467
+  },
+  "4AjvPXMn8YZG9saAVJvcWspg73oTFf2JmU4in4Xgpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770244756.5191536,
+    "baseline_price": 2.627e-05,
+    "peak_price": 0.000343,
+    "last_price": 0.000343,
+    "last_seen": 1770277354.3901072
+  },
+  "9xvD4PNTLEH6NRMWjMTpFfGZsuuaExe9kbv5va1Spump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770246815.154802,
+    "baseline_price": 1.161e-05,
+    "peak_price": 1.207e-05,
+    "last_price": 1.207e-05,
+    "last_seen": 1770246844.3287437
+  },
+  "C5RiFUaFkt9vTJmpAX8aiL7gYKWrDdDERkKhozcSpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770277416.165286,
+    "baseline_price": 9.703e-06,
+    "peak_price": 3.096e-05,
+    "last_price": 3.096e-05,
+    "last_seen": 1770280218.0026553
+  },
+  "DcoSTyxQSkzPb3N56gBSPMLadY7Wzd6vYx7neetTpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770279820.9636667,
+    "baseline_price": 3.416e-05,
+    "peak_price": 3.416e-05,
+    "last_price": 3.416e-05,
+    "last_seen": 1770279820.9636667
+  },
+  "Err6jMnHKLow95EqQg6qXvKvgUwjd7wVymfVU9gnpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770279844.6471832,
+    "baseline_price": 2.275e-05,
+    "peak_price": 2.757e-05,
+    "last_price": 2.757e-05,
+    "last_seen": 1770280193.7700086
+  },
+  "Fij3SFTmp3vQZ6fjenZf15YFn69cfQtx7JDXhFi79Z91": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770280205.2043166,
+    "baseline_price": 1.785e-05,
+    "peak_price": 1.785e-05,
+    "last_price": 1.785e-05,
+    "last_seen": 1770280205.2043166
+  },
+  "9q95SAgjDWGi359se2KfHb8b8zMztGb7fySm3Dx6pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770282348.9057674,
+    "baseline_price": 0.0001252,
+    "peak_price": 0.0001252,
+    "last_price": 0.0001077,
+    "last_seen": 1770282678.1763573
+  },
+  "2M1rBAhoZCJ8Q63uShmmup9aLCrad2TF4tzt2vJCpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770282678.9963605,
+    "baseline_price": 8.312e-06,
+    "peak_price": 8.312e-06,
+    "last_price": 8.312e-06,
+    "last_seen": 1770282678.9963605
+  },
+  "DdYBc6C7a3SMKG6P5pkMjpjmHgrZ93589y6bdtp8pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1770282942.709873,
+    "baseline_price": 7.413e-06,
+    "peak_price": 1.101e-05,
+    "last_price": 1.101e-05,
+    "last_seen": 1770283121.5185184
+  },
+  "CZu7QNWinisipPN8umNZmySuNDpDC9pUV7RhYsVPpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771779776.8123822,
+    "baseline_price": 9e-06,
+    "peak_price": 9.668e-06,
+    "last_price": 9.668e-06,
+    "last_seen": 1771779817.1521976
+  },
+  "FC3FNev4qhAnWp6uY3rXpt2N5Qz5GnhqZUFY4mHLpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771779826.4118845,
+    "baseline_price": 2.81e-05,
+    "peak_price": 2.81e-05,
+    "last_price": 2.81e-05,
+    "last_seen": 1771779826.4118845
+  },
+  "4nURS6qxY9bCEhramG2VZfnphJZyzis5EE86w5qLpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771837597.081082,
+    "baseline_price": 0.0008513,
+    "peak_price": 0.0008513,
+    "last_price": 0.0008513,
+    "last_seen": 1771837597.081082,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1118
+  },
+  "DVbUHJjXbEcz8TdjaW6ujFXfbKQsrAHyKqmLaLJnpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771838224.631289,
+    "baseline_price": 7.291e-06,
+    "peak_price": 7.291e-06,
+    "last_price": 7.291e-06,
+    "last_seen": 1771838224.631289,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1119
+  },
+  "BQFU77cb8iNaRvHbKxZMGuSuDpeLt9UEbTDbRoUZpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771839113.9333742,
+    "baseline_price": 2.787e-05,
+    "peak_price": 2.787e-05,
+    "last_price": 2.787e-05,
+    "last_seen": 1771839113.9333742,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1120
+  },
+  "J5wnNDb9G9ywmiPmgbqNZcieL1zE41towqgTQHkopump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771839158.0850408,
+    "baseline_price": 6.621e-06,
+    "peak_price": 6.621e-06,
+    "last_price": 6.621e-06,
+    "last_seen": 1771839158.0850408,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1121
+  },
+  "EoYKJqKAMb8534aSfQTtSDzcj2rkAE6D2GREpmHRpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771839663.473855,
+    "baseline_price": 9.25e-06,
+    "peak_price": 9.25e-06,
+    "last_price": 9.25e-06,
+    "last_seen": 1771839663.473855,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1122
+  },
+  "jVp9C7f4qC7aKRx5zMKno8Bpyg5MGBupmDyqqjspump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771847481.3215604,
+    "baseline_price": 2.459e-06,
+    "peak_price": 2.459e-06,
+    "last_price": 2.459e-06,
+    "last_seen": 1771847481.3215604,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1125
+  },
+  "4zwesenjr1Ekk2Zb8bsHteixLMQusWYUoujAyJfzpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771848921.1821668,
+    "baseline_price": 9.733e-06,
+    "peak_price": 9.733e-06,
+    "last_price": 9.733e-06,
+    "last_seen": 1771848921.1821668,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1126
+  },
+  "6woPkNsWGZmXQnacxQ1owoPicibS6KEmNMxQhatApump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771849726.0326571,
+    "baseline_price": 0.0002334,
+    "peak_price": 0.0002334,
+    "last_price": 0.0002334,
+    "last_seen": 1771849726.0326571,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1127
+  },
+  "YddXwuNiPUYr6qR956iFik4jAdUFkUu9wRkJGZXpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771858504.858884,
+    "baseline_price": 2.255e-06,
+    "peak_price": 2.255e-06,
+    "last_price": 2.255e-06,
+    "last_seen": 1771858504.858884,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1128
+  },
+  "5AtArn1tvMGqNkGkE45ArMRPXqM7JajREmV932oapump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771858504.892436,
+    "baseline_price": 2.324e-06,
+    "peak_price": 2.324e-06,
+    "last_price": 2.324e-06,
+    "last_seen": 1771858504.892436,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1129
+  },
+  "7W5nNksZ9Npsj6CGwqKK8F4bNsp5rBZcrF8x2v31pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771858504.9131923,
+    "baseline_price": 3.106e-06,
+    "peak_price": 3.106e-06,
+    "last_price": 3.106e-06,
+    "last_seen": 1771858504.9131923,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1130
+  },
+  "fAubassRUEpEmqWqAHy9WhsSRDGLpnNo2iH1jCxpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771858506.1678715,
+    "baseline_price": 1.966e-06,
+    "peak_price": 1.966e-06,
+    "last_price": 1.966e-06,
+    "last_seen": 1771858506.2951715,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1131
+  },
+  "F4mY8bmkPaU2ykAfKoExtXtDPqzU6Q62xnmmBFhXpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771858507.8857403,
+    "baseline_price": 2.25e-06,
+    "peak_price": 2.25e-06,
+    "last_price": 2.25e-06,
+    "last_seen": 1771858507.8857403,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1134
+  },
+  "AfmxtAyQYooeZsx2QrCKQh3k2yHFjRhhbQNG92T5pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771858507.9333143,
+    "baseline_price": 2.657e-06,
+    "peak_price": 2.657e-06,
+    "last_price": 2.657e-06,
+    "last_seen": 1771858507.9333143,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1135
+  },
+  "AaV8nxUw4Vs9o7KvFq68rmvQHni9uLih1B8aSdJupump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771858508.0138407,
+    "baseline_price": 2.59e-06,
+    "peak_price": 2.59e-06,
+    "last_price": 2.59e-06,
+    "last_seen": 1771858508.0138407,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1136
+  },
+  "BenK52mM3bx5JZtv2EbB1n5ZzrnK23FQSj6mvFBFpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771859255.4944613,
+    "baseline_price": 1.274e-05,
+    "peak_price": 1.274e-05,
+    "last_price": 1.274e-05,
+    "last_seen": 1771859255.4944613,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1137
+  },
+  "4AYCqf8Pf3AkhsvvqBJnrC1hry9c3fx1dBXGjZEupump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771864310.276673,
+    "baseline_price": 9.641e-06,
+    "peak_price": 9.641e-06,
+    "last_price": 9.641e-06,
+    "last_seen": 1771864310.276673,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1138
+  },
+  "DcSdAKiYh3sx3v6TBGoMX67WmiNzvNXz71KfBc9Cpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771864367.7675495,
+    "baseline_price": 8.839e-06,
+    "peak_price": 8.839e-06,
+    "last_price": 8.839e-06,
+    "last_seen": 1771864367.7675495,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1139
+  },
+  "BHwLYTQQL7LDcaoGm5jp1KktUx1YnbE6JytKB9H5Acto": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771873586.4388425,
+    "baseline_price": 0.0001223,
+    "peak_price": 0.0001223,
+    "last_price": 0.0001223,
+    "last_seen": 1771873586.4388425,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1140
+  },
+  "bn6cZwCtztYXYwYxBU3LZ3stinky7Q7QiXQ5Z8ypump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771877241.6946871,
+    "baseline_price": 6.097e-06,
+    "peak_price": 6.097e-06,
+    "last_price": 6.097e-06,
+    "last_seen": 1771877241.6946871,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1141
+  },
+  "5fb2uDqWNxyxno8PoeaBANWawCtbuwwEvtWkbQTrpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771877904.8968525,
+    "baseline_price": 1.239e-05,
+    "peak_price": 1.239e-05,
+    "last_price": 1.239e-05,
+    "last_seen": 1771877904.8968525,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1142
+  },
+  "64Qcv2LXnx1ZzyTErk53SZEvaxqQTNR1rchy8hB4pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771878168.7114027,
+    "baseline_price": 3.489e-05,
+    "peak_price": 3.489e-05,
+    "last_price": 3.489e-05,
+    "last_seen": 1771878168.7114027,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1143
+  },
+  "3vs3BwCcymvy2NwTZCutxAravsswbkwY8CanYMeapump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771878730.4320748,
+    "baseline_price": 7.054e-06,
+    "peak_price": 7.054e-06,
+    "last_price": 2.347e-06,
+    "last_seen": 1771880131.2771113,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1145
+  },
+  "5KrZBzjS68wdowwpP5vUkHbGtzaW3KQ98DSEguAJpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771880657.5980196,
+    "baseline_price": 8.496e-06,
+    "peak_price": 1.485e-05,
+    "last_price": 1.485e-05,
+    "last_seen": 1771881217.9646666,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1149
+  },
+  "FWd2sAkvHQJyh4k7BqdBm82duqRfYf2mt3Lyncyypump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771881308.0359473,
+    "baseline_price": 2.232e-05,
+    "peak_price": 2.232e-05,
+    "last_price": 2.232e-05,
+    "last_seen": 1771881308.0359473,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1152
+  },
+  "DeMti8qM5WfiPQrWapjCXbBiDx5qxEWLzVdqwonnpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771881320.541412,
+    "baseline_price": 1.509e-05,
+    "peak_price": 1.509e-05,
+    "last_price": 1.092e-05,
+    "last_seen": 1771881702.8898416,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1153
+  },
+  "4zZ36LqPCsaXxiDeuCLMEKUF779svSeQTdRn4UN2pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1771881670.5103734,
+    "baseline_price": 1.337e-05,
+    "peak_price": 1.337e-05,
+    "last_price": 1.337e-05,
+    "last_seen": 1771881670.5103734,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1154
+  },
+  "EqEQaD6uPBh7VgVzajRRQS1gTTeBR8d7yHnc5e8qpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772126661.7029002,
+    "baseline_price": 9.407e-05,
+    "peak_price": 9.407e-05,
+    "last_price": 8.533e-05,
+    "last_seen": 1772127575.0026052,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1158
+  },
+  "6Cka4cPGBbuQtWuyp3KpTMAnyGjjR7YXVFTafmoNpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772127832.7080033,
+    "baseline_price": 0.0002636,
+    "peak_price": 0.0002636,
+    "last_price": 0.0002636,
+    "last_seen": 1772127832.7080033,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1162
+  },
+  "8wUhAfVAJ6x7LDxzg5fDJ9RqraoFaDgNqbFKhmhuZGcp": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772127867.1802824,
+    "baseline_price": 2.445e-05,
+    "peak_price": 2.445e-05,
+    "last_price": 2.445e-05,
+    "last_seen": 1772128021.0820735,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1164
+  },
+  "CUFKXan24CBE2yaT1Gn6n3o8tVqUTwYqaKQZhiV9SEd9": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772127888.483089,
+    "baseline_price": 1.2e-05,
+    "peak_price": 1.252e-05,
+    "last_price": 1.252e-05,
+    "last_seen": 1772127971.366907,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1166
+  },
+  "G8k7XaRTPFCryd5BL18vmdhEtVC1tmJvVCqtmSA9sGyS": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772128052.950053,
+    "baseline_price": 6.774e-06,
+    "peak_price": 6.774e-06,
+    "last_price": 6.774e-06,
+    "last_seen": 1772128052.950053,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1172
+  },
+  "EhJ9pSeCAV724CDyTh3fe4DyjK86enmPcnLDVkwzpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772211872.1133769,
+    "baseline_price": 2.303e-06,
+    "peak_price": 2.303e-06,
+    "last_price": 2.303e-06,
+    "last_seen": 1772211909.1621583,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1174
+  },
+  "6EcrV1AbHfJWpRhghBrDSQGc4ynKSnay1NEBYRz5pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772211909.2236776,
+    "baseline_price": 1.028e-05,
+    "peak_price": 1.028e-05,
+    "last_price": 1.028e-05,
+    "last_seen": 1772211909.2236776,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1176
+  },
+  "Hq3aEYFe3d1KNCX968YB15gkhvksTQ1SisAcGocopump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772214178.2308471,
+    "baseline_price": 7.225e-06,
+    "peak_price": 7.225e-06,
+    "last_price": 7.225e-06,
+    "last_seen": 1772214178.2308471,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1177
+  },
+  "6W6mNDsxUm7rQYz6vdzJ6qubBot6sPCp3jmTi2xUpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772214399.4045982,
+    "baseline_price": 1.373e-05,
+    "peak_price": 1.373e-05,
+    "last_price": 1.373e-05,
+    "last_seen": 1772214399.4045982,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1179
+  },
+  "2wP76beSJ8NB8bgFEkZkQCGtWErxqkxTYEGjx9jYpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772214456.4006848,
+    "baseline_price": 0.0005138,
+    "peak_price": 0.0005138,
+    "last_price": 0.0005138,
+    "last_seen": 1772214456.4006848,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1181
+  },
+  "9uTmU6ZcdCKSJoGxRK3CXhdTQfgyAmvZ9FcgVX5Ppump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772214635.8692372,
+    "baseline_price": 8.951e-06,
+    "peak_price": 8.951e-06,
+    "last_price": 8.951e-06,
+    "last_seen": 1772214635.8692372,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1182
+  },
+  "Gnqgz9GLZ2pqHyoXUBJkA2JyVdRQtMnjWGHiBvP2pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772215832.2222917,
+    "baseline_price": 8.051e-06,
+    "peak_price": 8.051e-06,
+    "last_price": 8.051e-06,
+    "last_seen": 1772215832.2222917,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1183
+  },
+  "CjTPugyFN6HZMB5vqkZCmjG9wTWNpd2TdQU4pZsQmxNy": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772215848.4486423,
+    "baseline_price": 1.167e-05,
+    "peak_price": 1.167e-05,
+    "last_price": 1.167e-05,
+    "last_seen": 1772215848.4486423,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1184
+  },
+  "Ckbh84VcNbbQRAVL3RXZm4WePHgtPHPCcWUF1fU8pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772215886.59911,
+    "baseline_price": 1.818e-05,
+    "peak_price": 1.818e-05,
+    "last_price": 1.818e-05,
+    "last_seen": 1772215886.59911,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1185
+  },
+  "9voQQTTdfbqfXwc9rZAdJEeXXjUWjHnB4wkShMT8pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772216034.0440667,
+    "baseline_price": 1.239e-05,
+    "peak_price": 3.36e-05,
+    "last_price": 3.36e-05,
+    "last_seen": 1772216051.3108883,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1186
+  },
+  "4HhWcsfjaWYKJtjaxd4EyGSAL4Ky8C3DvqAWPHnrpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772547963.7526603,
+    "baseline_price": 0.0001373,
+    "peak_price": 0.0001703,
+    "last_price": 0.0001331,
+    "last_seen": 1772549460.8761494,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1189
+  },
+  "G2nxggjP3tXDp1teNXrhYmNdEsov9x4JhQ5fuHPwpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772549588.194513,
+    "baseline_price": 8.641e-06,
+    "peak_price": 1.411e-05,
+    "last_price": 1.411e-05,
+    "last_seen": 1772549722.6563299,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1191
+  },
+  "H4hioLVHLuG4YLYrc7xzqNQe5JhsjKrv5rEFfbbRpump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772549853.5127554,
+    "baseline_price": 8.151e-05,
+    "peak_price": 8.151e-05,
+    "last_price": 8.151e-05,
+    "last_seen": 1772549853.5127554,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1193
+  },
+  "2tU8jUXqP3cXFx7PLvA7SQkpXpH7uPkbD211Rx45pump": {
+    "strategy": "UNKNOWN",
+    "entry": 0.0,
+    "tp_targets": [],
+    "sl_price": 0.0,
+    "tp_hit_index": -1,
+    "status": "OBSERVE",
+    "start_time": 1772549881.0577989,
+    "baseline_price": 1.126e-05,
+    "peak_price": 1.126e-05,
+    "last_price": 1.126e-05,
+    "last_seen": 1772549881.0577989,
+    "reply_chat_id": 7553100552,
+    "reply_msg_id": 1195
+  }
+}

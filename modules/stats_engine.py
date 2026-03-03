@@ -10,6 +10,7 @@ logger = logging.getLogger("StatsEngine")
 FILE = "data/strategy_performance.json"
 DAY = 86400
 
+
 class PerformanceEngine:
     def __init__(self):
         self.data = defaultdict(list)
@@ -35,7 +36,7 @@ class PerformanceEngine:
             logger.error(f"保存统计数据失败: {e}")
 
     async def record_trade(self, strategy: str, result_type: str, pnl_percent: float):
-        """记录交易结果"""
+        """记录交易结果（核心实现，保持不变）"""
         async with self._lock:
             now = time.time()
             record = {
@@ -49,21 +50,45 @@ class PerformanceEngine:
             self._save()
             logger.info(f"📊 记账成功 [{strategy}]: {result_type} ({pnl_percent}%)")
 
-    # ✅✅✅ 修复点：补全这个被遗漏的接口 ✅✅✅
+    # =====================================================
+    # ✅ 关键补丁：统一同步接口，供 main.py 调用
+    # =====================================================
+    def record(self, strategy: str, result_type: str, pnl_percent: float, ca: str = ""):
+        """
+        同步兼容入口：
+        - main.py / tp_tracker 可直接调用 stats_engine.record(...)
+        - 内部安全调度 async record_trade
+        """
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop and loop.is_running():
+            # 已在事件循环中 → 投递一个 task
+            asyncio.create_task(
+                self.record_trade(strategy, result_type, pnl_percent)
+            )
+        else:
+            # 不在事件循环中（极少见）→ 新建 loop 执行
+            asyncio.run(
+                self.record_trade(strategy, result_type, pnl_percent)
+            )
+
+    # ==============================
+    # 原有接口（保持不变）
+    # ==============================
     def get_raw_stats(self, strategy: str) -> dict:
-        """
-        供 position_engine 使用，返回 {win_rate, total, is_new}
-        """
+        """供 position_engine 使用，返回 {win_rate, total, is_new}"""
         records = self.data.get(strategy, [])
         total = len(records)
-        
+
         if total == 0:
             return {"win_rate": 0, "total": 0, "is_new": True}
-        
-        # 计算胜率 (PnL > 0 算胜)
+
         wins = sum(1 for r in records if r.get("pnl", 0) > 0)
         win_rate = int((wins / total) * 100)
-        
+
         return {
             "win_rate": win_rate,
             "total": total,
@@ -79,23 +104,27 @@ class PerformanceEngine:
 
     def _calc_stats(self, records: List[dict], days: int) -> Optional[dict]:
         """计算详细核心指标"""
-        if not records: return None
+        if not records:
+            return None
         cutoff = time.time() - days * DAY
         subset = [r for r in records if r["time"] >= cutoff]
-        if not subset: return None
+        if not subset:
+            return None
 
         total_trades = len(subset)
-        if total_trades == 0: return None
+        if total_trades == 0:
+            return None
 
         wins = [r for r in subset if r.get("pnl", 0) > 0]
         losses = [r for r in subset if r.get("pnl", 0) <= 0]
-        
+
         win_rate = len(wins) / total_trades
         total_gain = sum(r.get("pnl", 0) for r in wins)
         total_loss = abs(sum(r.get("pnl", 0) for r in losses))
 
         profit_factor = total_gain / total_loss if total_loss > 0 else float("inf")
-        if total_loss == 0 and total_gain == 0: profit_factor = 0
+        if total_loss == 0 and total_gain == 0:
+            profit_factor = 0
 
         avg_win = total_gain / len(wins) if wins else 0
         avg_loss = total_loss / len(losses) if losses else 0
@@ -112,14 +141,18 @@ class PerformanceEngine:
         """淘汰规则"""
         records = self.data.get(strategy, [])
         stats_30d = self._calc_stats(records, 30)
-        if not stats_30d: return False
-        
-        # 30天内交易超过8笔，且胜率低且赔率差
+        if not stats_30d:
+            return False
+
         if stats_30d["trades"] >= 8:
-            if stats_30d["ev_per_trade"] < -0.5: return True
-            if stats_30d["win_rate"] < 40 and stats_30d["profit_factor"] < 0.8: return True
-            
+            if stats_30d["ev_per_trade"] < -0.5:
+                return True
+            if stats_30d["win_rate"] < 40 and stats_30d["profit_factor"] < 0.8:
+                return True
+
         return False
+
 
 # 全局单例
 stats_engine = PerformanceEngine()
+
