@@ -23,3 +23,7 @@ data/browser_profile/
 !data/price_history.json
 !data/strategy_performance.json
 !data/tp_tracker.json
+# Node dependencies
+node_modules/
+Coin-Bot/node_modules/
+package-lock.json
