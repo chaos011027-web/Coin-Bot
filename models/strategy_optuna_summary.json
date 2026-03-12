@@ -1,0 +1,21 @@
+{
+  "best_value": 4.477,
+  "best_params": {
+    "alloc_smart_trend": 0.16369227464445543,
+    "alloc_sniper_play": 0.1276143687194037,
+    "alloc_bundle_ctrl": 0.02744220302017178,
+    "alloc_mixed": 0.15086545493648557
+  },
+  "best_trial_number": 33,
+  "best_trial_user_attrs": {
+    "roi_pct": 7.54,
+    "max_drawdown_pct": 12.08,
+    "win_rate_pct": 38.89,
+    "closed_trades": 18,
+    "equity_sol": 1.07543
+  },
+  "n_trials": 40,
+  "direction": "MAXIMIZE",
+  "output_params_path": "models\\strategy_best_params.json",
+  "output_backtest_path": "models\\strategy_best_backtest.json"
+}

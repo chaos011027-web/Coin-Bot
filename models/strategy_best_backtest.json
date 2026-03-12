@@ -1,0 +1,29 @@
+{
+  "initial_capital_sol": 1.0,
+  "cash_sol": 1.07543,
+  "equity_sol": 1.07543,
+  "open_positions": 0,
+  "closed_trades": 18,
+  "win_rate_pct": 38.89,
+  "loss_rate_pct": 61.11,
+  "total_net_pnl_sol": 0.093755,
+  "total_cost_sol": 0.03744,
+  "roi_pct": 7.54,
+  "max_drawdown_pct": 12.08,
+  "by_strategy": {
+    "MIXED": {
+      "trades": 17,
+      "wins": 7,
+      "net_pnl_sol": 0.097542,
+      "cost_sol": 0.037061,
+      "win_rate_pct": 41.18
+    },
+    "BUNDLE_CTRL": {
+      "trades": 1,
+      "wins": 0,
+      "net_pnl_sol": -0.003787,
+      "cost_sol": 0.000379,
+      "win_rate_pct": 0.0
+    }
+  }
+}

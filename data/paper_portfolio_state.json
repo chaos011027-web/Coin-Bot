@@ -1,0 +1,60 @@
+{
+  "cash_sol": 0.7180099999999999,
+  "open_positions": {
+    "FLRYgk1w9sQpMegKHTtRBGrmETLXEfcbQv8cqA2hpump": {
+      "ca": "FLRYgk1w9sQpMegKHTtRBGrmETLXEfcbQv8cqA2hpump",
+      "symbol": "UNK",
+      "strategy": "SNIPER_PLAY",
+      "opened_at": 1773060099.0951757,
+      "entry_price": 3.498e-06,
+      "entry_mcap": 0.0,
+      "qty": 34305.31732418525,
+      "remaining_qty": 34305.31732418525,
+      "invested_sol": 0.12,
+      "entry_cost_sol": 0.0008500000000000001,
+      "realized_pnl_sol": 0.0,
+      "realized_fee_sol": 0.0008500000000000001,
+      "peak_price": 3.498e-06,
+      "peak_mcap": 0.0,
+      "tp1_done": false,
+      "tp2_done": false
+    },
+    "42xnkvbkgbJuTuxGcBsccLRovVL3DfSPxSuFqcxHpump": {
+      "ca": "42xnkvbkgbJuTuxGcBsccLRovVL3DfSPxSuFqcxHpump",
+      "symbol": "UNK",
+      "strategy": "MIXED",
+      "opened_at": 1773060099.1001756,
+      "entry_price": 4.02e-06,
+      "entry_mcap": 0.0,
+      "qty": 19900.497512437814,
+      "remaining_qty": 19900.497512437814,
+      "invested_sol": 0.08,
+      "entry_cost_sol": 0.0005700000000000001,
+      "realized_pnl_sol": 0.0,
+      "realized_fee_sol": 0.0005700000000000001,
+      "peak_price": 4.02e-06,
+      "peak_mcap": 0.0,
+      "tp1_done": false,
+      "tp2_done": false
+    },
+    "AufiGaAYoZgnLVBm7Nrhooz382DKW9Sc5pUx56Hupump": {
+      "ca": "AufiGaAYoZgnLVBm7Nrhooz382DKW9Sc5pUx56Hupump",
+      "symbol": "UNK",
+      "strategy": "MIXED",
+      "opened_at": 1773060099.1052003,
+      "entry_price": 3.659e-06,
+      "entry_mcap": 0.0,
+      "qty": 21863.897239682974,
+      "remaining_qty": 21863.897239682974,
+      "invested_sol": 0.08,
+      "entry_cost_sol": 0.0005700000000000001,
+      "realized_pnl_sol": 0.0,
+      "realized_fee_sol": 0.0005700000000000001,
+      "peak_price": 3.659e-06,
+      "peak_mcap": 0.0,
+      "tp1_done": false,
+      "tp2_done": false
+    }
+  },
+  "closed_legs": []
+}

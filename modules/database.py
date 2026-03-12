@@ -91,7 +91,21 @@ class Database:
             return await conn.execute(query, *args)
 
     # ========================================================
-    # 🟢 新增：专为“状态化增量缓存”与“防伪战报”设计的核心函数
+    # 🟢 新增：兼容 Watchdog 和 Midnight Hunter 脚本的查询方法
+    # ========================================================
+
+    @classmethod
+    async def fetch(cls, query: str, *args) -> List[Dict[str, Any]]:
+        """执行 SQL 并返回多行结果 (直接映射到 fetch_all)"""
+        return await cls.fetch_all(query, *args)
+
+    @classmethod
+    async def fetchrow(cls, query: str, *args) -> Optional[Dict[str, Any]]:
+        """执行 SQL 并返回单行结果 (直接映射到 fetch_one)"""
+        return await cls.fetch_one(query, *args)
+
+    # ========================================================
+    # 🟢 专为“状态化增量缓存”与“防伪战报”设计的核心函数
     # ========================================================
 
     @classmethod

@@ -38,6 +38,9 @@ class AlphaListener:
     - 群监听：用 USER session（能看到“信号机器人”发的消息）
     - 私聊入口：用 BOT session（用户私聊 bot 触发）
     - 输出：仍走 _resolve_reply_chat_id（PRIVATE_ONLY_MODE 行为不变）
+
+    ✅ 本次仅做必要修复：
+    - callback 过期时，event.answer() 失败不再打断 refresh/deep_ai 主任务
     """
 
     def __init__(self):
@@ -150,23 +153,35 @@ class AlphaListener:
 
     def _resolve_reply_chat_id(self, preferred_chat_id: int) -> int:
         """
-        私聊模式下：不在群里回复，统一回 ADMIN（或白名单第一人）
-        非私聊模式：保持原来的 chat_id
+        路由规则：
+        1. 私聊来源（正数 chat_id）：继续回原私聊
+        2. 群监听来源（负数 chat_id）：绝不回源群
+        3. 群来源统一回 ADMIN_CHAT_ID
+        4. 若未配置 ADMIN_CHAT_ID，则退回白名单第一人
+        5. 最终兜底返回 0，交给下游显式报错，而不是误发回群
         """
-        if not PRIVATE_ONLY_MODE:
+        try:
+            preferred_chat_id = int(preferred_chat_id)
+        except Exception:
+            preferred_chat_id = 0
+
+        if preferred_chat_id > 0:
             return preferred_chat_id
 
-        if ADMIN_CHAT_ID:
-            return int(ADMIN_CHAT_ID)
-
         try:
-            wl = list(int(x) for x in WHITELIST_USER_IDS)
-            if wl:
-                return int(wl[0])
+            if ADMIN_CHAT_ID:
+                return int(ADMIN_CHAT_ID)
         except Exception:
             pass
 
-        return preferred_chat_id
+        try:
+            wl = [int(x) for x in WHITELIST_USER_IDS if str(x).strip()]
+            if wl:
+                return wl[0]
+        except Exception:
+            pass
+
+        return 0
 
     # --------------------------
     # 回调执行（固定 5 参数）
@@ -202,6 +217,16 @@ class AlphaListener:
                 continue
         return valid
 
+    async def _safe_answer(self, event, text: str, alert: bool = False):
+        """
+        关键修复点：
+        callback answer 失败（如 query ID 过期）时，不再中断主任务。
+        """
+        try:
+            await event.answer(text, alert=alert)
+        except Exception as e:
+            logger.warning(f"⚠️ callback answer 失败（继续执行主任务）: {e}")
+
     # --------------------------
     # start
     # --------------------------
@@ -209,11 +234,11 @@ class AlphaListener:
         self,
         callback_func: Callable[..., Any],
         refresh_callback: Optional[Callable[..., Any]] = None,
+        deep_ai_callback: Optional[Callable[..., Any]] = None,
     ):
         # ✅ 关键补丁：把 refresh_callback 注入 Commander（不影响旧逻辑）
         if refresh_callback is not None:
             try:
-                # 延迟导入避免循环依赖
                 from modules.commander import set_refresh_callback
                 set_refresh_callback(refresh_callback)
                 logger.info("✅ listener 已注入 refresh_callback 到 Commander")
@@ -227,7 +252,6 @@ class AlphaListener:
         logger.info(f"🤖 BOT 客户端已启动: {bot_username}（私聊入口）")
 
         # ---------- 2) 启动 USER 客户端（群监听入口） ----------
-        # 注意：首次运行可能需要你在终端输入手机号+验证码（只做一次）
         await self.user_client.start()
         user_me = await self.user_client.get_me()
         user_username = f"@{user_me.username}" if getattr(user_me, "username", None) else f"ID:{user_me.id}"
@@ -284,7 +308,6 @@ class AlphaListener:
                     if not self._should_process(ca, readable_source):
                         return
 
-                    # 输出目标：PRIVATE_ONLY_MODE=True 时会回到管理员私聊
                     reply_chat_id = self._resolve_reply_chat_id(chat_id)
 
                     logger.info(
@@ -334,32 +357,49 @@ class AlphaListener:
                 logger.error(f"❌ 私聊消息处理异常: {e}", exc_info=True)
 
         # --------------------------
-        # 🟢 新增修复：接管 Bot 的透明按钮点击事件 (CallbackQuery)
+        # ✅ Bot 按钮回调（CallbackQuery）
         # --------------------------
         @self.bot_client.on(events.CallbackQuery())
         async def btn_handler(event):
             try:
                 data = event.data
-                if not data: 
+                if not data:
                     return
-                data_str = data.decode('utf-8')
-                
+
+                data_str = data.decode("utf-8")
+                chat_id = int(event.chat_id)
+                msg_id = int(event.message_id)
+
                 if data_str.startswith("refresh:"):
                     ca = data_str.split("refresh:", 1)[-1].strip()
-                    chat_id = int(event.chat_id)
-                    msg_id = int(event.message_id)
-                    
+
                     if refresh_callback:
-                        await event.answer("🔄 刷新中...")
+                        # 先尝试 answer，但失败也继续执行主逻辑
+                        await self._safe_answer(event, "🔄 刷新中...")
                         self._create_task_with_log(refresh_callback(ca, chat_id, msg_id))
                     else:
-                        await event.answer("⚠️ 未绑定刷新回调", alert=True)
+                        await self._safe_answer(event, "⚠️ 未绑定刷新回调", alert=True)
+
+                elif data_str.startswith("deep_ai:"):
+                    ca = data_str.split("deep_ai:", 1)[-1].strip()
+
+                    if deep_ai_callback:
+                        await self._safe_answer(event, "🧠 深度分析中...")
+                        try:
+                            if asyncio.iscoroutinefunction(deep_ai_callback):
+                                self._create_task_with_log(deep_ai_callback(ca, chat_id, msg_id))
+                            else:
+                                self._create_task_with_log(asyncio.to_thread(deep_ai_callback, ca, chat_id, msg_id))
+                        except Exception:
+                            logger.error("❌ deep_ai_callback 调用失败", exc_info=True)
+                    else:
+                        await self._safe_answer(event, "⚠️ 未绑定深度AI回调", alert=True)
+
             except Exception as e:
-                logger.error(f"❌ 按钮回调处理异常: {e}")
+                logger.error(f"❌ 按钮回调处理异常: {e}", exc_info=True)
 
         logger.info("🚀 猎人已就位：群输入(用户号) + 私聊输入(BOT) + 私聊输出(按 PRIVATE_ONLY_MODE) + 按钮响应(已接管)")
 
-        # 两个客户端都跑起来
         await asyncio.gather(
             self.user_client.run_until_disconnected(),
             self.bot_client.run_until_disconnected(),
@@ -369,6 +409,6 @@ class AlphaListener:
 _listener_instance = AlphaListener()
 
 
-# ✅ 关键补丁：对外 start 增加 refresh_callback 第二参数（兼容 main.py 新调用）
-async def start(callback_func, refresh_callback=None):
-    await _listener_instance.start(callback_func, refresh_callback)
+# ✅ 对外 start：兼容旧调用，同时支持 deep_ai_callback
+async def start(callback_func, refresh_callback=None, deep_ai_callback=None):
+    await _listener_instance.start(callback_func, refresh_callback, deep_ai_callback)

@@ -1,0 +1,86 @@
+{
+  "generated_by": "optuna_tune_strategy.py",
+  "source_records": "data\\strategy_backtest_records.json",
+  "notes": {
+    "alloc_map": "本次 Optuna 基于已有 closed-leg records 的离线组合回测优化。",
+    "sl_map": "当前 records 不含完整盘中路径，SL 先沿用默认参数。",
+    "tp_map": "当前 records 不含完整盘中路径，TP 先沿用默认参数。",
+    "score_thresholds": "当前 records 不含在线打分原始特征，分数阈值先沿用默认参数。",
+    "filters": "当前 records 不含完整结构特征，过滤阈值先沿用默认参数。"
+  },
+  "score_thresholds": {
+    "strong_bull_min": 78.0,
+    "bull_min": 66.0,
+    "mixed_min": 48.0
+  },
+  "filters": {
+    "min_liquidity_usd": 12000.0,
+    "max_top10_pct": 35.0,
+    "max_deployer_pct": 8.0
+  },
+  "trade_plan": {
+    "alloc_map": {
+      "SMART_TREND": 0.1637,
+      "SNIPER_PLAY": 0.1276,
+      "BUNDLE_CTRL": 0.0274,
+      "MIXED": 0.1509
+    },
+    "sl_map": {
+      "SMART_TREND": 0.12,
+      "SNIPER_PLAY": 0.1,
+      "BUNDLE_CTRL": 0.09,
+      "MIXED": 0.1
+    },
+    "tp_map": {
+      "SMART_TREND": [
+        1.3,
+        1.6,
+        2.0
+      ],
+      "SNIPER_PLAY": [
+        1.2,
+        1.45,
+        1.8
+      ],
+      "BUNDLE_CTRL": [
+        1.18,
+        1.35,
+        1.6
+      ],
+      "MIXED": [
+        1.22,
+        1.45,
+        1.75
+      ]
+    }
+  },
+  "best_backtest": {
+    "initial_capital_sol": 1.0,
+    "cash_sol": 1.07543,
+    "equity_sol": 1.07543,
+    "open_positions": 0,
+    "closed_trades": 18,
+    "win_rate_pct": 38.89,
+    "loss_rate_pct": 61.11,
+    "total_net_pnl_sol": 0.093755,
+    "total_cost_sol": 0.03744,
+    "roi_pct": 7.54,
+    "max_drawdown_pct": 12.08,
+    "by_strategy": {
+      "MIXED": {
+        "trades": 17,
+        "wins": 7,
+        "net_pnl_sol": 0.097542,
+        "cost_sol": 0.037061,
+        "win_rate_pct": 41.18
+      },
+      "BUNDLE_CTRL": {
+        "trades": 1,
+        "wins": 0,
+        "net_pnl_sol": -0.003787,
+        "cost_sol": 0.000379,
+        "win_rate_pct": 0.0
+      }
+    }
+  }
+}

@@ -601,6 +601,968 @@
       "time": 1769362066.210297,
       "result": "WIN",
       "pnl": 35.51088777219432
+    },
+    {
+      "time": 1773003924.5889704,
+      "result": "CLOSED_SL",
+      "pnl": -34.37547712670895
+    },
+    {
+      "time": 1773003955.528704,
+      "result": "CLOSED_TP",
+      "pnl": 31.81342195313891
+    },
+    {
+      "time": 1773004727.053499,
+      "result": "CLOSED_SL",
+      "pnl": -54.36253095829196
+    },
+    {
+      "time": 1773005139.7463012,
+      "result": "CLOSED_TP",
+      "pnl": 30.479877372176762
+    },
+    {
+      "time": 1773005344.5584292,
+      "result": "CLOSED_SL",
+      "pnl": -27.840573613190113
+    },
+    {
+      "time": 1773005533.685221,
+      "result": "CLOSED_TP",
+      "pnl": 39.566867890425335
+    },
+    {
+      "time": 1773005729.614872,
+      "result": "CLOSED_TP",
+      "pnl": 39.536353179115466
+    },
+    {
+      "time": 1773005894.4549437,
+      "result": "CLOSED_TP",
+      "pnl": 44.140331629252515
+    },
+    {
+      "time": 1773006091.2085316,
+      "result": "CLOSED_TP",
+      "pnl": 34.47720172949871
+    },
+    {
+      "time": 1773006356.1270142,
+      "result": "CLOSED_TP",
+      "pnl": 66.57448516430522
+    },
+    {
+      "time": 1773006807.9402752,
+      "result": "CLOSED_TP",
+      "pnl": 37.96814738142513
+    },
+    {
+      "time": 1773008230.9946945,
+      "result": "CLOSED_SL",
+      "pnl": -25.182964057003577
+    },
+    {
+      "time": 1773009804.012672,
+      "result": "CLOSED_SL",
+      "pnl": -13.5369105953459
+    },
+    {
+      "time": 1773010785.8886213,
+      "result": "CLOSED_SL",
+      "pnl": -11.863359209852076
+    },
+    {
+      "time": 1773011569.3909972,
+      "result": "CLOSED_SL",
+      "pnl": -17.240976976547266
+    },
+    {
+      "time": 1773011783.8190777,
+      "result": "CLOSED_SL",
+      "pnl": -14.1504562464696
+    },
+    {
+      "time": 1773012975.3681316,
+      "result": "CLOSED_SL",
+      "pnl": -10.827376594966916
+    },
+    {
+      "time": 1773070757.2330718,
+      "result": "CLOSED_SL",
+      "pnl": -12.803092343263128,
+      "ca": "6bZz9HmLNL9L4RavV5PWUo9K6XNZ53MgH486gWG6pump"
+    },
+    {
+      "time": 1773218992.332299,
+      "result": "CLOSED_TP",
+      "pnl": 77.61772600251639,
+      "ca": "EPuZ1X6pPzac3ELPsT59LStmgaSr4kBJvaAbL15Fpump"
+    },
+    {
+      "time": 1773240797.169528,
+      "result": "CLOSED_SL",
+      "pnl": -1.050422634721539,
+      "ca": "4QFm9P81RuDQWd4mt4g9cWiY36z7cSDyhYS1yiRJpump"
+    },
+    {
+      "time": 1773241019.6058505,
+      "result": "CLOSED_TP",
+      "pnl": 103.79628249278332,
+      "ca": "4tHBmYiXfEAEVoykTY14d2unbKPiu4222ZZTyJ66XgHL"
+    },
+    {
+      "time": 1773246143.9974422,
+      "result": "CLOSED_SL",
+      "pnl": -24.766120635938112,
+      "ca": "w6Ym1TgYRhUfmsd1QTfzkuchKApx5tCKhi8tX53NL5n"
+    },
+    {
+      "time": 1773254757.5535188,
+      "result": "CLOSED_SL",
+      "pnl": -13.759436494096649,
+      "ca": "KRKYaf6iDGaQL42Gu9R6AdSqV18dCmbapqFcrAkpump"
+    },
+    {
+      "time": 1773307331.6043878,
+      "result": "CLOSED_SL",
+      "pnl": -16.70575223750864,
+      "ca": "H1KfhvgiDFFNNQncRhkMWrgUMwg56GTxmY4Vrtyspump"
+    },
+    {
+      "time": 1773310709.6183012,
+      "result": "CLOSED_SL",
+      "pnl": -34.11227646014676,
+      "ca": "2q6CZG5uS1mJjGBeZ8wxTunMFy6DRbEo6TX8vLgDpump"
+    }
+  ],
+  "DEFAULT": [
+    {
+      "time": 1773003760.6636603,
+      "result": "CLOSED_SL",
+      "pnl": -35.17471969668854
+    },
+    {
+      "time": 1773003765.9457073,
+      "result": "CLOSED_SL",
+      "pnl": -43.27115914541634
+    }
+  ],
+  "BUNDLE_CTRL": [
+    {
+      "time": 1773006713.0603335,
+      "result": "CLOSED_SL",
+      "pnl": -13.15560461575645
+    },
+    {
+      "time": 1773060982.8024046,
+      "result": "CLOSED_SL",
+      "pnl": -80.68950749047646,
+      "ca": "vsBuvhjkn8nWTFD4v85DuvtyoQEqwwpguDtbZctpump"
+    },
+    {
+      "time": 1773069931.7981305,
+      "result": "CLOSED_SL",
+      "pnl": -13.610873716911506,
+      "ca": "DdinvJ8RrmExNfcDHzmsvxkdj1adi6LNABHukSCnpump"
+    },
+    {
+      "time": 1773070726.3665206,
+      "result": "CLOSED_SL",
+      "pnl": -2.3345648370445575,
+      "ca": "BMcAr79e7ppE4QhtBuNaCwfSW4k6aRAdVyPY8XDRpump"
+    },
+    {
+      "time": 1773071204.4007142,
+      "result": "CLOSED_SL",
+      "pnl": -9.908218082701667,
+      "ca": "47QJF93AZyxYFmJs7aWYCir8EYvGem6TSgRmcSA8pump"
+    },
+    {
+      "time": 1773071322.9422605,
+      "result": "CLOSED_SL",
+      "pnl": -12.3311986614071,
+      "ca": "BfySscpdJfPtnNDBsA75TatqHoRQL64VGPNwAfjUpump"
+    },
+    {
+      "time": 1773072516.2207835,
+      "result": "CLOSED_SL",
+      "pnl": -8.49053218819225,
+      "ca": "5Xwr4RTbCBYfyBhz3fdm58AcLuYyE227RAnhjZChpump"
+    },
+    {
+      "time": 1773073201.359051,
+      "result": "CLOSED_SL",
+      "pnl": -5.255226378187581,
+      "ca": "HKNV8YLVBSMHUPpbSub69Mj6bP6DBTpoHP1Hb3TMpump"
+    },
+    {
+      "time": 1773073360.4424298,
+      "result": "CLOSED_TP",
+      "pnl": 84.75396449452155,
+      "ca": "2dsCCL7G8VrVnMRsfH3UwW54pvk2hRCrYMyPN2fspump"
+    },
+    {
+      "time": 1773073794.296512,
+      "result": "CLOSED_TP",
+      "pnl": 73.43809361108036,
+      "ca": "9QNEVdNjJHxfAFhH6758gU71j6DjA3pFGAUDAqQSpump"
+    },
+    {
+      "time": 1773074501.3789444,
+      "result": "CLOSED_SL",
+      "pnl": -1.155445426837899,
+      "ca": "HWHxsQgYvQTW9YB7PaAekNQEkMjBbseFFTvW5znWpump"
+    },
+    {
+      "time": 1773076257.507922,
+      "result": "CLOSED_SL",
+      "pnl": -9.983859696977538,
+      "ca": "BScSwv6HNjUxxVe3cg2CoAewoiZzhePyP9nqUbkVpump"
+    },
+    {
+      "time": 1773077514.2665815,
+      "result": "CLOSED_SL",
+      "pnl": -11.973786801404138,
+      "ca": "J2J5JvbaxkGBoJpgU3bMkZZu82aMceQd4NoTApCYpump"
+    },
+    {
+      "time": 1773079117.1298382,
+      "result": "CLOSED_SL",
+      "pnl": -0.5232456658237142,
+      "ca": "7F1Q6yYzMAAyGGdyyNebHWwhj3YAHi7EDAGzSNy5pump"
+    },
+    {
+      "time": 1773083981.7596018,
+      "result": "CLOSED_SL",
+      "pnl": -46.837285830274126,
+      "ca": "Gf6735FvJamjT7Zo5snAzBvEC9Le8Wp9g1bwuCH5pump"
+    },
+    {
+      "time": 1773084301.2337432,
+      "result": "CLOSED_SL",
+      "pnl": -7.2467662501024,
+      "ca": "4LhYy34xiBTzyLpNWZqByzvb4GhAHiLPsP6qb7X5pump"
+    },
+    {
+      "time": 1773085674.3136482,
+      "result": "CLOSED_TP",
+      "pnl": 73.04619448317918,
+      "ca": "ENcwYGVhRsEqKpH4SzRH4mcYSGc9Cb6s4WJGS9ojpump"
+    },
+    {
+      "time": 1773086165.089529,
+      "result": "CLOSED_TP",
+      "pnl": 99.04738195929265,
+      "ca": "Bu41PMerRUgT2By5RoNxTj1aS3bkS74o66DLjobMpump"
+    },
+    {
+      "time": 1773086905.120192,
+      "result": "CLOSED_TP",
+      "pnl": 96.94523662850094,
+      "ca": "D3fMHwqhoV556X8zXqtB5e4DFzFagWbxWbMcRiwspump"
+    },
+    {
+      "time": 1773086945.0215092,
+      "result": "CLOSED_SL",
+      "pnl": -0.5120009041085498,
+      "ca": "6bV2xfo5C1caRp7hQr6UK52qJcmfnVmeSjtqtv83pump"
+    },
+    {
+      "time": 1773086959.6735494,
+      "result": "CLOSED_SL",
+      "pnl": -9.520240904669224,
+      "ca": "6pdyYvESMYJT9EkiWAg2KHnqJSULwDtNfKd19etQpump"
+    },
+    {
+      "time": 1773087071.3235054,
+      "result": "CLOSED_TP",
+      "pnl": 164.65794050865418,
+      "ca": "BYdJfYfmgKkSsQfsftj6TQrB4qwmpr7u26YFnhdfpump"
+    },
+    {
+      "time": 1773088347.100261,
+      "result": "CLOSED_SL",
+      "pnl": -4.322450841620072,
+      "ca": "AibQQcwGsDyVZKtCoYFyj3raq97KqgyvJfeb6qd5pump"
+    },
+    {
+      "time": 1773088902.4564402,
+      "result": "CLOSED_SL",
+      "pnl": -11.50935548201451,
+      "ca": "3rQshQa5SMcexSitQEmEnhy2zhz6iUWJNkTJuhgqpump"
+    },
+    {
+      "time": 1773089692.6041691,
+      "result": "CLOSED_TP",
+      "pnl": 59.24053303240486,
+      "ca": "385ZzN5H5Ma427MQqntZH3x79orN6ZxvhpXJaoLSpump"
+    },
+    {
+      "time": 1773090264.6391222,
+      "result": "CLOSED_SL",
+      "pnl": -11.324088835136562,
+      "ca": "DxRGcRQN1xdskxtxfuQA79Z4zrutL94AGH9QHBFFpump"
+    },
+    {
+      "time": 1773091396.2192302,
+      "result": "CLOSED_SL",
+      "pnl": -32.759269692673115,
+      "ca": "3VnoCkeyf9snJtw6xDJypdbsgUFMM9PT7GsoaHTqpump"
+    },
+    {
+      "time": 1773092048.0464997,
+      "result": "CLOSED_SL",
+      "pnl": -11.12008288498215,
+      "ca": "AwGNpQBt5BBY1rdrL1SfNvtyk2K5dYECZqBQTKMNpump"
+    },
+    {
+      "time": 1773092279.4030278,
+      "result": "CLOSED_TP",
+      "pnl": 97.45569025036454,
+      "ca": "DAwEeQ73Pb2Cb7fP1A4MFcdF2o3vkshGvFx2Dy51pump"
+    },
+    {
+      "time": 1773092637.7726429,
+      "result": "CLOSED_TP",
+      "pnl": 72.86237489550038,
+      "ca": "9CaLRy7Qoc214aBzGGjLJrEeCFarP9pdvufKDX5Cpump"
+    },
+    {
+      "time": 1773093055.2635927,
+      "result": "CLOSED_SL",
+      "pnl": -10.566212321942507,
+      "ca": "BfGzWYcjtmkcjGN7szBZ3L8yRpyfcWys5o6ZvzAWpump"
+    },
+    {
+      "time": 1773093243.0737047,
+      "result": "CLOSED_TP",
+      "pnl": 58.62523077547297,
+      "ca": "3KTCt2j839xYebGoFXwuvVPrBzteFDSAkopp8pfNpump"
+    },
+    {
+      "time": 1773094395.1546593,
+      "result": "CLOSED_TP",
+      "pnl": 104.6545551582885,
+      "ca": "DEgGfQLG2RXYHVYUPmC5jQTXoGXMDcCtG4FdNBNApump"
+    },
+    {
+      "time": 1773094463.9988036,
+      "result": "CLOSED_SL",
+      "pnl": -16.0908842788741,
+      "ca": "Cnru9iwesBdoRt2ZXTK6gwkpNPGAHbrojiwxJ1XLpump"
+    },
+    {
+      "time": 1773096856.5168908,
+      "result": "CLOSED_SL",
+      "pnl": -22.960071738119968,
+      "ca": "GbEzaTGBLpdRYrVgBDGiL2FyqdCQNmNnfunGp8Zcpump"
+    },
+    {
+      "time": 1773096958.7922618,
+      "result": "CLOSED_SL",
+      "pnl": -9.74106745864555,
+      "ca": "BpBfhJ58FnGLzXoraPijGEjA4NQvSfcxj1r9Lx6bpump"
+    },
+    {
+      "time": 1773099744.0275502,
+      "result": "CLOSED_SL",
+      "pnl": -15.427336954900603,
+      "ca": "tTJj3mquBmzSYM8VwCxmp1c2AhQCjidQ5DdCdL4pump"
+    },
+    {
+      "time": 1773100084.452383,
+      "result": "CLOSED_SL",
+      "pnl": -1.3032360835273737,
+      "ca": "GcQ54TgZW7m6Ek9WdHu55B6WEKSXpJ3Xq87A6cLdpump"
+    },
+    {
+      "time": 1773100681.0640535,
+      "result": "CLOSED_SL",
+      "pnl": -29.19273622528718,
+      "ca": "2NsgaQf9Yo8URZwBMip5aWZ2wYrg3CL6Jw2JSVFppump"
+    },
+    {
+      "time": 1773101207.853981,
+      "result": "CLOSED_SL",
+      "pnl": -22.079852573356778,
+      "ca": "FiPzSde9uPrxL9jrzCovufoHJAQH1RfzAbnx5Qoopump"
+    },
+    {
+      "time": 1773101365.3458438,
+      "result": "CLOSED_SL",
+      "pnl": -30.303890269573813,
+      "ca": "3cxmQuJA4ueiJRmRwhaTE4id1LESyqVEFQUVMWm6pump"
+    },
+    {
+      "time": 1773101396.8704178,
+      "result": "CLOSED_SL",
+      "pnl": -11.688817929711682,
+      "ca": "9VLSYcMU38KEKZCNdc4T6VceLvshn93wheJjV5eSpump"
+    },
+    {
+      "time": 1773101477.0638459,
+      "result": "CLOSED_SL",
+      "pnl": -24.35062348739996,
+      "ca": "GPEP5Z9zfK7AHbFsjrdR48EBvHT1QbZdHpBDjFevpump"
+    },
+    {
+      "time": 1773101667.000076,
+      "result": "CLOSED_SL",
+      "pnl": -11.134942202993022,
+      "ca": "2xv3aF5i2vSjPg4WuwSNXCvhQ1fdproJHgkJzL9Qhard"
+    },
+    {
+      "time": 1773102167.2654278,
+      "result": "CLOSED_SL",
+      "pnl": -12.732425108657708,
+      "ca": "8U66GhympMF7Su6DjjW3wuXTwgnYTxhKJrAcm1Upump"
+    },
+    {
+      "time": 1773103003.9662213,
+      "result": "CLOSED_SL",
+      "pnl": -18.439012880608274,
+      "ca": "H7pbJU4rabnyRE75UxtxgCjF3JG8K3gGj6SPqP7Mpump"
+    },
+    {
+      "time": 1773105231.7691095,
+      "result": "CLOSED_SL",
+      "pnl": -38.573748007048344,
+      "ca": "G7Yxeadop2gGdhdzQGSpvXwCM4DyM4LbRfobgSEspump"
+    },
+    {
+      "time": 1773106211.9123538,
+      "result": "CLOSED_SL",
+      "pnl": -26.552314991661248,
+      "ca": "4y3V3B72MmC5nRgq4w31fcLH349b7uMf2iEo1c1rpump"
+    },
+    {
+      "time": 1773106412.3289945,
+      "result": "CLOSED_TP",
+      "pnl": 62.936813347334166,
+      "ca": "A515x3ogsb9KMu94cM94XG6VsYrD1vVpMnMbeVdypump"
+    },
+    {
+      "time": 1773106798.2387888,
+      "result": "CLOSED_SL",
+      "pnl": -21.37000528767674,
+      "ca": "5292WdmVjUKsqcMxURgrubMUxyjnHayuhNb1qyNApump"
+    },
+    {
+      "time": 1773107543.9698043,
+      "result": "CLOSED_SL",
+      "pnl": -38.669714720626814,
+      "ca": "Cmoi6aZuAL2bABD4qR6UCBE3GGr798N38H72FPhqpump"
+    },
+    {
+      "time": 1773108075.9028456,
+      "result": "CLOSED_SL",
+      "pnl": -22.466420884879934,
+      "ca": "EqjjnANa3vH9gZ2RqJRWoe2QY253RMmsKwAmdVvLpump"
+    },
+    {
+      "time": 1773109222.5308845,
+      "result": "CLOSED_TP",
+      "pnl": 82.28949069415515,
+      "ca": "CNywYK9toHKLMSkXnrxESEVkxDRACP2Wbu3Q64jtpump"
+    },
+    {
+      "time": 1773110427.4942486,
+      "result": "CLOSED_SL",
+      "pnl": -30.443277297781368,
+      "ca": "2pj3QbvDB2vqFLLkcFDF8JKchZBeUFT39j6aCUP4pump"
+    },
+    {
+      "time": 1773110737.0794117,
+      "result": "CLOSED_TP",
+      "pnl": 55.192231210284504,
+      "ca": "Afie6UqtEU2HRzigDwBgdfwrrumkWwcwrHXjoG5Zpump"
+    },
+    {
+      "time": 1773112508.647019,
+      "result": "CLOSED_TP",
+      "pnl": 82.29061978135384,
+      "ca": "6nQS4ja29wDgMi32G3NpJdnzbUYc2G4242kujcHRJpoc"
+    },
+    {
+      "time": 1773113432.0601163,
+      "result": "CLOSED_TP",
+      "pnl": 55.057312256693194,
+      "ca": "FSdgxn1mfCk49dmmrK2MUVhxGbg2hJNnXbwPLfc5pump"
+    },
+    {
+      "time": 1773113702.6747634,
+      "result": "CLOSED_TP",
+      "pnl": 79.42841643199951,
+      "ca": "9ZfEvQxueBqFANHTKPKUBE47WyEdK4EfuwL5R4vppump"
+    },
+    {
+      "time": 1773113714.855528,
+      "result": "CLOSED_TP",
+      "pnl": 55.6369967042959,
+      "ca": "258cVD5YoU6FXWbGJSnWygPhJW8W2YQpVRpmzcL8pump"
+    },
+    {
+      "time": 1773114618.51679,
+      "result": "CLOSED_SL",
+      "pnl": -33.75282439568648,
+      "ca": "GRPejJh33L6KWFJcW7HkcrMpSAjGd2Ym9SMaeETnpump"
+    },
+    {
+      "time": 1773115471.7104268,
+      "result": "CLOSED_SL",
+      "pnl": -25.425634987364564,
+      "ca": "CJZA9txWhV4UJyQEbNz6XKQYwKLsqMbAqi1TDKdypump"
+    },
+    {
+      "time": 1773116200.9248452,
+      "result": "CLOSED_SL",
+      "pnl": -21.767529937062776,
+      "ca": "DeaBzsLoDcjLLiaGdE9PhYLwqyMSNFuajTPmWUbypump"
+    },
+    {
+      "time": 1773117844.5106647,
+      "result": "CLOSED_SL",
+      "pnl": -19.04833235255422,
+      "ca": "7NYLdfwZmgNmankvBJa6CNKenFdqnv4w6vJhWCKbpump"
+    },
+    {
+      "time": 1773118019.1473973,
+      "result": "CLOSED_SL",
+      "pnl": -21.920311167329793,
+      "ca": "CeKdkk1rk1wJdJQt9W4RV7pr2oQdudjBS51jTKfUpump"
+    },
+    {
+      "time": 1773121683.2752602,
+      "result": "CLOSED_SL",
+      "pnl": -11.178870047712698,
+      "ca": "D1piWBxpGj8RnR4vFZfyPwyvuUNDUBREjgeRGYRepump"
+    },
+    {
+      "time": 1773122532.7174666,
+      "result": "CLOSED_SL",
+      "pnl": -6.539334744198504,
+      "ca": "CMSbwaKzyzeYevUEGePzUYvocDttkxZvmnQ6z6Yxpump"
+    },
+    {
+      "time": 1773122574.8355072,
+      "result": "CLOSED_SL",
+      "pnl": -17.86892504285836,
+      "ca": "9zk9FgH2BxfYfti9MoPYkgWpvf1JPTDi1zvMvucgpump"
+    },
+    {
+      "time": 1773122820.408597,
+      "result": "CLOSED_SL",
+      "pnl": -11.161911668341377,
+      "ca": "A1yxxMwMbAZ5xhcTsyvHw2uD26ZJ7sR4zTehw5h2pump"
+    },
+    {
+      "time": 1773123439.53292,
+      "result": "CLOSED_SL",
+      "pnl": -4.924777655243839,
+      "ca": "HRr9rKSUayjTzVC4NTt5tcUjXDswNAiz5aqC5niVpump"
+    },
+    {
+      "time": 1773125125.4867527,
+      "result": "CLOSED_SL",
+      "pnl": -12.14635938548432,
+      "ca": "3JerGi8RXiKJTptB77FPfrqYERCs32jdLVw1Gd8Spump"
+    },
+    {
+      "time": 1773125522.118772,
+      "result": "CLOSED_SL",
+      "pnl": -10.453761465698443,
+      "ca": "7MQhX69YwVhtiSBdbQ8heV1WHAoFXYdaQ9Bn6cTDpump"
+    },
+    {
+      "time": 1773126977.3816507,
+      "result": "CLOSED_TP",
+      "pnl": 58.93063752867086,
+      "ca": "Czcg2J1vRySACiX1VDb7gCXfM1PjJp6Gu7gLnnQBpump"
+    },
+    {
+      "time": 1773127055.043005,
+      "result": "CLOSED_SL",
+      "pnl": -0.07812391860757686,
+      "ca": "9MEuLXfkNPcatruPGYsxDBXmTMFgib8WhMXteyETpump"
+    },
+    {
+      "time": 1773127341.5123067,
+      "result": "CLOSED_SL",
+      "pnl": -6.1091931065342004,
+      "ca": "14LVFxXMhuUEwhudxeDqCAek4wufeiQfNzNpNtJrpump"
+    },
+    {
+      "time": 1773127708.7764425,
+      "result": "CLOSED_SL",
+      "pnl": -1.269447924945199,
+      "ca": "ET9kVAMnjeUhGnqhRmzC2sWuxs1eXhydXH4XHasBpump"
+    },
+    {
+      "time": 1773128473.0400302,
+      "result": "CLOSED_SL",
+      "pnl": -16.30044860002718,
+      "ca": "E99fP7mnM5Jj3ss1aZo1R13HjeEvZs1xTERVf9ampump"
+    },
+    {
+      "time": 1773129151.1537502,
+      "result": "CLOSED_SL",
+      "pnl": -21.63401494796957,
+      "ca": "7dr5JCFeLqcbqpvDjNriZ2sxdBQ626Rc4HDTtgeUpump"
+    },
+    {
+      "time": 1773129263.3215215,
+      "result": "CLOSED_TP",
+      "pnl": 128.80522269539821,
+      "ca": "FcUdd49bfuajzmVKxGDkyFWqZp7vXkh1fpsCmtYApump"
+    },
+    {
+      "time": 1773134513.0453334,
+      "result": "CLOSED_SL",
+      "pnl": -45.39711821926861,
+      "ca": "DT6ZUbAXc8bKErtZTXKQEebdjkX8MqQjS7ZQ2H5Wpump"
+    },
+    {
+      "time": 1773134911.7359588,
+      "result": "CLOSED_TP",
+      "pnl": 62.63405699776408,
+      "ca": "D5WomD9VJ5GAer4SxbfaXJt9aSq1H62rUmWGNKnzpump"
+    },
+    {
+      "time": 1773136024.7463553,
+      "result": "CLOSED_SL",
+      "pnl": -34.41964934973322,
+      "ca": "Ag6i6LVXfke9MfJACWs44HpjMuSEfvnEAH2qA1Dypump"
+    },
+    {
+      "time": 1773139226.29251,
+      "result": "CLOSED_TP",
+      "pnl": 119.94889144563057,
+      "ca": "AKLNgCfdVJvUZmq28zQAwjbXwpLUgbZoupBwD35qpump"
+    },
+    {
+      "time": 1773143067.5102572,
+      "result": "CLOSED_SL",
+      "pnl": -10.260228718295918,
+      "ca": "75bDcUuMqqzRQAsdJn8ZucfAhxndexKri65dzjz8pump"
+    },
+    {
+      "time": 1773143098.174538,
+      "result": "CLOSED_SL",
+      "pnl": -2.6527825001926093,
+      "ca": "2oEGVxwdUm2BU1quPqvuzAnAXk1FZCNQAo9kX6fBpump"
+    },
+    {
+      "time": 1773143886.908597,
+      "result": "CLOSED_SL",
+      "pnl": -37.07720495535073,
+      "ca": "ArCadd1FPNuGjxBwSv1gPhUnxPeSYudu1s489TJhpump"
+    },
+    {
+      "time": 1773143907.0681553,
+      "result": "CLOSED_TP",
+      "pnl": 101.93880204567014,
+      "ca": "EqBkopiBiEwXAzmnisyzei8ZvM1er4dMeE8ux9PZpump"
+    },
+    {
+      "time": 1773145209.0251758,
+      "result": "CLOSED_TP",
+      "pnl": 55.96275826586468,
+      "ca": "9se2P5n5vP2JWRk1jcuQqsL9Jmnpt2FwwbqVnCjxpump"
+    },
+    {
+      "time": 1773146076.4015074,
+      "result": "CLOSED_SL",
+      "pnl": -11.898520863978586,
+      "ca": "Frfpk4Z3YXb1ZucaRa6enHu2KoQ6YLffkQRbDeqypump"
+    },
+    {
+      "time": 1773146190.520945,
+      "result": "CLOSED_TP",
+      "pnl": 56.89443189686211,
+      "ca": "41egcxpjFyTbfcS8noETE4p3dnjESWxoyzkU8hCUpump"
+    },
+    {
+      "time": 1773176149.753195,
+      "result": "CLOSED_SL",
+      "pnl": -9.559767416921556,
+      "ca": "ENwN4jqx1vZerS6eiAGqXAzVdsDDjyCZJw6p5bztpump"
+    },
+    {
+      "time": 1773176272.905757,
+      "result": "CLOSED_TP",
+      "pnl": 385.96092650971883,
+      "ca": "FWnfr9zn5xMkWXC91KQjbRKpMKu79ak4Zsqn9zvWpump"
+    },
+    {
+      "time": 1773185113.1698997,
+      "result": "CLOSED_SL",
+      "pnl": -74.79277847568447,
+      "ca": "CJEGE45Yds1J1WbatimMix81wrpEWVKYupHE3sGfpump"
+    },
+    {
+      "time": 1773185928.8971906,
+      "result": "CLOSED_SL",
+      "pnl": -61.819475582515324,
+      "ca": "BqftBeosofz9BwpeMNswrDpMysw3WGg2VnquPzekpump"
+    },
+    {
+      "time": 1773185961.1952233,
+      "result": "CLOSED_SL",
+      "pnl": -12.747087947399423,
+      "ca": "D5QGutyGtkEsUZsvh5eW4i7enxKt7QgFgzPM5paGpump"
+    },
+    {
+      "time": 1773186240.8351777,
+      "result": "CLOSED_SL",
+      "pnl": -14.596911233613927,
+      "ca": "CGrSSYrzDdxhJGhNyTxedW8dX9zVbJv6Z83d1o9ppump"
+    },
+    {
+      "time": 1773218009.1280122,
+      "result": "CLOSED_SL",
+      "pnl": -60.662285522466654,
+      "ca": "6XT8BeVndV53Sts8Fxk2Zr9WWkMWzuJwVGxYoBmspump"
+    },
+    {
+      "time": 1773219074.1714199,
+      "result": "CLOSED_SL",
+      "pnl": -2.80215286522884,
+      "ca": "GsH2xhweEKqdriF7FrPoWB71amCyGf9CccJURAfypump"
+    },
+    {
+      "time": 1773232712.0465493,
+      "result": "CLOSED_SL",
+      "pnl": -6.840346708891529,
+      "ca": "F1Tq1a8NVJfgimf1dDyJivhFxah4tT82fMvFJn5Xpump"
+    },
+    {
+      "time": 1773241187.1305385,
+      "result": "CLOSED_SL",
+      "pnl": -6.950887901017658,
+      "ca": "3j1KTqwjzq9GPTguJbWbS6BoqBR3gBx3D7VsU77cpump"
+    },
+    {
+      "time": 1773242154.005186,
+      "result": "CLOSED_SL",
+      "pnl": -14.409946844139117,
+      "ca": "2D1UKhjn8whGVLeoZnaULjSS3unThHu2NqoSVnM2pump"
+    },
+    {
+      "time": 1773243764.9991932,
+      "result": "CLOSED_SL",
+      "pnl": -10.161930244733632,
+      "ca": "EcEP6shgosHfg4m5b7wWTHHJZFWzoF1iqcdZMBzwpump"
+    },
+    {
+      "time": 1773243947.935023,
+      "result": "CLOSED_TP",
+      "pnl": 220.40818909108867,
+      "ca": "Ec6PyVCZfBdBBsWDQ8myTpC78sTNEN1VEvij9mzTpump"
+    },
+    {
+      "time": 1773244035.6464713,
+      "result": "CLOSED_TP",
+      "pnl": 62.65720289305358,
+      "ca": "G25yXv8vUWAyXChWopnGEDdY6kTpDASUHPngf1bCpump"
+    },
+    {
+      "time": 1773244121.243867,
+      "result": "CLOSED_SL",
+      "pnl": -3.2666745943762288,
+      "ca": "9hcLe3BY8arWVT6pU4rvUj3b9R56zuKX7eLM5zGnpump"
+    },
+    {
+      "time": 1773244826.9051254,
+      "result": "CLOSED_SL",
+      "pnl": -13.729426953395246,
+      "ca": "8QoornHynNCGVSwsRif9mbB24WA12D4RFBASYSDepump"
+    },
+    {
+      "time": 1773246536.2673514,
+      "result": "CLOSED_SL",
+      "pnl": -18.255301083082855,
+      "ca": "Ao9wZn2YbW8KDs3655iFb4S72MLQVy9KbiZ45APspump"
+    },
+    {
+      "time": 1773246537.4447346,
+      "result": "CLOSED_SL",
+      "pnl": -21.47763177359527,
+      "ca": "2KCdEr7Si1ycy7LkMUZx9d4YcdeP32c3L2Uyxjgypump"
+    },
+    {
+      "time": 1773246548.1319506,
+      "result": "CLOSED_SL",
+      "pnl": -16.10220122956556,
+      "ca": "5HRvg8w1yZ4TrFpzkk3AumV8BJk2dufRiF4gkfPXpump"
+    },
+    {
+      "time": 1773246677.1632578,
+      "result": "CLOSED_TP",
+      "pnl": 84.05893530092614,
+      "ca": "DViKimfPWfkyLqQwRGvaB8TRJuqiViJSnJ6xYv76pump"
+    },
+    {
+      "time": 1773247498.2242737,
+      "result": "CLOSED_SL",
+      "pnl": -9.416290793634198,
+      "ca": "3QFiUjEcdSo5ZgPHSM6tq5KQqAAZJTYBsmbR5x91pump"
+    },
+    {
+      "time": 1773247814.6114745,
+      "result": "CLOSED_SL",
+      "pnl": -10.346921452632536,
+      "ca": "BxoreZ1PLhDkBpbiiAr6U52cV7BeeeUnzNzyhc3spump"
+    },
+    {
+      "time": 1773248482.7904305,
+      "result": "CLOSED_TP",
+      "pnl": 63.78430746714151,
+      "ca": "GQSXRbPQa5BYJZNxNNxK4ijynVoQDfNRQCSnTrPfpump"
+    },
+    {
+      "time": 1773248538.177782,
+      "result": "CLOSED_TP",
+      "pnl": 62.46648702756371,
+      "ca": "Uzar8MuEWnp53sAXdLzyCNiETQs3eubHYDFhrXepump"
+    },
+    {
+      "time": 1773249573.444857,
+      "result": "CLOSED_TP",
+      "pnl": 62.10954991488862,
+      "ca": "9WMT96LSz7bh2vKBHkukya9treVmG7KNe1Mazth1pump"
+    },
+    {
+      "time": 1773251240.4389677,
+      "result": "CLOSED_SL",
+      "pnl": -11.2092345164215,
+      "ca": "F37kqF4JYTjyHTi27FxrK8yMBB4BtCR17NjsKMsRpump"
+    },
+    {
+      "time": 1773251267.9101138,
+      "result": "CLOSED_TP",
+      "pnl": 102.94693738099272,
+      "ca": "HWti8wCWRAWzhYP3K8wc8aqATehRgoiBpRW2hdoBpump"
+    },
+    {
+      "time": 1773252356.6209884,
+      "result": "CLOSED_TP",
+      "pnl": 57.04162718929855,
+      "ca": "3aXneBrC4GWsHG2qvFEmRWwbmQM4J7pA3zd1j5u5pump"
+    },
+    {
+      "time": 1773252571.6092353,
+      "result": "CLOSED_SL",
+      "pnl": -11.086136554569826,
+      "ca": "Bdb2PzTYRQgC3hUomVe8EdEk32hKYuS3wKZpsRZnpump"
+    },
+    {
+      "time": 1773253792.1819105,
+      "result": "CLOSED_SL",
+      "pnl": -25.854551675115438,
+      "ca": "J3SNyujS4Au8QMjKcWonZFbxWwHJzzUgAgaYdJhjpump"
+    },
+    {
+      "time": 1773253957.792782,
+      "result": "CLOSED_SL",
+      "pnl": -7.829626659782677,
+      "ca": "81fBkmvQxP89VVHmsNf7Gz2d2g1srTG5s8hyBxKKpump"
+    },
+    {
+      "time": 1773254725.7560542,
+      "result": "CLOSED_TP",
+      "pnl": 284.3183233149031,
+      "ca": "D22MoGBGQd24Zvz2C1Hbk3jxUcayhWyomn5qamyppump"
+    },
+    {
+      "time": 1773254932.763233,
+      "result": "CLOSED_TP",
+      "pnl": 60.288487789300774,
+      "ca": "Shyi9qzfCd25prt4f3BiC4N2MjW4ZCLtA6ufyoRpump"
+    },
+    {
+      "time": 1773259693.0665953,
+      "result": "CLOSED_SL",
+      "pnl": -5.47945385198318,
+      "ca": "ANEmnvS4xiCThKHr3tHGdHUATF46mg5yJV76YBxtpump"
+    },
+    {
+      "time": 1773259693.7252595,
+      "result": "CLOSED_TP",
+      "pnl": 67.13451589309763,
+      "ca": "2AXfPwXtqy8KVwWLcHNNHbh9KejZhDb5WhKnoH4Cpump"
+    },
+    {
+      "time": 1773259843.9393184,
+      "result": "CLOSED_TP",
+      "pnl": 252.99281331466395,
+      "ca": "BEnEQtNs6UcxbN52yJmkoapYCof7M6kSGDpg9Vzpump"
+    },
+    {
+      "time": 1773260482.8544946,
+      "result": "CLOSED_SL",
+      "pnl": -8.412142420293543,
+      "ca": "4LwyZ3mQYan4uPFtEzmfDzLEZNCLDUsKjGTgh9sPpump"
+    },
+    {
+      "time": 1773261562.6431336,
+      "result": "CLOSED_SL",
+      "pnl": -15.446970288839351,
+      "ca": "EZtDo1zM7MeBvUfMWWkMnUhiZeNiT9T5PQjXS6hBpump"
+    },
+    {
+      "time": 1773261707.9252217,
+      "result": "CLOSED_SL",
+      "pnl": -38.85331307037423,
+      "ca": "5f4rt3KwmH5Kb8kz4wfgNpzhoJDWeG6fWY2orAaHpump"
+    },
+    {
+      "time": 1773263019.6819813,
+      "result": "CLOSED_SL",
+      "pnl": -48.46387422083057,
+      "ca": "5b1aqbtJDE6NokK9SZVjfs4ELbcz5f6Kuqmet3Fqpump"
+    },
+    {
+      "time": 1773300628.0689163,
+      "result": "CLOSED_SL",
+      "pnl": -9.734093932376545,
+      "ca": "EruTpL4WRDANxswRPL9EpzmYjyD8dPvd6mbdcS4wpump"
+    },
+    {
+      "time": 1773300966.1810536,
+      "result": "CLOSED_SL",
+      "pnl": -11.513065720013323,
+      "ca": "57poKdhEsxkub3ENNnief1DzTmew7vbC5bKhcxprpump"
+    },
+    {
+      "time": 1773303657.4543145,
+      "result": "CLOSED_SL",
+      "pnl": -11.984693574362105,
+      "ca": "GS7oQp4HBpN1S9nv6e62XjUGjuwT9zUHxMvnLxRFpump"
+    },
+    {
+      "time": 1773303912.0059962,
+      "result": "CLOSED_TP",
+      "pnl": 64.93423798075455,
+      "ca": "G97pMz15pxsy645QYtJW6vRMVjgnX23UUxcKDAgupump"
+    },
+    {
+      "time": 1773310619.0509772,
+      "result": "CLOSED_SL",
+      "pnl": -69.0176515732924,
+      "ca": "4g4b8Q56A1Nj7jMUMnPs6ojh8qHSWcbz3AHLazyxpump"
+    },
+    {
+      "time": 1773310709.0515904,
+      "result": "CLOSED_SL",
+      "pnl": -10.651298773597041,
+      "ca": "6bqxDD7sDKLKri85x7PdJWzDYbUnGpTNbfWdEWNTpump"
+    },
+    {
+      "time": 1773311053.2332659,
+      "result": "CLOSED_SL",
+      "pnl": -10.558093231755246,
+      "ca": "D243e9LGHJqxqxZFjjfJ5p9goA8rMiFYNc5n7tPqpump"
     }
   ]
 }

@@ -27,3 +27,6 @@ data/browser_profile/
 node_modules/
 Coin-Bot/node_modules/
 package-lock.json
+sessions/
+*.session
+*.session-journal

@@ -1,0 +1,58 @@
+{
+  "started_at": 1773052147.0118008,
+  "started_at_iso": "2026-03-09 11:29:07",
+  "python_executable": "C:\\Users\\DELL\\Desktop\\SolanaHunterV3\\venv\\Scripts\\python.exe",
+  "midnight_script": "midnight_hunter.py",
+  "train_script": "train_model.py",
+  "previous_state": {
+    "started_at": 1773051749.3064342,
+    "started_at_iso": "2026-03-09 11:22:29",
+    "python_executable": "C:\\Users\\DELL\\Desktop\\SolanaHunterV3\\venv\\Scripts\\python.exe",
+    "midnight_script": "midnight_hunter.py",
+    "train_script": "train_model.py",
+    "previous_state": {
+      "started_at": 1773047565.730297,
+      "started_at_iso": "2026-03-09 10:12:45",
+      "python_executable": "C:\\Users\\DELL\\Desktop\\SolanaHunterV3\\venv\\Scripts\\python.exe",
+      "midnight_script": "midnight_hunter.py",
+      "train_script": "train_model.py",
+      "previous_state": {},
+      "midnight_hunter": {
+        "ok": false,
+        "stage": "MidnightHunter",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"C:\\Users\\DELL\\Desktop\\SolanaHunterV3\\midnight_hunter.py\", line 114, in <module>\n    asyncio.run(run_midnight_hunter())\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\Lib\\asyncio\\runners.py\", line 190, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\Lib\\asyncio\\runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\Lib\\asyncio\\base_events.py\", line 654, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"C:\\Users\\DELL\\Desktop\\SolanaHunterV3\\midnight_hunter.py\", line 24, in run_midnight_hunter\n    print(\"\\U0001f987 ��ҹ�й� (Midnight Hunter) ������...\")\nUnicodeEncodeError: 'gbk' codec can't encode character '\\U0001f987' in position 0: illegal multibyte sequence\n",
+        "duration_sec": 2.958
+      },
+      "ok": false,
+      "finished_at": 1773047568.6898868,
+      "finished_at_iso": "2026-03-09 10:12:48",
+      "reason": "midnight_hunter 执行失败，训练中止"
+    },
+    "midnight_hunter": {
+      "ok": false,
+      "stage": "MidnightHunter",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"C:\\Users\\DELL\\Desktop\\SolanaHunterV3\\midnight_hunter.py\", line 114, in <module>\n    asyncio.run(run_midnight_hunter())\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\Lib\\asyncio\\runners.py\", line 190, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\Lib\\asyncio\\runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\Lib\\asyncio\\base_events.py\", line 654, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"C:\\Users\\DELL\\Desktop\\SolanaHunterV3\\midnight_hunter.py\", line 24, in run_midnight_hunter\n    print(\"\\U0001f987 ��ҹ�й� (Midnight Hunter) ������...\")\nUnicodeEncodeError: 'gbk' codec can't encode character '\\U0001f987' in position 0: illegal multibyte sequence\n",
+      "duration_sec": 0.796
+    },
+    "ok": false,
+    "finished_at": 1773051750.1048093,
+    "finished_at_iso": "2026-03-09 11:22:30",
+    "reason": "midnight_hunter 执行失败，训练中止"
+  },
+  "midnight_hunter": {
+    "ok": false,
+    "stage": "MidnightHunter",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"C:\\Users\\DELL\\Desktop\\SolanaHunterV3\\midnight_hunter.py\", line 114, in <module>\n    asyncio.run(run_midnight_hunter())\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\Lib\\asyncio\\runners.py\", line 190, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\Lib\\asyncio\\runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\Lib\\asyncio\\base_events.py\", line 654, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"C:\\Users\\DELL\\Desktop\\SolanaHunterV3\\midnight_hunter.py\", line 24, in run_midnight_hunter\n    print(\"\\U0001f987 ��ҹ�й� (Midnight Hunter) ������...\")\nUnicodeEncodeError: 'gbk' codec can't encode character '\\U0001f987' in position 0: illegal multibyte sequence\n",
+    "duration_sec": 0.863
+  },
+  "ok": false,
+  "finished_at": 1773052147.8888981,
+  "finished_at_iso": "2026-03-09 11:29:07",
+  "reason": "midnight_hunter 执行失败，训练中止"
+}

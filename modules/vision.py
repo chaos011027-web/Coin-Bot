@@ -1,105 +1,152 @@
 import os
 import logging
 import asyncio
-import google.generativeai as genai
-from google.generativeai.types import HarmCategory, HarmBlockThreshold
-from PIL import Image
+import time
+from typing import Optional
 
-logger = logging.getLogger("VisionEye")
+logger = logging.getLogger("Vision")
 
-class VisionEye:
+try:
+    from google import genai
+    from google.genai import types
+except Exception:
+    genai = None
+    types = None
+
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
+GEMINI_MODEL = os.getenv("GEMINI_VISION_MODEL", "gemini-2.0-flash")
+
+
+class VisionAnalyzer:
+    """
+    仅负责：
+    - 对 K 线截图做第二意见分析
+    - 输出一句简短、可供 Brain 动态策略引用的结论
+
+    不负责：
+    - 头像分析
+    - 静态叙事
+    - 直接决策买卖
+    """
+
     def __init__(self):
-        """
-        初始化 Gemini Flash 模型，用于图像分析
-        """
-        self.api_key = os.getenv("GEMINI_API_KEY")
-        
-        # 并发控制：限制同时只能有 3 个请求正在处理，防止触发 API 频率限制
-        self.semaphore = asyncio.Semaphore(3)
+        self.enabled = False
+        self.client = None
 
-        if not self.api_key:
-            logger.warning("⚠️ 未检测到 GEMINI_API_KEY，视觉模块将不可用！")
-            self.model = None
-        else:
-            try:
-                genai.configure(api_key=self.api_key)
-                self.model = genai.GenerativeModel('gemini-1.5-flash')
-                logger.info("✅ VisionEye (Gemini Flash) 初始化成功")
-            except Exception as e:
-                logger.error(f"Gemini 初始化失败: {e}")
-                self.model = None
+        if not genai or not types:
+            logger.warning("⚠️ google-genai 未安装或导入失败，Vision 模块不可用。")
+            return
 
-    async def analyze_chart(self, image_path: str):
-        """
-        异步分析本地截图的代币K线图
-        """
-        if not self.model:
-            return "Vision Analysis Skipped (No Model)"
-        
-        if not image_path or not os.path.exists(image_path):
-            return "Vision Analysis Skipped (No File)"
+        if not GEMINI_API_KEY:
+            logger.warning("⚠️ 未配置 GEMINI_API_KEY，Vision 模块不可用。")
+            return
 
-        # 使用信号量控制并发
-        async with self.semaphore:
-            try:
-                # 将同步的图像处理和 API 请求放入线程池运行
-                return await asyncio.to_thread(self._sync_analyze, image_path)
-            except Exception as e:
-                logger.error(f"视觉分析致命错误: {e}")
-                return "Vision Analysis Failed"
-
-    def _sync_analyze(self, image_path):
-        """
-        [同步内部函数] 图片压缩 + 调用 API
-        """
         try:
-            # 1. 安全地打开图片 (自动关闭文件句柄)
-            with Image.open(image_path) as img:
-                # 2. 图片预处理：压缩尺寸
-                # 如果图片太大，Gemini 处理会慢。限制最大边长为 1024px
-                img.thumbnail((1024, 1024))
-                
-                # 3. 构建 Prompt
-                prompt = (
-                    "Role: Professional Crypto Chart Pattern Analyst.\n"
-                    "Task: Analyze this Solana memecoin chart (M1/M5).\n"
-                    "Identify:\n"
-                    "- Trend: Uptrend/Downtrend/Consolidation\n"
-                    "- Volume: Any unusual buying spikes?\n"
-                    "- Pattern: Sniper Loading (good), Rug Pull (bad), Parabolic (fomo)\n"
-                    "- Risk: Organic or Bot manipulation?\n"
-                    "\n"
-                    "Constraint: Answer in 1 short sentence. Be decisive."
-                    "Example: 'Bullish consolidation with organic buy volume, looks like accumulation.'"
-                )
+            self.client = genai.Client(api_key=GEMINI_API_KEY)
+            self.enabled = True
+            logger.info(f"✅ Gemini Vision 已就位，模型: {GEMINI_MODEL}")
+        except Exception as e:
+            logger.error(f"❌ Gemini Vision 初始化失败: {e}")
+            self.enabled = False
+            self.client = None
 
-                # 4. 配置安全设置 (防止 AI 因为'金融建议'或'敏感内容'拒答)
-                safety_settings = {
-                    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
-                    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-                    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
-                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-                }
+    def _guess_mime_type(self, image_path: str) -> str:
+        lower = (image_path or "").lower()
+        if lower.endswith(".jpg") or lower.endswith(".jpeg"):
+            return "image/jpeg"
+        if lower.endswith(".webp"):
+            return "image/webp"
+        return "image/png"
 
-                # 5. 发送请求
-                response = self.model.generate_content(
-                    [prompt, img],
-                    safety_settings=safety_settings
-                )
-                
-                return response.text.strip()
+    def _read_image_bytes_with_retry(self, image_path: str) -> bytes:
+        image_bytes = b""
+        last_err = None
+
+        for _ in range(5):
+            try:
+                with open(image_path, "rb") as f:
+                    image_bytes = f.read()
+                if image_bytes:
+                    return image_bytes
+            except PermissionError as e:
+                last_err = e
+                time.sleep(0.25)
+            except Exception as e:
+                last_err = e
+                break
+
+        if not image_bytes:
+            raise last_err or RuntimeError("K线截图读取失败")
+
+        return image_bytes
+
+    def _analyze_chart_sync(self, image_path: str) -> str:
+        if not self.enabled or not self.client:
+            return "Gemini Vision 未启用"
+
+        if not image_path:
+            return "无K线截图"
+        if not os.path.exists(image_path):
+            return "K线截图不存在"
+        if os.path.getsize(image_path) < 500:
+            return "K线截图无效"
+
+        try:
+            image_bytes = self._read_image_bytes_with_retry(image_path)
+            mime_type = self._guess_mime_type(image_path)
+
+            prompt = (
+                "你是顶级链上短线交易员，请只基于这张 memecoin K 线截图做判断。\n"
+                "目标：输出一句简短中文结论，判断当前更像：\n"
+                "1. 拉升初盘\n"
+                "2. 洗盘诱空\n"
+                "3. 高位出货\n"
+                "4. 暴跌画门\n"
+                "5. 区间震荡等待选择方向\n\n"
+                "必须同时考虑：\n"
+                "- K线结构\n"
+                "- 上下影线特征\n"
+                "- 量能变化\n"
+                "- 是否疑似控盘/诱多/诱空\n\n"
+                "输出要求：\n"
+                "- 只输出一句中文\n"
+                "- 不要分点\n"
+                "- 不要免责声明\n"
+                "- 控制在60字以内"
+            )
+
+            response = self.client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=[
+                    prompt,
+                    types.Part.from_bytes(
+                        data=image_bytes,
+                        mime_type=mime_type,
+                    ),
+                ],
+            )
+
+            text = getattr(response, "text", "") or ""
+            text = str(text).strip().replace("\n", " ")
+            if not text:
+                return "Gemini K线分析为空"
+
+            return text[:120]
 
         except Exception as e:
-            # 捕获具体的 API 错误信息
-            error_msg = str(e)
-            if "429" in error_msg:
-                logger.warning("Gemini 限流 (429), 请稍后")
-                return "API Rate Limit Hit"
-            logger.error(f"Gemini API 请求异常: {e}")
-            return "Error during analysis"
+            logger.error(f"❌ Gemini K线分析失败: {e}")
+            return "Gemini K线分析报错"
 
-# 单例封装
-eye = VisionEye()
+    async def analyze_chart(self, image_path: str) -> str:
+        return await asyncio.to_thread(self._analyze_chart_sync, image_path)
 
-async def analyze_chart(image_path):
-    return await eye.analyze_chart(image_path)
+
+vision_analyzer = VisionAnalyzer()
+
+
+async def analyze_chart(image_path: str) -> str:
+    """
+    提供给 brain.py 直接调用的异步函数接口
+    """
+    return await vision_analyzer.analyze_chart(image_path)
