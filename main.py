@@ -41,6 +41,23 @@ from modules.stats_engine import stats_engine
 from modules.risk_engine import apply_final_gate
 from modules.image_generator import generate_milestone_image
 from modules.paper_portfolio_engine import paper_portfolio_engine
+from modules.decision_event_logger import (
+    end_analysis_context,
+    finish_analysis_run,
+    log_decision_chain,
+    start_analysis_run,
+)
+from modules.execution_event_logger import log_execution_event
+from modules.strategy_state import (
+    AnalysisPathKind,
+    ExecutionEventType,
+    StrategyAction,
+    StrategySignalState,
+    lifecycle_context_scope,
+    normalize_runtime_action,
+    normalize_strategy_state,
+)
+from modules.strategy_state_machine import build_decision_chain, derive_candidate_action
 from modules.canonical_metrics import (
     apply_canonical_metrics,
     canonical_pipeline_settings,
@@ -444,21 +461,21 @@ def _safe_pct_text(v: Any) -> str:
 
 
 TRUSTED_TOP10_SOURCES = {"BITQUERY", "SOLANA_RPC", "HELIUS"}
-SIGNAL_STATE_NEW = "NEW_SIGNAL"
-SIGNAL_STATE_OBSERVING = "OBSERVING"
-SIGNAL_STATE_ARMED = "ARMED"
-SIGNAL_STATE_ENTERED = "ENTERED"
+SIGNAL_STATE_NEW = StrategySignalState.NEW_SIGNAL.value
+SIGNAL_STATE_OBSERVING = StrategySignalState.OBSERVING.value
+SIGNAL_STATE_ARMED = StrategySignalState.ARMED.value
+SIGNAL_STATE_ENTERED = StrategySignalState.ENTERED.value
 ALLOWED_SIGNAL_STATES = {
     SIGNAL_STATE_NEW,
     SIGNAL_STATE_OBSERVING,
     SIGNAL_STATE_ARMED,
     SIGNAL_STATE_ENTERED,
 }
-ACTION_PASS = "PASS"
-ACTION_WATCH = "WATCH"
-ACTION_PROBE = "PROBE"
-ACTION_ENTER = "ENTER"
-ACTION_EXIT = "EXIT"
+ACTION_PASS = StrategyAction.PASS.value
+ACTION_WATCH = StrategyAction.WATCH.value
+ACTION_PROBE = StrategyAction.PROBE.value
+ACTION_ENTER = StrategyAction.ENTER.value
+ACTION_EXIT = StrategyAction.EXIT.value
 VERDICT_ALIASES = {
     "BUY": ACTION_ENTER,
     "SELL": ACTION_EXIT,
@@ -471,14 +488,11 @@ def _is_trusted_top10_source(src: Any) -> bool:
 
 
 def _normalize_signal_state(state: Any, default: str = SIGNAL_STATE_NEW) -> str:
-    text = str(state or default).upper().strip()
-    return text if text in ALLOWED_SIGNAL_STATES else default
+    return normalize_strategy_state(state, default)
 
 
 def _normalize_verdict(verdict: Any, default: str = ACTION_WATCH) -> str:
-    text = str(verdict or default).upper().strip()
-    text = VERDICT_ALIASES.get(text, text)
-    return text if text in {ACTION_PASS, ACTION_WATCH, ACTION_PROBE, ACTION_ENTER, ACTION_EXIT} else default
+    return normalize_runtime_action(verdict, default)
 
 
 def _tracker_signal_state(ca: str) -> str:
@@ -1858,6 +1872,8 @@ async def _apply_execution_state_machine(
     message_id: int,
 ) -> tuple[dict, str]:
     decision = decision or {}
+    prev_logged_action = _normalize_verdict(token_data.get("decision_action"), "")
+    prev_logged_state = _normalize_signal_state(token_data.get("signal_state"), "")
     action = _normalize_verdict(decision.get("verdict", ACTION_WATCH), ACTION_WATCH)
     current_state = _runtime_signal_state(ca, token_data, None)
     liq_ctx = get_decision_liquidity_context(token_data)
@@ -1943,10 +1959,27 @@ async def _apply_execution_state_machine(
         )
         next_state = SIGNAL_STATE_OBSERVING
 
+    decision["verdict"] = action
     token_data["decision_action"] = action
     token_data["signal_state"] = next_state
     _apply_runtime_metadata(token_data, signal_state=next_state, decision_action=action)
     _log_canonical_state(ca, token_data, action, next_state)
+    if prev_logged_action != action or prev_logged_state != next_state:
+        await log_execution_event(
+            ca,
+            ExecutionEventType.EXECUTION_TRANSITION.value,
+            action=action,
+            signal_state=next_state,
+            source="_apply_execution_state_machine",
+            metadata={
+                "current_state": current_state,
+                "next_state": next_state,
+                "strategy_id": str(strategy_id or ""),
+                "strict_enter_ready": bool(liq_ctx.get("formal_enter_ready")),
+                "current_price": current_price,
+                "current_mcap": current_mcap,
+            },
+        )
     return decision, next_state
 
 
@@ -3052,17 +3085,29 @@ async def process_new_signal(ca: str, source: str, chat_id: int, msg_id: int, ra
                 2,
                 "DB_FastSave",
             )
-            await safe_call(
-                tp_tracker.ensure_observing(
-                    ca,
-                    entry_price,
-                    anchor_price=entry_price,
-                    reply_chat_id=chat_id,
-                    reply_msg_id=fast_msg_id,
-                ),
-                2,
-                "TP_ObserveInit",
-            )
+            with lifecycle_context_scope(
+                path_kind=AnalysisPathKind.FAST_SIGNAL_INIT.value,
+                source="process_new_signal",
+                chat_id=chat_id,
+                message_id=fast_msg_id,
+                legacy_path=False,
+                metadata={
+                    "stage": "fast_card_init",
+                    "trace_link": f"{ca}:{int(chat_id or 0)}:{int(fast_msg_id or 0)}",
+                    "lifecycle_key": f"fast_init:{ca}:{int(chat_id or 0)}:{int(fast_msg_id or 0)}",
+                },
+            ):
+                await safe_call(
+                    tp_tracker.ensure_observing(
+                        ca,
+                        entry_price,
+                        anchor_price=entry_price,
+                        reply_chat_id=chat_id,
+                        reply_msg_id=fast_msg_id,
+                    ),
+                    2,
+                    "TP_ObserveInit",
+                )
         except Exception:
             pass
 
@@ -3084,7 +3129,18 @@ async def process_new_signal(ca: str, source: str, chat_id: int, msg_id: int, ra
 
 
 async def _legacy_run_deep_analysis_direct_enter(ca: str, token_data: dict, message_id: int, chat_id: int, use_insightx: bool = False):
+    analysis_context = None
+    analysis_token = None
     try:
+        analysis_context, analysis_token = await start_analysis_run(
+            ca,
+            source="_legacy_run_deep_analysis_direct_enter",
+            path_kind=AnalysisPathKind.LEGACY_DIRECT_ENTER.value,
+            chat_id=chat_id,
+            message_id=message_id,
+            metadata={"use_insightx": bool(use_insightx)},
+            legacy_path=True,
+        )
         existing_record = await db.get_signal_snapshot(ca)
         existing_terminal = existing_record.get("terminal_states", {}) if existing_record else {}
         token_data = _merge_existing_terminal(token_data or {}, existing_terminal)
@@ -3184,12 +3240,23 @@ async def _legacy_run_deep_analysis_direct_enter(ca: str, token_data: dict, mess
 
         curr_price = _safe_float(token_data.get("price_usd"), 0.0)
         curr_mcap = _safe_float(token_data.get("cap_usd"), 0.0)
+        current_state = _runtime_signal_state(ca, existing_terminal, existing_record)
+        strategy_id = str(token_data.get("strategy_id") or "MIXED")
+        config = {}
+        candidate_action = ACTION_WATCH
+        ai_verdict = ACTION_WATCH
+        risk_adjusted_action = ACTION_WATCH
+        final_action = ACTION_WATCH
 
         if curr_price > 0:
             strat_res = detect_strategy(token_data)
             strategy_id = str(strat_res[0]) if isinstance(strat_res, tuple) else str(strat_res)
             config = strat_res[1] if isinstance(strat_res, tuple) else {}
             token_data["strategy_id"] = strategy_id
+            candidate_action = derive_candidate_action(
+                (config or {}).get("score") if isinstance(config, dict) else None,
+                current_state,
+            )
 
             await tp_tracker.init_position(
                 ca=ca,
@@ -3290,14 +3357,22 @@ async def _legacy_run_deep_analysis_direct_enter(ca: str, token_data: dict, mess
         }
         terminal_states.update(_top10_research_terminal_patch(token_data))
 
+        ai_raw_decision = await safe_call(
+            brain.analyze_dynamic_strategy(token_data, terminal_states, analytics_for_ai),
+            90,
+            "AI_Dynamic",
+        ) or {}
         decision = _sanitize_top10_pending_reason(
             _sanitize_ai_reason_by_metrics(
-                await safe_call(brain.analyze_dynamic_strategy(token_data, terminal_states, analytics_for_ai), 90, "AI_Dynamic") or {},
+                ai_raw_decision,
                 token_data,
             ),
             token_data,
         )
+        ai_verdict = _normalize_verdict(ai_raw_decision.get("verdict", ACTION_WATCH), ACTION_WATCH)
         decision, pos_info, _ = apply_final_gate(token_data, decision, None)
+        risk_adjusted_action = _normalize_verdict(decision.get("verdict", ACTION_WATCH), ACTION_WATCH)
+        final_action = risk_adjusted_action
         token_data["decision_reason"] = decision.get("reason", "")
         terminal_states["decision_reason"] = token_data["decision_reason"]
         token_data["pos_info"] = pos_info
@@ -3315,6 +3390,25 @@ async def _legacy_run_deep_analysis_direct_enter(ca: str, token_data: dict, mess
         except Exception as e:
             logger.error(f"⚠️ 保存初始状态失败: {e}")
 
+        await log_decision_chain(
+            ca,
+            build_decision_chain(
+                candidate_action=candidate_action,
+                ai_verdict=ai_verdict,
+                risk_adjusted_action=risk_adjusted_action,
+                final_action=final_action,
+                strategy_id=token_data.get("strategy_id", ""),
+                score=(config or {}).get("score") if isinstance(config, dict) else None,
+                reason=decision.get("reason", ""),
+                risk_flags=decision.get("risk_flags") or token_data.get("risk_flags") or [],
+                metadata={
+                    "legacy_path": True,
+                    "legacy_execution_precommitted": True,
+                    "current_state": current_state,
+                    "runtime_signal_state": token_data.get("signal_state") or current_state,
+                },
+            ),
+        )
         await update_user_message(chat_id=chat_id, message_id=message_id, ca=ca, token_data=token_data, decision=decision)
         if late_gmgn_pending:
             logger.info("LateGMGN | ca=%s | scheduled", ca[:8])
@@ -3323,9 +3417,25 @@ async def _legacy_run_deep_analysis_direct_enter(ca: str, token_data: dict, mess
                 f"LateGMGN_{ca[:6]}",
             )
         spawn_task(evolve_database(ca, token_data, analytics or {}, ix_data or {}), f"EvolveDB_{ca[:6]}")
+        await finish_analysis_run(
+            analysis_context,
+            status="COMPLETED",
+            metadata={
+                "final_action": final_action,
+                "legacy_path": True,
+                "decision_reason": decision.get("reason", ""),
+            },
+        )
 
     except Exception as e:
+        await finish_analysis_run(
+            analysis_context,
+            status="FAILED",
+            metadata={"error": str(e)[:400], "legacy_path": True},
+        )
         logger.exception(f"💥 run_deep_analysis 异常: {e}")
+    finally:
+        end_analysis_context(analysis_token)
 
 
 async def run_deep_analysis(
@@ -3337,12 +3447,28 @@ async def run_deep_analysis(
     stage1_token_data: Optional[dict] = None,
     preheated_gmgn_task: Optional[asyncio.Task] = None,
 ):
+    analysis_context = None
+    analysis_token = None
     try:
         existing_record = await db.get_signal_snapshot(ca)
         existing_terminal = existing_record.get("terminal_states", {}) if existing_record else {}
         token_data = _merge_existing_terminal(token_data or {}, existing_terminal)
         token_data = _ensure_runtime_token_ca(token_data, ca)
         use_stage2_followup = isinstance(stage1_token_data, dict) and bool(stage1_token_data)
+        analysis_context, analysis_token = await start_analysis_run(
+            ca,
+            source="run_deep_analysis",
+            path_kind=AnalysisPathKind.MAIN_STATE_MACHINE.value,
+            chat_id=chat_id,
+            message_id=message_id,
+            metadata={
+                "use_insightx": bool(use_insightx),
+                "stage2_followup": bool(use_stage2_followup),
+                "trace_link": f"{ca}:{int(chat_id or 0)}:{int(message_id or 0)}",
+                "lifecycle_key": f"deep_analysis:{ca}:{int(chat_id or 0)}:{int(message_id or 0)}",
+            },
+            legacy_path=False,
+        )
         rug_data = None
         goplus_data = None
 
@@ -3527,11 +3653,20 @@ async def run_deep_analysis(
 
         curr_price = _safe_float(token_data.get("price_usd"), 0.0)
         curr_mcap = _safe_float(token_data.get("cap_usd"), 0.0)
+        current_state = _runtime_signal_state(ca, existing_terminal, existing_record)
+        candidate_action = ACTION_WATCH
+        ai_verdict = ACTION_WATCH
+        risk_adjusted_action = ACTION_WATCH
+        final_action = ACTION_WATCH
 
         strat_res = detect_strategy(token_data)
         strategy_id = str(strat_res[0]) if isinstance(strat_res, tuple) else str(strat_res)
         config = strat_res[1] if isinstance(strat_res, tuple) else {}
         token_data["strategy_id"] = strategy_id
+        candidate_action = derive_candidate_action(
+            (config or {}).get("score") if isinstance(config, dict) else None,
+            current_state,
+        )
 
         if curr_price > 0:
             await tp_tracker.ensure_observing(
@@ -3616,15 +3751,22 @@ async def run_deep_analysis(
         }
         terminal_states.update(_top10_research_terminal_patch(token_data))
 
+        ai_raw_decision = await safe_call(
+            brain.analyze_dynamic_strategy(token_data, terminal_states, analytics_for_ai),
+            90,
+            "AI_Dynamic",
+        ) or {}
         decision = _sanitize_top10_pending_reason(
             _sanitize_ai_reason_by_metrics(
-                await safe_call(brain.analyze_dynamic_strategy(token_data, terminal_states, analytics_for_ai), 90, "AI_Dynamic") or {},
+                ai_raw_decision,
                 token_data,
             ),
             token_data,
         )
+        ai_verdict = _normalize_verdict(ai_raw_decision.get("verdict", ACTION_WATCH), ACTION_WATCH)
         decision["verdict"] = _normalize_verdict(decision.get("verdict", ACTION_WATCH), ACTION_WATCH)
         decision, pos_info, _ = apply_final_gate(token_data, decision, None)
+        risk_adjusted_action = _normalize_verdict(decision.get("verdict", ACTION_WATCH), ACTION_WATCH)
         token_data["decision_reason"] = decision.get("reason", "")
         decision, next_state = await _apply_execution_state_machine(
             ca,
@@ -3637,6 +3779,7 @@ async def run_deep_analysis(
             chat_id=chat_id,
             message_id=message_id,
         )
+        final_action = _normalize_verdict(decision.get("verdict", ACTION_WATCH), ACTION_WATCH)
         token_data["signal_state"] = next_state
         token_data["pos_info"] = pos_info
         if curr_price > 0:
@@ -3681,6 +3824,24 @@ async def run_deep_analysis(
         except Exception as e:
             logger.error(f"保存初始状态失败: {e}")
 
+        await log_decision_chain(
+            ca,
+            build_decision_chain(
+                candidate_action=candidate_action,
+                ai_verdict=ai_verdict,
+                risk_adjusted_action=risk_adjusted_action,
+                final_action=final_action,
+                strategy_id=strategy_id,
+                score=(config or {}).get("score") if isinstance(config, dict) else None,
+                reason=decision.get("reason", ""),
+                risk_flags=decision.get("risk_flags") or token_data.get("risk_flags") or [],
+                metadata={
+                    "current_state": current_state,
+                    "next_state": next_state,
+                    "top10_pending_gmgn_review": bool(token_data.get("top10_pending_gmgn_review")),
+                },
+            ),
+        )
         await update_user_message(chat_id=chat_id, message_id=message_id, ca=ca, token_data=token_data, decision=decision)
         if late_gmgn_pending:
             logger.info("LateGMGN | ca=%s | scheduled", ca[:8])
@@ -3689,9 +3850,25 @@ async def run_deep_analysis(
                 f"LateGMGN_{ca[:6]}",
             )
         spawn_task(evolve_database(ca, token_data, analytics or {}, ix_data or {}), f"EvolveDB_{ca[:6]}")
+        await finish_analysis_run(
+            analysis_context,
+            status="COMPLETED",
+            metadata={
+                "final_action": final_action,
+                "next_state": next_state,
+                "decision_reason": decision.get("reason", ""),
+            },
+        )
 
     except Exception as e:
+        await finish_analysis_run(
+            analysis_context,
+            status="FAILED",
+            metadata={"error": str(e)[:400]},
+        )
         logger.exception(f"run_deep_analysis 异常: {e}")
+    finally:
+        end_analysis_context(analysis_token)
 
 
 async def evolve_database(ca: str, token_data: dict, gmgn_data: dict, ix_data: dict):
@@ -3811,8 +3988,23 @@ async def price_monitor_loop():
 
                 await tp_tracker.observe_price(ca, price_f)
                 paper_portfolio_engine.mark_price(ca, price_f, mcap_f)
+                lifecycle_key = (
+                    f"price_monitor:{ca}:{int(pos.get('reply_chat_id') or 0)}:{int(pos.get('reply_msg_id') or 0)}"
+                )
+                trace_link = f"{ca}:{int(pos.get('reply_chat_id') or 0)}:{int(pos.get('reply_msg_id') or 0)}"
 
-                event_dict = await tp_tracker.update(ca, price_f, curr_mcap=mcap_f)
+                with lifecycle_context_scope(
+                    path_kind=AnalysisPathKind.PRICE_MONITOR.value,
+                    source="price_monitor_loop",
+                    chat_id=pos.get("reply_chat_id"),
+                    message_id=pos.get("reply_msg_id"),
+                    legacy_path=False,
+                    metadata={
+                        "trace_link": trace_link,
+                        "lifecycle_key": lifecycle_key,
+                    },
+                ):
+                    event_dict = await tp_tracker.update(ca, price_f, curr_mcap=mcap_f)
                 if event_dict and isinstance(event_dict, dict):
                     event_type = event_dict.get("event")
                     t_chat_id = pos.get("reply_chat_id")
@@ -3858,7 +4050,19 @@ async def price_monitor_loop():
                             ca=ca,
                         )
 
-                        paper_ret = _paper_portfolio_call("on_final_close", ca, price_f, mcap_f, reason=event_type)
+                        with lifecycle_context_scope(
+                            path_kind=AnalysisPathKind.PRICE_MONITOR.value,
+                            source="price_monitor_loop",
+                            chat_id=t_chat_id,
+                            message_id=t_msg_id,
+                            legacy_path=False,
+                            metadata={
+                                "event_type": str(event_type or ""),
+                                "trace_link": trace_link,
+                                "lifecycle_key": f"{lifecycle_key}:close",
+                            },
+                        ):
+                            paper_ret = _paper_portfolio_call("on_final_close", ca, price_f, mcap_f, reason=event_type)
                         if paper_ret.get("ok"):
                             logger.info(
                                 f"📒 PaperPortfolio 平仓成功: {ca[:6]}... | reason={event_type} | "
@@ -3887,7 +4091,19 @@ async def price_monitor_loop():
 
                     elif str(event_type).startswith("止盈"):
                         pnl_pct = event_dict.get("pnl", 0.0)
-                        paper_ret = _paper_portfolio_call("on_tp_event", ca, price_f, mcap_f, str(event_type))
+                        with lifecycle_context_scope(
+                            path_kind=AnalysisPathKind.PRICE_MONITOR.value,
+                            source="price_monitor_loop",
+                            chat_id=t_chat_id,
+                            message_id=t_msg_id,
+                            legacy_path=False,
+                            metadata={
+                                "event_type": str(event_type or ""),
+                                "trace_link": trace_link,
+                                "lifecycle_key": f"{lifecycle_key}:tp",
+                            },
+                        ):
+                            paper_ret = _paper_portfolio_call("on_tp_event", ca, price_f, mcap_f, str(event_type))
                         if paper_ret.get("ok"):
                             logger.info(
                                 f"📒 PaperPortfolio 部分止盈: {ca[:6]}... | {event_type} | "

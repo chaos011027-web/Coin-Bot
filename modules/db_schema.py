@@ -17,6 +17,10 @@ GOLDEN_DOG_TABLE = "golden_dog_morphology"
 SMART_WALLET_TABLE = "smart_wallet_intel"
 WALLET_CLUSTERS_TABLE = "wallet_clusters"
 SIGNALS_SNAPSHOT_VIEW = "signals_snapshot"
+ANALYSIS_RUNS_TABLE = "analysis_runs"
+STATE_TRANSITIONS_TABLE = "strategy_state_transitions"
+DECISION_EVENTS_TABLE = "decision_events"
+EXECUTION_EVENTS_TABLE = "execution_events"
 
 
 async def ensure_schema(conn: asyncpg.Connection) -> None:
@@ -35,6 +39,10 @@ async def ensure_schema(conn: asyncpg.Connection) -> None:
         await _backfill_golden_dog_metric_columns(conn)
         await _ensure_smart_wallet_table(conn)
         await _ensure_wallet_clusters_table(conn)
+        await _ensure_analysis_runs_table(conn)
+        await _ensure_strategy_state_transitions_table(conn)
+        await _ensure_decision_events_table(conn)
+        await _ensure_execution_events_table(conn)
         await _ensure_signals_snapshot_view(conn)
 
 
@@ -671,6 +679,192 @@ async def _ensure_wallet_clusters_table(conn: asyncpg.Connection) -> None:
         f"""
         CREATE UNIQUE INDEX IF NOT EXISTS idx_{WALLET_CLUSTERS_TABLE}_cluster_wallet
         ON {WALLET_CLUSTERS_TABLE} (cluster_id, wallet_address);
+        """
+    )
+
+
+async def _ensure_analysis_runs_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {ANALYSIS_RUNS_TABLE} (
+            id BIGSERIAL PRIMARY KEY,
+            ca TEXT NOT NULL,
+            source TEXT,
+            path_kind TEXT,
+            status TEXT DEFAULT 'STARTED',
+            chat_id BIGINT,
+            message_id BIGINT,
+            legacy_path BOOLEAN DEFAULT FALSE,
+            metadata JSONB,
+            started_at TIMESTAMP DEFAULT NOW(),
+            finished_at TIMESTAMP
+        );
+        """
+    )
+
+    await _add_column_if_missing(conn, ANALYSIS_RUNS_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, ANALYSIS_RUNS_TABLE, "source", "TEXT")
+    await _add_column_if_missing(conn, ANALYSIS_RUNS_TABLE, "path_kind", "TEXT")
+    await _add_column_if_missing(conn, ANALYSIS_RUNS_TABLE, "status", "TEXT DEFAULT 'STARTED'")
+    await _add_column_if_missing(conn, ANALYSIS_RUNS_TABLE, "chat_id", "BIGINT")
+    await _add_column_if_missing(conn, ANALYSIS_RUNS_TABLE, "message_id", "BIGINT")
+    await _add_column_if_missing(conn, ANALYSIS_RUNS_TABLE, "legacy_path", "BOOLEAN DEFAULT FALSE")
+    await _add_column_if_missing(conn, ANALYSIS_RUNS_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, ANALYSIS_RUNS_TABLE, "started_at", "TIMESTAMP DEFAULT NOW()")
+    await _add_column_if_missing(conn, ANALYSIS_RUNS_TABLE, "finished_at", "TIMESTAMP")
+
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{ANALYSIS_RUNS_TABLE}_ca_started_at
+        ON {ANALYSIS_RUNS_TABLE} (ca, started_at DESC);
+        """
+    )
+
+
+async def _ensure_strategy_state_transitions_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {STATE_TRANSITIONS_TABLE} (
+            id BIGSERIAL PRIMARY KEY,
+            analysis_run_id BIGINT,
+            ca TEXT NOT NULL,
+            from_state TEXT,
+            to_state TEXT,
+            action TEXT,
+            source TEXT,
+            path_kind TEXT,
+            legacy_path BOOLEAN DEFAULT FALSE,
+            transition_reason TEXT,
+            metadata JSONB,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+
+    await _add_column_if_missing(conn, STATE_TRANSITIONS_TABLE, "analysis_run_id", "BIGINT")
+    await _add_column_if_missing(conn, STATE_TRANSITIONS_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, STATE_TRANSITIONS_TABLE, "from_state", "TEXT")
+    await _add_column_if_missing(conn, STATE_TRANSITIONS_TABLE, "to_state", "TEXT")
+    await _add_column_if_missing(conn, STATE_TRANSITIONS_TABLE, "action", "TEXT")
+    await _add_column_if_missing(conn, STATE_TRANSITIONS_TABLE, "source", "TEXT")
+    await _add_column_if_missing(conn, STATE_TRANSITIONS_TABLE, "path_kind", "TEXT")
+    await _add_column_if_missing(conn, STATE_TRANSITIONS_TABLE, "legacy_path", "BOOLEAN DEFAULT FALSE")
+    await _add_column_if_missing(conn, STATE_TRANSITIONS_TABLE, "transition_reason", "TEXT")
+    await _add_column_if_missing(conn, STATE_TRANSITIONS_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, STATE_TRANSITIONS_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{STATE_TRANSITIONS_TABLE}_ca_created_at
+        ON {STATE_TRANSITIONS_TABLE} (ca, created_at DESC);
+        """
+    )
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{STATE_TRANSITIONS_TABLE}_analysis_run_id
+        ON {STATE_TRANSITIONS_TABLE} (analysis_run_id);
+        """
+    )
+
+
+async def _ensure_decision_events_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {DECISION_EVENTS_TABLE} (
+            id BIGSERIAL PRIMARY KEY,
+            analysis_run_id BIGINT,
+            ca TEXT NOT NULL,
+            event_type TEXT,
+            candidate_action TEXT,
+            ai_verdict TEXT,
+            risk_adjusted_action TEXT,
+            final_action TEXT,
+            strategy_id TEXT,
+            score DOUBLE PRECISION,
+            reason TEXT,
+            risk_flags JSONB,
+            source TEXT,
+            path_kind TEXT,
+            legacy_path BOOLEAN DEFAULT FALSE,
+            metadata JSONB,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "analysis_run_id", "BIGINT")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "event_type", "TEXT")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "candidate_action", "TEXT")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "ai_verdict", "TEXT")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "risk_adjusted_action", "TEXT")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "final_action", "TEXT")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "strategy_id", "TEXT")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "score", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "reason", "TEXT")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "risk_flags", "JSONB")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "source", "TEXT")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "path_kind", "TEXT")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "legacy_path", "BOOLEAN DEFAULT FALSE")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, DECISION_EVENTS_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{DECISION_EVENTS_TABLE}_ca_created_at
+        ON {DECISION_EVENTS_TABLE} (ca, created_at DESC);
+        """
+    )
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{DECISION_EVENTS_TABLE}_analysis_run_id
+        ON {DECISION_EVENTS_TABLE} (analysis_run_id);
+        """
+    )
+
+
+async def _ensure_execution_events_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {EXECUTION_EVENTS_TABLE} (
+            id BIGSERIAL PRIMARY KEY,
+            analysis_run_id BIGINT,
+            ca TEXT NOT NULL,
+            event_type TEXT,
+            action TEXT,
+            signal_state TEXT,
+            status TEXT,
+            source TEXT,
+            path_kind TEXT,
+            legacy_path BOOLEAN DEFAULT FALSE,
+            metadata JSONB,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+
+    await _add_column_if_missing(conn, EXECUTION_EVENTS_TABLE, "analysis_run_id", "BIGINT")
+    await _add_column_if_missing(conn, EXECUTION_EVENTS_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, EXECUTION_EVENTS_TABLE, "event_type", "TEXT")
+    await _add_column_if_missing(conn, EXECUTION_EVENTS_TABLE, "action", "TEXT")
+    await _add_column_if_missing(conn, EXECUTION_EVENTS_TABLE, "signal_state", "TEXT")
+    await _add_column_if_missing(conn, EXECUTION_EVENTS_TABLE, "status", "TEXT")
+    await _add_column_if_missing(conn, EXECUTION_EVENTS_TABLE, "source", "TEXT")
+    await _add_column_if_missing(conn, EXECUTION_EVENTS_TABLE, "path_kind", "TEXT")
+    await _add_column_if_missing(conn, EXECUTION_EVENTS_TABLE, "legacy_path", "BOOLEAN DEFAULT FALSE")
+    await _add_column_if_missing(conn, EXECUTION_EVENTS_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, EXECUTION_EVENTS_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{EXECUTION_EVENTS_TABLE}_ca_created_at
+        ON {EXECUTION_EVENTS_TABLE} (ca, created_at DESC);
+        """
+    )
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{EXECUTION_EVENTS_TABLE}_analysis_run_id
+        ON {EXECUTION_EVENTS_TABLE} (analysis_run_id);
         """
     )
 

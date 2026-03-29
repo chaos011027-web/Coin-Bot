@@ -6,6 +6,9 @@ import asyncio
 import logging
 from typing import Dict, Any, Optional, List
 
+from modules.execution_event_logger import log_execution_event, log_state_transition
+from modules.strategy_state import ExecutionEventType, StrategyAction, StrategySignalState, normalize_strategy_state
+
 logger = logging.getLogger("TPTracker")
 
 
@@ -108,24 +111,6 @@ class TPTracker:
     # ----------------------------
     # 内部工具
     # ----------------------------
-    def _is_placeholder(self, pos: Optional[dict]) -> bool:
-        if not pos or not isinstance(pos, dict):
-            return True
-
-        entry = _safe_float(pos.get("entry"), 0.0)
-        status = str(pos.get("status", "")).upper()
-        strategy = str(pos.get("strategy") or pos.get("strategy_id") or "").upper()
-        sl_price = _safe_float(pos.get("sl_price"), 0.0)
-        tp_targets = pos.get("tp_targets") or []
-
-        return (
-            entry <= 0
-            and sl_price <= 0
-            and status == "OBSERVE"
-            and strategy in {"", "UNKNOWN", "UNK"}
-            and (not tp_targets)
-        )
-
     def _default_strategy_config(self, strategy_id: str) -> Dict[str, Any]:
         sid = str(strategy_id or "DEFAULT").upper()
 
@@ -155,138 +140,56 @@ class TPTracker:
             "sl_pct": sl_pct,
         }
 
-    def _make_placeholder(self, ca: str, current_price: float) -> Dict[str, Any]:
-        now = time.time()
-        return {
-            "ca": ca,
-            "created_at": now,
-            "updated_at": now,
-            "status": "OBSERVE",
-            "strategy": "UNKNOWN",
-            "strategy_id": "UNKNOWN",
-            "entry": 0.0,
-            "entry_price": 0.0,
-            "current_price": current_price if current_price > 0 else 0.0,
-            "peak_price": current_price if current_price > 0 else 0.0,
-            "peak_multiplier": 1.0,
-            "peak_change_pct": 0.0,
-            "rel_change_pct": 0.0,
-            "sl_price": 0.0,
-            "sl_pct": 0.0,
-            "tp_targets": [],
-            "tp_hit_index": -1,
-            "sl_moved_to_entry": False,
-            "reply_chat_id": None,
-            "reply_msg_id": None,
-            "initial_mcap": 0.0,
-            "current_mcap": 0.0,
-            "custom_image": "",
-        }
-
-    def _apply_observation(self, pos: Dict[str, Any], current_price: float):
-        if current_price <= 0:
+    async def _log_transition_and_execution(
+        self,
+        ca: str,
+        from_state: str,
+        to_state: str,
+        *,
+        action: str,
+        event_type: str,
+        source: str,
+        status: str = "",
+        reason: str = "",
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        normalized_from = normalize_strategy_state(from_state, "")
+        normalized_to = normalize_strategy_state(to_state, "")
+        if (
+            normalized_from == normalized_to
+            and event_type in {
+                ExecutionEventType.TP_TRACKER_OBSERVE.value,
+                ExecutionEventType.TP_TRACKER_ARM.value,
+                ExecutionEventType.TP_TRACKER_ENTER.value,
+                ExecutionEventType.TP_TRACKER_RESET.value,
+            }
+        ):
             return
 
-        pos["updated_at"] = time.time()
-        pos["current_price"] = current_price
-
-        peak = _safe_float(pos.get("peak_price"), 0.0)
-        if peak <= 0 or current_price > peak:
-            pos["peak_price"] = current_price
-            peak = current_price
-
-        entry = _safe_float(pos.get("entry"), 0.0)
-
-        if entry > 0:
-            rel_change_pct = (current_price - entry) / entry * 100.0
-            peak_change_pct = (peak - entry) / entry * 100.0
-            peak_multiplier = peak / entry if entry > 0 else 1.0
-        else:
-            rel_change_pct = 0.0
-            peak_change_pct = 0.0
-            peak_multiplier = 1.0
-
-        pos["rel_change_pct"] = rel_change_pct
-        pos["peak_change_pct"] = peak_change_pct
-        pos["peak_multiplier"] = peak_multiplier
+        payload = dict(metadata or {})
+        if normalized_from != normalized_to:
+            await log_state_transition(
+                ca,
+                from_state,
+                to_state,
+                action=action,
+                source=source,
+                reason=reason,
+                metadata=payload,
+            )
+        await log_execution_event(
+            ca,
+            event_type,
+            action=action,
+            signal_state=to_state,
+            status=status,
+            source=source,
+            metadata=payload,
+        )
 
     # ----------------------------
     # 对外接口
     # ----------------------------
-    async def init_position(
-        self,
-        ca: str,
-        entry_price: float,
-        strategy_id: str,
-        config: Optional[dict] = None,
-        initial_mcap: float = 0.0,
-        reply_chat_id: Optional[int] = None,
-        reply_msg_id: Optional[int] = None,
-    ):
-        """
-        关键修复：
-        如果当前已存在仓位，但只是占位态，则允许被真实仓位覆盖。
-        """
-        await self._ensure_loaded()
-        ca = (ca or "").strip()
-        if not ca:
-            return
-
-        entry_price = _safe_float(entry_price, 0.0)
-        if entry_price <= 0:
-            return
-
-        strategy_id = str(strategy_id or "DEFAULT")
-        merged = self._merged_config(strategy_id, config)
-
-        existing = self.data.get(ca)
-        if existing and not self._is_placeholder(existing):
-            # 已经是真实仓位：只补充缺失信息，不重置状态
-            if reply_chat_id is not None:
-                existing["reply_chat_id"] = reply_chat_id
-            if reply_msg_id is not None:
-                existing["reply_msg_id"] = reply_msg_id
-            if _safe_float(existing.get("initial_mcap"), 0.0) <= 0 and initial_mcap > 0:
-                existing["initial_mcap"] = float(initial_mcap)
-            existing["updated_at"] = time.time()
-            await self._save_debounced()
-            return
-
-        now = time.time()
-        peak_price = entry_price
-        sl_pct = _safe_float(merged.get("sl_pct"), 0.10)
-        sl_price = entry_price * (1.0 - sl_pct)
-        tp_targets = merged.get("tp_targets") or [1.2, 1.5, 2.0]
-
-        new_pos = {
-            "ca": ca,
-            "created_at": existing.get("created_at", now) if isinstance(existing, dict) else now,
-            "updated_at": now,
-            "status": "ACTIVE",
-            "strategy": strategy_id,
-            "strategy_id": strategy_id,
-            "entry": entry_price,
-            "entry_price": entry_price,
-            "current_price": entry_price,
-            "peak_price": peak_price,
-            "peak_multiplier": 1.0,
-            "peak_change_pct": 0.0,
-            "rel_change_pct": 0.0,
-            "sl_price": sl_price,
-            "sl_pct": sl_pct,
-            "tp_targets": tp_targets,
-            "tp_hit_index": -1,
-            "sl_moved_to_entry": False,
-            "reply_chat_id": reply_chat_id,
-            "reply_msg_id": reply_msg_id,
-            "initial_mcap": float(initial_mcap or 0.0),
-            "current_mcap": float(initial_mcap or 0.0),
-            "custom_image": (existing.get("custom_image") if isinstance(existing, dict) else "") or "",
-        }
-
-        self.data[ca] = new_pos
-        await self._save_debounced()
-
     async def observe_price(self, ca: str, current_price: float):
         await self._ensure_loaded()
         ca = (ca or "").strip()
@@ -306,26 +209,6 @@ class TPTracker:
 
         self._apply_observation(pos, current_price)
         await self._save_debounced()
-
-    async def get_baseline_metrics(self, ca: str, current_price: Optional[float] = None) -> Dict[str, Any]:
-        await self._ensure_loaded()
-        ca = (ca or "").strip()
-        if not ca or ca not in self.data:
-            return {}
-
-        pos = self.data[ca]
-        cp = _safe_float(current_price, _safe_float(pos.get("current_price"), 0.0))
-        if cp > 0:
-            self._apply_observation(pos, cp)
-
-        return {
-            "entry_price": _safe_float(pos.get("entry"), 0.0),
-            "current_price": _safe_float(pos.get("current_price"), 0.0),
-            "peak_price": _safe_float(pos.get("peak_price"), 0.0),
-            "rel_change_pct": _safe_float(pos.get("rel_change_pct"), 0.0),
-            "peak_change_pct": _safe_float(pos.get("peak_change_pct"), 0.0),
-            "peak_multiplier": _safe_float(pos.get("peak_multiplier"), 1.0),
-        }
 
     async def update_custom_image(self, ca: str, img_path: str):
         await self._ensure_loaded()
@@ -353,6 +236,11 @@ class TPTracker:
         pos = self.data.get(ca)
         if not pos:
             return None
+
+        from_state = normalize_strategy_state(
+            pos.get("signal_state"),
+            StrategySignalState.NEW_SIGNAL.value,
+        )
 
         curr_price = _safe_float(curr_price, 0.0)
         if curr_price <= 0:
@@ -407,12 +295,32 @@ class TPTracker:
                 if next_idx >= len(tp_targets) - 1:
                     pos["status"] = "WIN"
                     await self._save_debounced()
+                    await self._log_transition_and_execution(
+                        ca,
+                        from_state,
+                        StrategySignalState.EXITED.value,
+                        action=StrategyAction.EXIT.value,
+                        event_type=ExecutionEventType.TP_TRACKER_CLOSE.value,
+                        source="tp_tracker.update",
+                        status="WIN",
+                        reason="CLOSED_TP",
+                        metadata={"pnl_percentage": pnl_pct},
+                    )
                     return {
                         "event": "CLOSED_TP",
                         "pnl_percentage": pnl_pct,
                     }
 
                 await self._save_debounced()
+                await log_execution_event(
+                    ca,
+                    ExecutionEventType.TP_TRACKER_TP.value,
+                    action=StrategyAction.REDUCE.value,
+                    signal_state=from_state,
+                    status=str(pos.get("status") or ""),
+                    source="tp_tracker.update",
+                    metadata={"event": f"止盈{next_idx + 1}", "pnl": pnl_pct},
+                )
                 return {
                     "event": f"止盈{next_idx + 1}",
                     "pnl": pnl_pct,
@@ -423,6 +331,17 @@ class TPTracker:
         if sl_price > 0 and curr_price <= sl_price:
             pos["status"] = "LOSS" if pnl_pct < 0 else "WIN"
             await self._save_debounced()
+            await self._log_transition_and_execution(
+                ca,
+                from_state,
+                StrategySignalState.EXITED.value,
+                action=StrategyAction.EXIT.value,
+                event_type=ExecutionEventType.TP_TRACKER_CLOSE.value,
+                source="tp_tracker.update",
+                status=str(pos.get("status") or ""),
+                reason="CLOSED_SL",
+                metadata={"pnl_percentage": pnl_pct},
+            )
             return {
                 "event": "CLOSED_SL",
                 "pnl_percentage": pnl_pct,
@@ -522,6 +441,10 @@ class TPTracker:
         merged = self._merged_config(strategy_id, config)
 
         existing = self.data.get(ca)
+        from_state = normalize_strategy_state(
+            (existing or {}).get("signal_state"),
+            StrategySignalState.NEW_SIGNAL.value,
+        )
         if existing and not self._is_pre_entry_state(existing):
             if reply_chat_id is not None:
                 existing["reply_chat_id"] = reply_chat_id
@@ -532,6 +455,16 @@ class TPTracker:
             existing["signal_state"] = "ENTERED"
             existing["updated_at"] = time.time()
             await self._save_debounced()
+            await self._log_transition_and_execution(
+                ca,
+                from_state,
+                StrategySignalState.ENTERED.value,
+                action=StrategyAction.ENTER.value,
+                event_type=ExecutionEventType.TP_TRACKER_ENTER.value,
+                source="tp_tracker.init_position",
+                status=str(existing.get("status") or ""),
+                metadata={"strategy_id": strategy_id, "reused_position": True},
+            )
             return
 
         now = time.time()
@@ -570,6 +503,16 @@ class TPTracker:
 
         self.data[ca] = new_pos
         await self._save_debounced()
+        await self._log_transition_and_execution(
+            ca,
+            from_state,
+            StrategySignalState.ENTERED.value,
+            action=StrategyAction.ENTER.value,
+            event_type=ExecutionEventType.TP_TRACKER_ENTER.value,
+            source="tp_tracker.init_position",
+            status="ACTIVE",
+            metadata={"strategy_id": strategy_id, "entry_price": entry_price},
+        )
 
     async def ensure_observing(
         self,
@@ -588,6 +531,10 @@ class TPTracker:
         current_price = _safe_float(current_price, 0.0)
         anchor_price = _safe_float(anchor_price, current_price)
         existing = self.data.get(ca)
+        from_state = normalize_strategy_state(
+            (existing or {}).get("signal_state"),
+            StrategySignalState.NEW_SIGNAL.value,
+        )
         if existing and not self._is_pre_entry_state(existing):
             if reply_chat_id is not None:
                 existing["reply_chat_id"] = reply_chat_id
@@ -619,6 +566,16 @@ class TPTracker:
             pos["reply_msg_id"] = reply_msg_id
         self.data[ca] = pos
         await self._save_debounced()
+        await self._log_transition_and_execution(
+            ca,
+            from_state,
+            StrategySignalState.OBSERVING.value,
+            action=StrategyAction.WATCH.value,
+            event_type=ExecutionEventType.TP_TRACKER_OBSERVE.value,
+            source="tp_tracker.ensure_observing",
+            status="OBSERVE",
+            metadata={"anchor_price": _safe_float(pos.get("anchor_price"), 0.0)},
+        )
 
     async def arm_position(
         self,
@@ -637,6 +594,10 @@ class TPTracker:
             return
 
         existing = self.data.get(ca)
+        from_state = normalize_strategy_state(
+            (existing or {}).get("signal_state"),
+            StrategySignalState.NEW_SIGNAL.value,
+        )
         if existing and not self._is_pre_entry_state(existing):
             if reply_chat_id is not None:
                 existing["reply_chat_id"] = reply_chat_id
@@ -670,6 +631,16 @@ class TPTracker:
         pos["updated_at"] = time.time()
         self.data[ca] = pos
         await self._save_debounced()
+        await self._log_transition_and_execution(
+            ca,
+            from_state,
+            StrategySignalState.ARMED.value,
+            action=StrategyAction.PROBE.value,
+            event_type=ExecutionEventType.TP_TRACKER_ARM.value,
+            source="tp_tracker.arm_position",
+            status="ARMED",
+            metadata={"strategy_id": strategy_id},
+        )
 
     async def reset_to_observing(
         self,
@@ -686,6 +657,10 @@ class TPTracker:
             return
 
         existing = self.data.get(ca)
+        from_state = normalize_strategy_state(
+            (existing or {}).get("signal_state"),
+            StrategySignalState.NEW_SIGNAL.value,
+        )
         pos = self._make_placeholder(ca, _safe_float(current_price, 0.0))
         if isinstance(existing, dict):
             pos["created_at"] = existing.get("created_at", pos["created_at"])
@@ -705,6 +680,16 @@ class TPTracker:
             self._apply_observation(pos, _safe_float(current_price, 0.0))
         self.data[ca] = pos
         await self._save_debounced()
+        await self._log_transition_and_execution(
+            ca,
+            from_state,
+            StrategySignalState.OBSERVING.value,
+            action=StrategyAction.EXIT.value if from_state == StrategySignalState.ENTERED.value else StrategyAction.WATCH.value,
+            event_type=ExecutionEventType.TP_TRACKER_RESET.value,
+            source="tp_tracker.reset_to_observing",
+            status="OBSERVE",
+            metadata={"anchor_price": _safe_float(pos.get("anchor_price"), 0.0)},
+        )
 
     async def get_baseline_metrics(self, ca: str, current_price: Optional[float] = None) -> Dict[str, Any]:
         await self._ensure_loaded()

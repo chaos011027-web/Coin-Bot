@@ -4,6 +4,9 @@ import time
 from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Optional, Tuple
 
+from modules.execution_event_logger import log_execution_event_sync
+from modules.strategy_state import ExecutionEventType, StrategyAction, StrategySignalState
+
 
 def _safe_float(v: Any, default: float = 0.0) -> float:
     try:
@@ -216,6 +219,21 @@ class PaperPortfolioEngine:
             "tp2_done": False,
         }
         self.save()
+        log_execution_event_sync(
+            ca,
+            ExecutionEventType.PAPER_OPEN.value,
+            action=StrategyAction.ENTER.value,
+            signal_state=StrategySignalState.ENTERED.value,
+            status="OPEN",
+            source="paper_portfolio_engine.open_position",
+            metadata={
+                "strategy": strategy or "MIXED",
+                "entry_price": entry_price,
+                "entry_mcap": _safe_float(entry_mcap, 0.0),
+                "allocated_sol": alloc_sol,
+                "entry_cost_sol": entry_cost,
+            },
+        )
 
         return {
             "ok": True,
@@ -311,6 +329,21 @@ class PaperPortfolioEngine:
             self.open_positions.pop(ca, None)
 
         self.save()
+        log_execution_event_sync(
+            ca,
+            ExecutionEventType.PAPER_TP.value,
+            action=StrategyAction.REDUCE.value,
+            signal_state=StrategySignalState.MANAGING.value,
+            status="PARTIAL_TP",
+            source="paper_portfolio_engine.partial_take_profit",
+            metadata={
+                "exit_price": exit_price,
+                "exit_mcap": exit_mcap,
+                "ratio": ratio,
+                "exit_reason": exit_reason,
+                "net_pnl_sol": net_pnl_sol,
+            },
+        )
         return {
             "ok": True,
             "partial": True,
@@ -377,6 +410,21 @@ class PaperPortfolioEngine:
         self.closed_legs.append(asdict(leg))
         self.open_positions.pop(ca, None)
         self.save()
+        log_execution_event_sync(
+            ca,
+            ExecutionEventType.PAPER_CLOSE.value,
+            action=StrategyAction.EXIT.value,
+            signal_state=StrategySignalState.EXITED.value,
+            status="CLOSED",
+            source="paper_portfolio_engine.close_position",
+            metadata={
+                "exit_price": exit_price,
+                "exit_mcap": exit_mcap,
+                "exit_reason": exit_reason,
+                "net_pnl_sol": net_pnl_sol,
+                "net_return_pct": net_return_pct,
+            },
+        )
 
         return {
             "ok": True,
