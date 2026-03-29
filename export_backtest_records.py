@@ -250,8 +250,9 @@ async def load_db_context(cas: List[str]) -> Tuple[Dict[str, Dict[str, Any]], Di
         signal_rows = await db.fetch(
             """
             SELECT ca, source, status, rank_score, ai_narrative, entry_price, last_notified_price,
-                   initial_msg_id, terminal_states
-            FROM signals_snapshot
+                   initial_msg_id, top10_raw_pct, top10_adjusted_pct, pair_liquidity_usd, exit_liquidity_usd,
+                   metric_confidence, source_conflict, terminal_states
+            FROM signal_cache_current
             WHERE ca = ANY($1::varchar[])
             """,
             cas,
@@ -261,12 +262,14 @@ async def load_db_context(cas: List[str]) -> Tuple[Dict[str, Dict[str, Any]], Di
             item["terminal_states"] = _safe_json_obj(item.get("terminal_states"))
             signals[str(item.get("ca") or "").strip()] = item
     except Exception as e:
-        logger.warning("⚠️ 读取 signals_snapshot 失败，继续使用本地数据: %s", e)
+        logger.warning("⚠️ 读取 signal_cache_current 失败，继续使用本地数据: %s", e)
 
     try:
         snap_rows = await db.fetch(
             """
             SELECT ca, snapshot_time, time_stage, price_usd, market_cap_at_snap, liquidity_at_snap,
+                   top10_raw_pct, top10_adjusted_pct, pair_liquidity_usd, exit_liquidity_usd,
+                   metric_confidence, source_conflict,
                    smart_money_delta, maker_vol_ratio, overhang_ratio, breakout_vol_ratio, label
             FROM golden_dog_morphology
             WHERE ca = ANY($1::varchar[])

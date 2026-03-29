@@ -4,6 +4,9 @@ import logging
 from copy import deepcopy
 from typing import Any, Dict, List, Tuple
 
+from config.metric_settings import CANONICAL_METRIC_THRESHOLDS
+from modules.canonical_metrics import get_canonical_top10_pct, get_decision_liquidity_usd
+
 try:
     from modules.score_engine import calc_score_breakdown
 except Exception:
@@ -18,10 +21,10 @@ DEFAULT_STRATEGY_PARAMS: Dict[str, Any] = {
         "sniper_play_min_score": 66,
         "mixed_min_score": 48,
         # 结构阈值
-        "healthy_top10_max": 18.0,
-        "warn_top10_max": 35.0,
-        "danger_top10_max": 50.0,
-        "fatal_top10_min": 60.0,
+        "healthy_top10_max": float(CANONICAL_METRIC_THRESHOLDS.get("top10_green_max_pct", 15.0)),
+        "warn_top10_max": float(CANONICAL_METRIC_THRESHOLDS.get("top10_warn_pct", 30.0)),
+        "danger_top10_max": float(CANONICAL_METRIC_THRESHOLDS.get("top10_danger_pct", 50.0)),
+        "fatal_top10_min": float(CANONICAL_METRIC_THRESHOLDS.get("top10_fatal_pct", 60.0)),
         "bundle_warn_min": 35.0,
         "bundle_danger_min": 70.0,
         "bundle_fatal_min": 120.0,
@@ -30,15 +33,21 @@ DEFAULT_STRATEGY_PARAMS: Dict[str, Any] = {
         "rat_fatal_min": 1.0,
         "dev_warn_min": 8.0,
         # 流动性 / 年龄 / 动能
-        "min_liq_for_trend": 12000.0,
+        "min_liq_for_trend": float(CANONICAL_METRIC_THRESHOLDS.get("liquidity_low_usd", 10000.0)),
         "min_liq_for_sniper": 8000.0,
-        "low_liq_warn": 5000.0,
-        "fatal_liq_below": 800.0,
+        "low_liq_warn": float(CANONICAL_METRIC_THRESHOLDS.get("liquidity_warn_usd", 5000.0)),
+        "fatal_liq_below": float(CANONICAL_METRIC_THRESHOLDS.get("liquidity_fatal_usd", 800.0)),
         "early_age_max_min": 180.0,
         "fresh_age_max_min": 45.0,
         "momentum_5m_for_trend": 8.0,
         "momentum_1h_for_trend": 12.0,
         "momentum_5m_for_sniper": 5.0,
+        "dynamic_boost_min_score": 88.0,
+        "dynamic_clean_top10_max": 18.0,
+        "dynamic_clean_bundle_max": 20.0,
+        "dynamic_fresh_age_max_min": 15.0,
+        "dynamic_dirty_top10_min": 45.0,
+        "dynamic_low_liq_threshold": 12000.0,
         "dump_24h_fatal": -65.0,
         "smart_min_for_trend": 2.0,
         "smart_min_for_sniper": 1.0,
@@ -268,8 +277,8 @@ def _prepare_for_score(token_data: Dict[str, Any]) -> Dict[str, Any]:
 def _extract_metrics(token_data: Dict[str, Any]) -> Dict[str, float]:
     return {
         "mcap": _safe_float(token_data.get("cap_usd") or token_data.get("mcap") or token_data.get("fdv"), 0.0),
-        "liq": _safe_float(token_data.get("liquidity_usd"), 0.0),
-        "top10": _safe_pct(token_data.get("top10_ratio"), 0.0, ratio_if_le_one=True),
+        "liq": _safe_float(get_decision_liquidity_usd(token_data), 0.0),
+        "top10": _safe_pct(get_canonical_top10_pct(token_data), 0.0, ratio_if_le_one=True),
         "age_min": _safe_float(token_data.get("token_age_min"), 0.0),
         "smart": _safe_float(token_data.get("gmgn_smart"), 0.0),
         "kol": _safe_float(token_data.get("gmgn_kol"), 0.0),
@@ -290,6 +299,7 @@ def _dynamic_adjust_config(
     metrics: Dict[str, float],
     score: float,
     reasons: List[str],
+    gates: Dict[str, Any],
 ) -> Dict[str, Any]:
     cfg = deepcopy(base_cfg)
     alloc = _safe_float(cfg.get("alloc_pct"), 0.08)
@@ -298,25 +308,41 @@ def _dynamic_adjust_config(
     if not tp_targets:
         tp_targets = [1.20, 1.50, 2.00]
 
+    dynamic_boost_min_score = _safe_float(gates.get("dynamic_boost_min_score", 88.0), 88.0)
+    dynamic_clean_top10_max = _safe_pct(gates.get("dynamic_clean_top10_max", 18.0), 18.0, ratio_if_le_one=True)
+    dynamic_clean_bundle_max = _safe_float(gates.get("dynamic_clean_bundle_max", 20.0), 20.0)
+    dynamic_fresh_age_max_min = _safe_float(gates.get("dynamic_fresh_age_max_min", 15.0), 15.0)
+    dynamic_dirty_top10_min = _safe_pct(gates.get("dynamic_dirty_top10_min", 45.0), 45.0, ratio_if_le_one=True)
+    dynamic_low_liq_threshold = _safe_float(gates.get("dynamic_low_liq_threshold", 12000.0), 12000.0)
+
     # 高分但结构干净：略微放大利润空间
-    if strategy_id == "SMART_TREND" and score >= 88 and metrics["top10"] <= 18 and metrics["bundle"] < 20:
+    if (
+        strategy_id == "SMART_TREND"
+        and score >= dynamic_boost_min_score
+        and metrics["top10"] <= dynamic_clean_top10_max
+        and metrics["bundle"] < dynamic_clean_bundle_max
+    ):
         tp_targets = [round(x + 0.05, 2) for x in tp_targets]
         alloc *= 1.08
         reasons.append("高分+结构干净，适度放大利润目标")
 
     # 新币波动大：同策略下略缩仓
-    if 0 < metrics["age_min"] <= 15:
+    if 0 < metrics["age_min"] <= dynamic_fresh_age_max_min:
         alloc *= 0.90
         reasons.append("币龄极短，缩小初始仓位")
 
     # 结构偏脏：缩仓并略收紧止盈
-    if metrics["bundle"] >= 70 or metrics["top10"] >= 45 or metrics["dev"] >= 8:
+    if (
+        metrics["bundle"] >= _safe_float(gates.get("bundle_danger_min", 70.0), 70.0)
+        or metrics["top10"] >= dynamic_dirty_top10_min
+        or metrics["dev"] >= _safe_float(gates.get("dev_warn_min", 8.0), 8.0)
+    ):
         alloc *= 0.75
         tp_targets = [round(max(1.12, x - 0.05), 2) for x in tp_targets]
         reasons.append("结构偏脏，缩仓并下调TP")
 
     # 流动性一般：再保守一点
-    if 0 < metrics["liq"] < 12000:
+    if 0 < metrics["liq"] < dynamic_low_liq_threshold:
         alloc *= 0.85
         reasons.append("流动性一般，进一步缩仓")
 
@@ -411,7 +437,7 @@ def detect_strategy(token_data: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
             reasons.append("多空因子混合，按中性剧本处理")
 
     base_cfg = deepcopy(strategy_configs.get(strategy_id, strategy_configs.get("MIXED", {})))
-    config = _dynamic_adjust_config(strategy_id, base_cfg, metrics, score, reasons)
+    config = _dynamic_adjust_config(strategy_id, base_cfg, metrics, score, reasons, gates)
 
     config.update({
         "score": round(score, 2),

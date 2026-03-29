@@ -4,6 +4,8 @@ import os
 import json
 from typing import Dict, Any
 
+from config.metric_settings import CANONICAL_METRIC_PIPELINE
+
 logger = logging.getLogger("Bitquery")
 
 class BitqueryClient:
@@ -63,12 +65,12 @@ class BitqueryClient:
                     # 不再吞掉 errors，方便调试
                     if "errors" in result or "data" not in result: 
                         return {}
-                    return self._process_data(result["data"].get("Solana", {}))
+                    return self._process_data(result["data"].get("Solana", {}), mint)
         except Exception as e:
             logger.error(f"❌ Bitquery 请求异常: {e}")
             return {}
 
-    def _process_data(self, data: dict) -> Dict[str, Any]:
+    def _process_data(self, data: dict, mint: str = "") -> Dict[str, Any]:
         """
         核心：对流水数据进行手动去重聚合，计算真实持仓占比
         """
@@ -99,13 +101,38 @@ class BitqueryClient:
 
             # 4. 容错逻辑：如果 Bitquery 没返回供应量，尝试以最大持仓进行合理估算
             if total_supply <= 0 and sorted_holders:
-                total_supply = sorted_holders[0][1] * 2.5 
+                fallback_multiplier = float(CANONICAL_METRIC_PIPELINE.get("bitquery_supply_fallback_multiplier", 2.5))
+                total_supply = sorted_holders[0][1] * fallback_multiplier
+                result["bitquery_supply_used_fallback"] = True
+                result["bitquery_supply_fallback_multiplier"] = fallback_multiplier
+            else:
+                result["bitquery_supply_used_fallback"] = False
+                result["bitquery_supply_fallback_multiplier"] = None
 
             if total_supply > 0:
                 ratio = (top10_sum / total_supply) * 100.0
                 result["bitquery_top10_ratio"] = min(100.0, ratio)
+                result["bitquery_total_supply"] = total_supply
+                result["bitquery_top10_sum"] = top10_sum
                 result["bitquery_holders_data"] = [{"address": a, "amount": m} for a, m in sorted_holders]
-                
+
+            top1_amt = float(sorted_holders[0][1]) if sorted_holders else 0.0
+            logger.info(
+                "BitqueryTop10Trace | mint=%s | ratio=%s | total_supply=%s | top10_sum=%s | supply_fallback=%s | multiplier=%s",
+                str(mint or "")[:8],
+                round(float(result.get("bitquery_top10_ratio") or 0.0), 4) if result.get("bitquery_top10_ratio") is not None else None,
+                round(float(result.get("bitquery_total_supply") or 0.0), 4) if result.get("bitquery_total_supply") is not None else None,
+                round(float(result.get("bitquery_top10_sum") or 0.0), 4) if result.get("bitquery_top10_sum") is not None else None,
+                bool(result.get("bitquery_supply_used_fallback")),
+                result.get("bitquery_supply_fallback_multiplier"),
+            )
+            logger.info(
+                "BitqueryTop10Trace | mint=%s | top1=%s | holders_count=%s",
+                str(mint or "")[:8],
+                round(top1_amt, 4) if top1_amt > 0 else 0.0,
+                len(unique_holders),
+            )
+
         except Exception as e:
             logger.error(f"🧬 Bitquery 解析失败: {e}")
 

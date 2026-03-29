@@ -1,5 +1,7 @@
 import re
 
+from modules.canonical_metrics import canonical_thresholds, get_canonical_top10_pct, get_decision_liquidity_usd
+
 def calc_score_breakdown(token_data: dict) -> dict:
     """
     全能评分模型 V2.0
@@ -30,8 +32,9 @@ def calc_score_breakdown(token_data: dict) -> dict:
     # =========================================
     # 1. 市场基本面 (权重 30%)
     # =========================================
+    thresholds = canonical_thresholds()
     mcap = float(token_data.get("mcap") or token_data.get("fdv") or 0)
-    liq = float(token_data.get("liquidity_usd", 0) or 0)
+    liq = float(get_decision_liquidity_usd(token_data) or 0)
 
     # 市值结构 (寻找 50K-500K 的金狗区间)
     if mcap < 5_000:
@@ -46,29 +49,25 @@ def calc_score_breakdown(token_data: dict) -> dict:
     # 池子厚度与健康度 (Liq / FDV)
     if liq > 0 and mcap > 0:
         ratio = liq / mcap
-        if ratio < 0.05: # 池子太薄，大户跑不了，典型的貔貅特征
+        if ratio < float(thresholds.get("liquidity_ratio_warn", 0.05)): # 池子太薄，大户跑不了，典型的貔貅特征
             score -= 15; breakdown["池子比"] = -15
-        elif ratio > 0.15:
+        elif ratio > float(thresholds.get("liquidity_ratio_good", 0.15)):
             score += 5;  breakdown["池子比"] = +5
 
-    if liq < 10_000:
+    if liq < float(thresholds.get("liquidity_low_usd", 10_000.0)):
         score -= 10; breakdown["流动性"] = -10 # 池子太小
 
     # =========================================
     # 2. 筹码分布 (权重 30%) - ✅ 新增
     # =========================================
-    # 需要从 token_data['top10_ratio'] 解析 "15.5%" 这种字符串
-    top10_str = str(token_data.get("top10_ratio", "0")).replace("%", "")
-    try:
-        top10 = float(top10_str)
-    except:
-        top10 = 0
+    # Top10 统一从 canonical helper 读取，兼容层由 helper 内部处理
+    top10 = float(get_canonical_top10_pct(token_data) or 0)
 
-    if top10 > 50:
+    if top10 > float(thresholds.get("top10_danger_pct", 50.0)):
         score -= 30; breakdown["Top10控盘"] = -30 # 高度控盘，一波砸死
-    elif top10 > 30:
+    elif top10 > float(thresholds.get("top10_warn_pct", 30.0)):
         score -= 10; breakdown["Top10控盘"] = -10
-    elif 0 < top10 < 15:
+    elif 0 < top10 < float(thresholds.get("top10_green_max_pct", 15.0)):
         score += 5;  breakdown["Top10分散"] = +5
 
     # =========================================

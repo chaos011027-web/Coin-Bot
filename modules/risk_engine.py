@@ -1,6 +1,14 @@
 # modules/risk_engine.py
 from typing import List, Tuple, Dict, Any, Optional
 
+from modules.canonical_metrics import (
+    canonical_pipeline_settings,
+    canonical_thresholds,
+    get_confirmed_top10_pct,
+    get_decision_liquidity_context,
+    get_decision_liquidity_usd,
+)
+
 
 # ===========================
 # 🟢 原有：策略风险等级（供 performance panel）
@@ -71,6 +79,21 @@ def _normalize_flag(s: str) -> str:
     return s
 
 
+def _normalize_verdict(verdict: Any, default: str = "WATCH") -> str:
+    text = str(verdict or default).upper().strip()
+    aliases = {
+        "BUY": "ENTER",
+        "SELL": "EXIT",
+        "HOLD": "WATCH",
+    }
+    text = aliases.get(text, text)
+    return text or default
+
+
+def _top10_pending_gmgn_review(token_data: Dict[str, Any]) -> bool:
+    return bool((token_data or {}).get("top10_pending_gmgn_review"))
+
+
 # ===========================
 # 🧱 Risk Flags 聚合（机器旗标 + 展示提示）
 # ===========================
@@ -90,6 +113,7 @@ def build_risk_flags_final(
 
     flags: List[str] = []
     hints: List[str] = []
+    thresholds = canonical_thresholds()
 
     # --- 1) GMGN 结构化字段 ---
     gmgn_rat = _safe_int(token_data.get("gmgn_rat", 0))
@@ -107,29 +131,33 @@ def build_risk_flags_final(
         hints.append(f"🔫狙击过多({gmgn_sniper})")
 
     # --- 2) Top10 / 流动性 / 市值（来自 token_data）---
-    top10 = _safe_float(token_data.get("top10_ratio", 0))
-    liq = _safe_float(token_data.get("liquidity_usd", 0))
+    top10_pending = _top10_pending_gmgn_review(token_data)
+    top10 = 0.0 if top10_pending else _safe_float(get_confirmed_top10_pct(token_data), 0)
+    liq = _safe_float(get_decision_liquidity_usd(token_data), 0)
     mcap = _safe_float(token_data.get("cap_usd") or token_data.get("mcap") or token_data.get("fdv") or 0)
 
-    if top10 >= 60:
+    if top10_pending:
+        hints.append("Top10待校正")
+
+    if top10 >= _safe_float(thresholds.get("top10_fatal_pct", 60.0), 60.0):
         flags.append("HIGH_CONCENTRATION_FATAL")
         hints.append(f"⛔Top10控盘{top10:.1f}%")
-    elif top10 >= 50:
+    elif top10 >= _safe_float(thresholds.get("top10_danger_pct", 50.0), 50.0):
         flags.append("HIGH_CONCENTRATION")
         hints.append(f"⚠️Top10控盘{top10:.1f}%")
 
     # 极低流动性：只做提示（最终是否熔断由 FinalGate 决定）
-    if liq > 0 and liq < 800:
+    if liq > 0 and liq < _safe_float(thresholds.get("liquidity_fatal_usd", 800.0), 800.0):
         flags.append("LOW_LIQ_FATAL")
         hints.append(f"⛔流动性极低(${int(liq)})")
-    elif liq > 0 and liq < 2000:
+    elif liq > 0 and liq < _safe_float(thresholds.get("liquidity_danger_usd", 2000.0), 2000.0):
         flags.append("LOW_LIQ")
         hints.append(f"⚠️流动性偏低(${int(liq)})")
 
     # 池子占比异常
     if mcap > 100_000 and liq > 0:
         ratio = liq / mcap
-        if ratio < 0.01:
+        if ratio < _safe_float(thresholds.get("liquidity_ratio_fatal", 0.01), 0.01):
             flags.append("LIQ_RATIO_LT_1PCT")
             hints.append("⛔池子占比<1%")
 
@@ -176,7 +204,7 @@ def build_risk_flags_final(
 # ===========================
 # 🔥 FinalGate：最终裁决层（不改“信息”，只改“权限”）
 # ===========================
-def apply_final_gate(
+def _legacy_apply_final_gate_buy_watch_pass(
     token_data: Dict[str, Any],
     decision: Optional[Dict[str, Any]],
     pos_info: Optional[Dict[str, Any]],
@@ -195,11 +223,13 @@ def apply_final_gate(
     pos_info = pos_info or {"size": "0%", "level": "未知", "reason": "无"}
 
     fatal_hints: List[str] = []
+    thresholds = canonical_thresholds()
 
     # 取硬指标（类型安全）
     rat_count = _safe_int(token_data.get("gmgn_rat", 0))
-    top10 = _safe_float(token_data.get("top10_ratio", 0))
-    liq = _safe_float(token_data.get("liquidity_usd", 0))
+    top10_pending = _top10_pending_gmgn_review(token_data)
+    top10 = 0.0 if top10_pending else _safe_float(get_confirmed_top10_pct(token_data), 0)
+    liq = _safe_float(get_decision_liquidity_usd(token_data), 0)
     mcap = _safe_float(token_data.get("cap_usd") or token_data.get("mcap") or token_data.get("fdv") or 0)
 
     # 红线 A：老鼠仓（结构化字段 >0 直接熔断）
@@ -208,19 +238,19 @@ def apply_final_gate(
 
     # 红线 B：Top10 极度控盘（>=60 熔断，50-60 强限权）
     strong_limit = False
-    if top10 >= 60.0:
+    if top10 >= _safe_float(thresholds.get("top10_fatal_pct", 60.0), 60.0):
         fatal_hints.append(f"Top10控盘{top10:.1f}%")
-    elif top10 >= 50.0:
+    elif top10 >= _safe_float(thresholds.get("top10_danger_pct", 50.0), 50.0):
         strong_limit = True
 
     # 红线 C：极低流动性（<800 熔断；800-2000 强限权）
-    if liq > 0 and liq < 800:
+    if liq > 0 and liq < _safe_float(thresholds.get("liquidity_fatal_usd", 800.0), 800.0):
         fatal_hints.append(f"流动性过低(${int(liq)})")
-    elif liq > 0 and liq < 2000:
+    elif liq > 0 and liq < _safe_float(thresholds.get("liquidity_danger_usd", 2000.0), 2000.0):
         strong_limit = True
 
     # 红线 D：大市值微池子（结构异常，倾向熔断）
-    if mcap > 100_000 and liq > 0 and (liq / mcap) < 0.01:
+    if mcap > 100_000 and liq > 0 and (liq / mcap) < _safe_float(thresholds.get("liquidity_ratio_fatal", 0.01), 0.01):
         fatal_hints.append("池子占比<1%")
 
     # GMGN：捆绑/狙击极端时（不直接熔断，强限权）
@@ -255,5 +285,93 @@ def apply_final_gate(
         pos_info["level"] = "⚠️ 风控限权"
         old_pr = str(pos_info.get("reason") or "").strip()
         pos_info["reason"] = (old_pr + "｜" + "结构风险偏高") if old_pr else "结构风险偏高"
+
+    return decision, pos_info, fatal_hints
+
+
+def apply_final_gate(
+    token_data: Dict[str, Any],
+    decision: Optional[Dict[str, Any]],
+    pos_info: Optional[Dict[str, Any]],
+) -> Tuple[Dict[str, Any], Dict[str, Any], List[str]]:
+    token_data = token_data or {}
+    decision = decision or {"score": 0, "verdict": "PASS", "risk_flags": [], "reason": "AI异常/缺失"}
+    pos_info = pos_info or {"size": "0%", "level": "未知", "reason": "未提供"}
+
+    decision["verdict"] = _normalize_verdict(decision.get("verdict", "PASS"), "PASS")
+    decision.setdefault("risk_flags", [])
+    if not isinstance(decision.get("risk_flags"), list):
+        decision["risk_flags"] = [str(decision.get("risk_flags"))]
+
+    fatal_hints: List[str] = []
+    thresholds = canonical_thresholds()
+    pipeline_settings = canonical_pipeline_settings()
+    liq_context = get_decision_liquidity_context(token_data)
+
+    rat_count = _safe_int(token_data.get("gmgn_rat", 0))
+    top10_pending = _top10_pending_gmgn_review(token_data)
+    top10 = 0.0 if top10_pending else _safe_float(get_confirmed_top10_pct(token_data), 0)
+    liq = _safe_float(get_decision_liquidity_usd(token_data), 0)
+    mcap = _safe_float(token_data.get("cap_usd") or token_data.get("mcap") or token_data.get("fdv") or 0)
+
+    if rat_count > 0:
+        fatal_hints.append(f"老鼠仓{rat_count}")
+
+    strong_limit = False
+    if top10 >= _safe_float(thresholds.get("top10_fatal_pct", 60.0), 60.0):
+        fatal_hints.append(f"Top10控盘{top10:.1f}%")
+    elif top10 >= _safe_float(thresholds.get("top10_danger_pct", 50.0), 50.0):
+        strong_limit = True
+
+    if liq > 0 and liq < _safe_float(thresholds.get("liquidity_fatal_usd", 800.0), 800.0):
+        fatal_hints.append(f"流动性过低(${int(liq)})")
+    elif liq > 0 and liq < _safe_float(thresholds.get("liquidity_danger_usd", 2000.0), 2000.0):
+        strong_limit = True
+
+    if mcap > 100_000 and liq > 0 and (liq / mcap) < _safe_float(thresholds.get("liquidity_ratio_fatal", 0.01), 0.01):
+        fatal_hints.append("池子占比<1%")
+
+    bundle = _safe_int(token_data.get("gmgn_bundle", 0))
+    sniper = _safe_int(token_data.get("gmgn_sniper", 0))
+    if bundle >= 120 or sniper >= 120:
+        strong_limit = True
+
+    if decision["verdict"] == "ENTER" and not liq_context["formal_enter_ready"]:
+        fallback_verdict = _normalize_verdict(
+            pipeline_settings.get("strict_enter_block_verdict", "PROBE"),
+            "PROBE",
+        )
+        if fallback_verdict not in {"WATCH", "PROBE"}:
+            fallback_verdict = "PROBE"
+        decision["verdict"] = fallback_verdict
+        decision["risk_flags"] = _uniq_keep_order(list(decision.get("risk_flags") or []) + ["STRICT_EXIT_LIQ"])
+        old_reason = str(decision.get("reason") or "").strip()
+        suffix = "【Strict流动性】缺少正式 exit liquidity，禁止 ENTER"
+        decision["reason"] = (old_reason + " | " + suffix) if old_reason else suffix
+        pos_info["size"] = "0-1%" if fallback_verdict == "PROBE" else "0%"
+        pos_info["level"] = "⚠️ Strict限制"
+        pos_info["reason"] = "exit_liquidity_usd 缺失，仅允许观察或试探仓"
+
+    if fatal_hints:
+        decision["verdict"] = "PASS"
+        decision["reason"] = f"【风控拦截】触发红线: {', '.join(fatal_hints)}"
+        decision["risk_flags"] = _uniq_keep_order(list(decision.get("risk_flags") or []) + ["FINAL_GATE_FATAL"])
+        pos_info["size"] = "0%"
+        pos_info["level"] = "⛔ 熔断"
+        pos_info["reason"] = "触发 FinalGate 风控拦截"
+        return decision, pos_info, fatal_hints
+
+    if strong_limit:
+        if decision["verdict"] == "ENTER":
+            decision["verdict"] = "PROBE"
+            old_reason = str(decision.get("reason") or "").strip()
+            suffix = "【风控限权】结构风险偏高，禁止正式 ENTER"
+            decision["reason"] = (old_reason + " | " + suffix) if old_reason else suffix
+            decision["risk_flags"] = _uniq_keep_order(list(decision.get("risk_flags") or []) + ["FINAL_GATE_LIMIT"])
+
+        pos_info["size"] = "0-1%"
+        pos_info["level"] = "⚠️ 风控限权"
+        old_pr = str(pos_info.get("reason") or "").strip()
+        pos_info["reason"] = (old_pr + " | 结构风险偏高") if old_pr else "结构风险偏高"
 
     return decision, pos_info, fatal_hints

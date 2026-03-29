@@ -3,6 +3,7 @@ import logging
 import json
 from modules.database import db
 from modules.data_fetcher import get_market_data, get_gmgn_analytics
+from modules.canonical_metrics import apply_canonical_metrics, get_canonical_top10_pct, get_decision_liquidity_usd
 from modules.feature_engine import calculate_ml_features
 
 logger = logging.getLogger("WatchDog")
@@ -50,9 +51,14 @@ async def time_series_patrol_loop():
                 ca = row["ca"]
 
                 raw_market = await get_market_data(ca)
-                analytics = await get_gmgn_analytics(ca)
+                analytics = await get_gmgn_analytics(ca, route="background", raw_market=raw_market)
                 if not raw_market or not analytics:
                     continue
+
+                current_seed = dict(raw_market or {})
+                if ca and not str(current_seed.get("ca") or "").strip():
+                    current_seed["ca"] = ca
+                current_data = apply_canonical_metrics(current_seed, analytics or {}, {})
 
                 # 取最新一条快照，而不是最早一条
                 prev_snap = await db.fetchrow("""
@@ -68,23 +74,26 @@ async def time_series_patrol_loop():
                 prev_smart = _extract_prev_smart_from_snapshot(prev_snap)
                 prev_data = {"smart_money": prev_smart}
 
-                features = calculate_ml_features(raw_market, analytics, prev_data)
+                features = calculate_ml_features(current_data, analytics, prev_data)
 
-                curr_price = float(raw_market.get("priceUsd") or raw_market.get("price_usd") or 0)
+                curr_price = float(current_data.get("priceUsd") or current_data.get("price_usd") or 0)
                 curr_mcap = float(
-                    raw_market.get("fdv")
-                    or raw_market.get("marketCap")
-                    or raw_market.get("cap_usd")
-                    or raw_market.get("mcap")
+                    current_data.get("fdv")
+                    or current_data.get("marketCap")
+                    or current_data.get("cap_usd")
+                    or current_data.get("mcap")
                     or 0
                 )
+                curr_liq = float(get_decision_liquidity_usd(current_data) or 0)
 
-                curr_liq = raw_market.get("liquidity_usd")
-                if not curr_liq and isinstance(raw_market.get("liquidity"), dict):
-                    curr_liq = raw_market.get("liquidity", {}).get("usd")
-                curr_liq = float(curr_liq or 0)
-
-                holders = analytics.get("top10_ratio", "N/A")
+                holders = {
+                    "top10_raw_pct": current_data.get("top10_raw_pct"),
+                    "top10_adjusted_pct": get_canonical_top10_pct(current_data),
+                    "pair_liquidity_usd": current_data.get("pair_liquidity_usd"),
+                    "exit_liquidity_usd": current_data.get("exit_liquidity_usd"),
+                    "metric_confidence": current_data.get("metric_confidence"),
+                    "source_conflict": current_data.get("source_conflict"),
+                }
                 current_smart_abs = prev_smart + int(features.get("smart_money_delta", 0))
 
                 if curr_price <= 0:
@@ -98,6 +107,12 @@ async def time_series_patrol_loop():
                         time_stage,
                         market_cap_at_snap,
                         liquidity_at_snap,
+                        top10_raw_pct,
+                        top10_adjusted_pct,
+                        pair_liquidity_usd,
+                        exit_liquidity_usd,
+                        metric_confidence,
+                        source_conflict,
                         holder_distribution,
                         social_signal,
                         price_usd,
@@ -117,16 +132,28 @@ async def time_series_patrol_loop():
                         $5,
                         $6,
                         $7,
-                        $8,
-                        $9,
-                        $10
+                        $8::jsonb,
+                        $9::jsonb,
+                        $10,
+                        $11,
+                        $12,
+                        $13,
+                        $14,
+                        $15,
+                        $16
                     )
                     ON CONFLICT (ca, snapshot_time) DO NOTHING
                 """,
                     ca,
                     curr_mcap,
                     curr_liq,
-                    json.dumps({"top10": holders}, ensure_ascii=False),
+                    current_data.get("top10_raw_pct"),
+                    get_canonical_top10_pct(current_data),
+                    current_data.get("pair_liquidity_usd"),
+                    current_data.get("exit_liquidity_usd"),
+                    json.dumps(current_data.get("metric_confidence")) if isinstance(current_data.get("metric_confidence"), dict) else None,
+                    json.dumps(current_data.get("source_conflict")) if isinstance(current_data.get("source_conflict"), dict) else None,
+                    json.dumps(holders, ensure_ascii=False),
                     json.dumps({"ix_data": {"smart_money_count": current_smart_abs}}, ensure_ascii=False),
                     curr_price,
                     int(features.get("smart_money_delta", 0)),

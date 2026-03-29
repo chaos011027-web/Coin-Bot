@@ -1,0 +1,13 @@
+﻿experiment_id,ca,sample_type,start_time,end_time,elapsed_ms,success,source,depends_on_page,stage,gate_valid,blocked_reason,result_strength,url_hit,path_hit,display_hit,field_group,top10_value,liq_value,tag_count,error_type,notes
+B2-001,So11111111111111111111111111111111111111112,correct_token_page,2026-03-21 16:18:47,2026-03-21 16:18:57,10731,True,target_wait,True,page_target,True,,,,,,,,,,,url=https://gmgn.ai/sol/token/So11111111111111111111111111111111111111112?chain=sol
+B2-002,,overlay_page,2026-03-21 16:18:57,2026-03-21 16:19:01,3054,False,target_wait,True,page_target,False,,,,,,,,,,,url=https://gmgn.ai/
+B2-003,,shell_page,2026-03-21 16:19:01,2026-03-21 16:19:04,3400,False,target_wait,True,page_target,False,,,,,,,,,,,url=https://gmgn.ai/
+B2-004,ca,label,2026-03-21 16:19:04,2026-03-21 16:19:04,2,False,target_wait,True,page_target,,,,,,,,,,,IncorrectURLError,"
+无效的url，也许要加上""http://""？
+url: url
+版本: 4.1.1.2"
+B2-005,5JAXbqTMJc2ZcdQL8kKxeBwpG9HN76MMAnTdExyRpump,correct_token_page,2026-03-21 16:19:04,2026-03-21 16:19:18,13684,True,target_wait,True,page_target,True,,,,,,,,,,,url=https://gmgn.ai/sol/token/5JAXbqTMJc2ZcdQL8kKxeBwpG9HN76MMAnTdExyRpump?chain=sol
+B2-006,6vikMVXwa987yVenBn3P1iHsoTcjAp42SsSKUYcwpump,correct_token_page,2026-03-21 16:19:18,2026-03-21 16:19:21,2944,True,target_wait,True,page_target,True,,,,,,,,,,,url=https://gmgn.ai/sol/token/6vikMVXwa987yVenBn3P1iHsoTcjAp42SsSKUYcwpump?chain=sol
+B2-007,6LbSLaDwTTke2nmMzP2NKuEWVP7QWPGvmNMjD7QApump,correct_token_page,2026-03-21 16:19:21,2026-03-21 16:19:24,3617,True,target_wait,True,page_target,True,,,,,,,,,,,url=https://gmgn.ai/sol/token/6LbSLaDwTTke2nmMzP2NKuEWVP7QWPGvmNMjD7QApump?chain=sol
+B2-008,9UWJoB4LqoqUzPANph1bmdGGRnM5mUdWLRSMheJspump,correct_token_page,2026-03-21 16:19:24,2026-03-21 16:19:27,2846,True,target_wait,True,page_target,True,,,,,,,,,,,url=https://gmgn.ai/sol/token/9UWJoB4LqoqUzPANph1bmdGGRnM5mUdWLRSMheJspump?chain=sol
+B2-009,GAdg5dJgNNmuBUh4N8PXM7YXKjTADmPuu3pZ2C8Zpump,correct_token_page,2026-03-21 16:19:27,2026-03-21 16:19:30,2972,True,target_wait,True,page_target,True,,,,,,,,,,,url=https://gmgn.ai/sol/token/GAdg5dJgNNmuBUh4N8PXM7YXKjTADmPuu3pZ2C8Zpump?chain=sol

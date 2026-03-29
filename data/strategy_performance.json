@@ -746,6 +746,12 @@
       "time": 1773003765.9457073,
       "result": "CLOSED_SL",
       "pnl": -43.27115914541634
+    },
+    {
+      "time": 1773471481.8339086,
+      "result": "CLOSED_SL",
+      "pnl": -36.04497146558407,
+      "ca": "BoxMZoguYcEnMr4pRouLCfPpqaKCaxwKA1YMYvgCpump"
     }
   ],
   "BUNDLE_CTRL": [

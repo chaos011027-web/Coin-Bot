@@ -1,8 +1,9 @@
-import logging
+﻿import logging
 import html
 import asyncio
 import os
 import math
+import json
 from typing import Optional, Any, Callable, Dict, List
 
 from aiogram.enums import ParseMode
@@ -15,12 +16,26 @@ refresh_router = Router()
 
 from modules.commander import bot
 from modules.tp_tracker import tp_tracker
+from modules.canonical_metrics import (
+    get_canonical_stage,
+    get_confirmed_top10_pct,
+    get_decision_liquidity_context,
+    get_decision_liquidity_usd,
+    get_source_conflict,
+)
 
 logger = logging.getLogger("Notifier")
 
 MAX_TEXT_LEN = 3800
 MAX_CAPTION_LEN = 950
 TRUSTED_TOP10_SOURCES = {"BITQUERY", "GMGN"}
+VERDICT_LABELS = {
+    "PASS": "放弃",
+    "WATCH": "观察",
+    "PROBE": "试探",
+    "ENTER": "进场",
+    "EXIT": "离场",
+}
 
 
 def _clip(s: str, max_len: int) -> str:
@@ -30,20 +45,20 @@ def _clip(s: str, max_len: int) -> str:
     return s[: max_len - 12] + "\n...(truncated)"
 
 
-def _safe_float(x: Any) -> Optional[float]:
+def _safe_float(x: Any, default: float = 0.0) -> float:
     try:
         if x is None or x == "":
-            return None
+            return default
         if isinstance(x, str):
             x = x.replace(",", "").strip()
             if x.endswith("%"):
                 x = x[:-1].strip()
         v = float(x)
         if math.isnan(v) or math.isinf(v):
-            return None
+            return default
         return v
     except Exception:
-        return None
+        return default
 
 
 def _fmt_num_compact(num):
@@ -130,11 +145,68 @@ def _is_trusted_top10_source(src: Any) -> bool:
 
 
 def _get_trusted_top10_pct(token_data: dict) -> Optional[float]:
+    return _parse_pct(get_confirmed_top10_pct(token_data or {}))
+
+
+def _verdict_label(verdict: Any) -> str:
+    key = str(verdict or "WATCH").upper().strip()
+    return VERDICT_LABELS.get(key, key or "观察")
+
+
+def _has_conflict(token_data: dict, key: Optional[str] = None) -> bool:
+    raw = get_source_conflict(token_data or {}, key)
+    if isinstance(raw, dict):
+        marker = raw.get("has_conflict")
+        if marker is not None:
+            return bool(marker)
+        return any(bool(v) for v in raw.values() if isinstance(v, bool))
+    return bool(raw)
+
+
+def _top10_status_hint(token_data: dict) -> Optional[str]:
     td = token_data or {}
-    src = td.get("top10_ratio_source")
-    if not _is_trusted_top10_source(src):
-        return None
-    return _parse_pct(td.get("top10_ratio"))
+    stage = str(get_canonical_stage(td) or "").strip().lower()
+    if _has_conflict(td, "top10") or stage == "conflict":
+        return "Top10 存在冲突"
+    if td.get("top10_entity_adjusted") is False or stage in {
+        "unresolved",
+        "source_conflict_adjusted",
+        "source_conflict_adjusted_not_entity_adjusted",
+    }:
+        return "Top10 待校正"
+    return None
+
+
+def _format_top10_display(token_data: dict) -> str:
+    td = token_data or {}
+    if bool(td.get("top10_pending_gmgn_review")):
+        return "待校正"
+
+    top10 = _get_trusted_top10_pct(td)
+    hint = _top10_status_hint(td)
+
+    if top10 is None:
+        return hint or "❓"
+
+    if hint:
+        suffix = hint.replace("Top10 ", "", 1).strip()
+        return f"{top10:.1f}%（{suffix}）" if suffix else f"{top10:.1f}%"
+
+    return f"{top10:.1f}%"
+
+
+def _format_liquidity_display(token_data: dict) -> str:
+    td = token_data or {}
+    if bool(td.get("suspicious_low_pair_fallback")):
+        return "待确认"
+    liquidity = _safe_float(get_decision_liquidity_usd(td), 0.0)
+    if liquidity > 0:
+        return _fmt_num_compact(liquidity)
+
+    liq_ctx = get_decision_liquidity_context(td)
+    if _has_conflict(td, "liquidity") or str(liq_ctx.get("liquidity_source_error") or "").upper().find("CONFLICT") >= 0:
+        return "数据冲突"
+    return "待确认"
 
 
 def _format_change_cell(label: str, value: Any) -> Optional[str]:
@@ -150,12 +222,18 @@ def _build_timeframe_lines(td: dict) -> List[str]:
     row2 = []
 
     for label, key in [("1m", "chg_1m"), ("5m", "chg_5m"), ("15m", "chg_15m"), ("30m", "chg_30m")]:
-        cell = _format_change_cell(label, td.get(key))
+        value = td.get(key)
+        if value is None:
+            value = td.get(f"price_change_{label}")
+        cell = _format_change_cell(label, value)
         if cell:
             row1.append(cell)
 
     for label, key in [("1H", "chg_1h"), ("3H", "chg_3h"), ("6H", "chg_6h"), ("24H", "chg_24h")]:
-        cell = _format_change_cell(label, td.get(key))
+        value = td.get(key)
+        if value is None:
+            value = td.get(f"price_change_{label.lower()}")
+        cell = _format_change_cell(label, value)
         if cell:
             row2.append(cell)
 
@@ -169,13 +247,42 @@ def _build_timeframe_lines(td: dict) -> List[str]:
 
 def _get_token_avatar_payload(token_data: dict):
     token_data = token_data or {}
-    p = (token_data.get("token_image_path") or "").strip()
-    if p and os.path.exists(p):
+    url = (token_data.get("token_image_url") or "").strip()
+    if url.startswith("ipfs://"):
+        url = "https://ipfs.io/ipfs/" + url.replace("ipfs://", "").lstrip("/")
+
+    def _path_source_url(path: str) -> str:
         try:
-            return FSInputFile(p)
+            base, _ = os.path.splitext(path)
+            meta_path = f"{base}.json"
+            if os.path.exists(meta_path):
+                with open(meta_path, "r", encoding="utf-8") as f:
+                    meta = json.load(f)
+                    if isinstance(meta, dict):
+                        return str(meta.get("source_url") or "").strip()
         except Exception:
             pass
-    url = (token_data.get("token_image_url") or "").strip()
+        return ""
+
+    p = (token_data.get("token_image_path") or "").strip()
+    if p and os.path.exists(p):
+        source_url = _path_source_url(p)
+        suspicious_cache_path = "token_avatars" in os.path.normpath(p).lower()
+        if url:
+            if source_url and source_url == url:
+                try:
+                    return FSInputFile(p)
+                except Exception:
+                    pass
+            elif source_url and source_url != url:
+                return url
+            elif suspicious_cache_path:
+                return url
+        else:
+            try:
+                return FSInputFile(p)
+            except Exception:
+                pass
     if url.startswith("http://") or url.startswith("https://"):
         return url
     return None
@@ -196,34 +303,55 @@ def _build_keyboard(ca: str):
 
 
 def _gmgn_grid_layout(token_data: dict) -> str:
-    def _c(key):
+    tags_present = token_data.get("gmgn_tags_present")
+
+    def _cell(key: str) -> str:
+        raw = token_data.get(f"gmgn_{key}")
+        if raw in (None, ""):
+            return "—"
         try:
-            return int(float(token_data.get(f"gmgn_{key}", 0) or 0))
+            return f"x{int(float(raw))}"
         except Exception:
-            return 0
+            return "—" if tags_present is False else "—"
 
-    smart = _c("smart")
-    kol = _c("kol")
-    blue = _c("blue_chip")
-    sniper = _c("sniper")
-    fish = _c("phishing_wallets")
-    rat = _c("rat")
-    dev = _c("dev")
-    bundle = _c("bundle")
+    smart = _cell("smart")
+    kol = _cell("kol")
+    blue = _cell("blue_chip")
+    sniper = _cell("sniper")
+    fish = _cell("phishing_wallets")
+    rat = _cell("rat")
+    dev = _cell("dev")
+    bundle = _cell("bundle")
 
-    line1 = f"🧠 x{smart} | 💎 x{blue} | 👨‍💻 x{kol}"
-    line2 = f"🎣 x{fish} | 🐀 x{rat} | 🔫 x{sniper}"
-    line3 = f"📦 <b>Bundler: x{bundle}</b> | 👨‍🔧 <b>Dev: x{dev}</b>"
+    line1 = f"🧠 {smart} | 💎 {blue} | 👨‍💻 {kol}"
+    line2 = f"🎣 {fish} | 🐀 {rat} | 🔫 {sniper}"
+    line3 = f"📦 <b>Bundler: {bundle}</b> | 👨‍🔧 <b>Dev: {dev}</b>"
     return f"{line1}\n{line2}\n{line3}"
 
 
 def _safety_verdict_block(token_data: dict) -> str:
-    mint = token_data.get("mint_authority_present")
-    freeze = token_data.get("freeze_authority_present")
-    dex_paid = token_data.get("dex_paid")
-    burned = token_data.get("is_burned")
-    locked = token_data.get("is_locked")
-    top10 = _get_trusted_top10_pct(token_data)
+    td = token_data or {}
+    pending = bool(td.get("gmgn_render_pending"))
+    mint = td.get("mint_authority_present")
+    freeze = td.get("freeze_authority_present")
+    dex_paid = td.get("dex_paid")
+    burned = td.get("is_burned")
+    locked = td.get("is_locked")
+
+    if pending and not bool(td.get("gmgn_dex_paid_confirmed")) and dex_paid is False:
+        dex_paid = None
+    if pending and not bool(td.get("gmgn_burned_confirmed")) and burned is False:
+        burned = None
+    if pending and not bool(td.get("gmgn_locked_confirmed")) and locked is False:
+        locked = None
+    if pending and not bool(td.get("gmgn_mint_confirmed")) and mint is True:
+        mint = None
+    if pending and not bool(td.get("gmgn_freeze_confirmed")) and freeze is True:
+        freeze = None
+
+    top10_hint = _top10_status_hint(td)
+    top10_pending = bool(td.get("top10_pending_gmgn_review"))
+    top10 = None if top10_pending else _get_trusted_top10_pct(td)
 
     risks = []
     unknowns = []
@@ -238,12 +366,16 @@ def _safety_verdict_block(token_data: dict) -> str:
     elif freeze:
         risks.append("可冻结")
 
-    if top10 is None:
+    if top10_pending:
+        unknowns.append("Top10 待校正")
+    elif top10_hint and top10 is None:
+        unknowns.append(top10_hint)
+    elif top10 is None:
         unknowns.append("Top10")
     elif top10 > 50:
         risks.append(f"Top10高({top10:.0f}%)")
 
-    if top10 is not None and top10 > 70:
+    if (not top10_pending) and top10_hint is None and top10 is not None and top10 > 70:
         verdict = f"🔴 <b>危险</b> ({','.join(risks)})"
     elif len(risks) >= 2:
         verdict = f"🔴 <b>危险</b> ({','.join(risks)})"
@@ -259,7 +391,16 @@ def _safety_verdict_block(token_data: dict) -> str:
             return "✅" if val else "❌"
         return "❌" if val else "✅"
 
-    top10_txt = f"{top10:.1f}%" if top10 is not None else "❓"
+    top10_txt = _format_top10_display(td)
+    logger.info(
+        "UIRenderSafetyTrace | mint=%s | freeze=%s | dex_paid=%s | burned=%s | locked=%s | top10=%s",
+        mint,
+        freeze,
+        dex_paid,
+        burned,
+        locked,
+        top10_txt,
+    )
 
     return (
         f"🛡️ <b>基本面</b>: {verdict}\n"
@@ -389,13 +530,13 @@ def _tp_sl_block(ca: str, token_data: dict) -> str:
 def _build_message_text(ca: str, token_data: dict, decision: dict, stage: str = "FAST") -> str:
     td = token_data or {}
     mcap = _fmt_num_compact(td.get("cap_usd", 0))
-    liq = _fmt_num_compact(td.get("liquidity_usd", 0))
+    liq = _format_liquidity_display(td)
     vol = _fmt_num_compact(td.get("volume_h24", 0))
 
     age = _int0(td.get("token_age_min", 0))
     age_str = f"{age}m" if age < 60 else f"{age/60:.1f}h"
 
-    header_lines = [f"⏳ 龄: <b>{age_str}</b> | 📊 {mcap} | 💧 {liq}"]
+    header_lines = [f"⏳ 龄: <b>{age_str}</b> | 📊 {mcap} | 💧 {html.escape(liq)}"]
     header_lines.extend(_build_timeframe_lines(td))
     header_line = "\n".join(header_lines)
 
@@ -428,11 +569,39 @@ def _build_message_text(ca: str, token_data: dict, decision: dict, stage: str = 
         if pnl:
             lines.extend([pnl, ""])
 
+    tag_count = td.get("gmgn_tag_non_null_count")
+    try:
+        tag_count = max(0, int(float(tag_count))) if tag_count is not None else None
+    except Exception:
+        tag_count = None
+    if tag_count is None:
+        tag_count = sum(
+            1
+            for key in [
+                "gmgn_smart",
+                "gmgn_kol",
+                "gmgn_blue_chip",
+                "gmgn_sniper",
+                "gmgn_phishing_wallets",
+                "gmgn_rat",
+                "gmgn_dev",
+                "gmgn_bundle",
+            ]
+            if td.get(key) is not None
+        )
+
     if stage == "FAST":
-        lines.append("⏳ <b>正在进行深度扫描 (底层节点获取中)...</b>")
+        if tag_count >= 4:
+            lines.append("🧷 <b>地址标签深度扫描</b>")
+            lines.append(_gmgn_grid_layout(td))
+        else:
+            lines.append("⏳ <b>正在进行深度扫描 (底层节点获取中)...</b>")
     else:
-        lines.append("🧷 <b>地址标签深度扫描</b>")
-        lines.append(_gmgn_grid_layout(td))
+        if bool(td.get("gmgn_render_pending")) or tag_count < 4:
+            lines.append("⏳ <b>正在进行深度扫描 (底层节点获取中)...</b>")
+        else:
+            lines.append("🧷 <b>地址标签深度扫描</b>")
+            lines.append(_gmgn_grid_layout(td))
         lines.append("")
 
         ai_reason = decision.get("reason", "")
@@ -440,7 +609,13 @@ def _build_message_text(ca: str, token_data: dict, decision: dict, stage: str = 
             ai_reason = "数据不足或正在监控中，请留意价格异动。"
 
         lines.append("🤖 <b>闪电 AI 评测</b>")
-        lines.append(f"• <b>结论</b>: {html.escape(str(decision.get('verdict', 'WATCH')))} ({html.escape(ai_reason)})")
+        lines.append(f"• <b>结论</b>: {html.escape(_verdict_label(decision.get('verdict', 'WATCH')))} ({html.escape(ai_reason)})")
+        terminal_visual = ""
+        if isinstance(td.get("terminal_states"), dict):
+            terminal_visual = (td.get("terminal_states") or {}).get("ai_image_read") or ""
+        visual_read = decision.get("ai_image_read") or td.get("ai_image_read") or terminal_visual
+        visual_read = str(visual_read or "").strip() or "头像/视觉样本不足"
+        lines.append(f"• 视觉: {html.escape(visual_read)}")
 
     return "\n".join(lines)
 
@@ -456,7 +631,7 @@ def build_ai_report_text(ca: str, token_data: dict, decision: dict) -> str:
     ai_reason = html.escape(str(decision.get("reason", "")))
     ai_entry = html.escape(str(decision.get("ai_entry", "")))
     ai_exit = html.escape(str(decision.get("ai_exit", "")))
-    verdict = html.escape(str(decision.get("verdict", "WATCH")))
+    verdict = html.escape(_verdict_label(decision.get("verdict", "WATCH")))
 
     lines = [
         f"🧠 <b>【{symbol}】深度 AI 矩阵分析报告</b>",
@@ -482,7 +657,7 @@ def build_milestone_text(ca: str, token_data: dict, decision: dict, multiplier: 
     mcap = _fmt_mcap_usd(td.get("cap_usd", 0))
     reason = html.escape(str(decision.get("reason", "")))
     ai_exit = html.escape(str(decision.get("ai_exit", "")))
-    verdict = html.escape(str(decision.get("verdict", "WATCH")))
+    verdict = html.escape(_verdict_label(decision.get("verdict", "WATCH")))
     gate = int(td.get("milestone_gate") or max(2, int(multiplier)))
 
     lines = [

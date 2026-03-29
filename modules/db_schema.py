@@ -1,0 +1,961 @@
+import os
+from typing import Iterable, List, Optional, Sequence, Tuple
+
+import asyncpg
+
+# Official schema baseline:
+# - signal_cache_current: authoritative current-signal cache table
+# - signal_snapshots: authoritative append-only signal history table
+# - signals_snapshot: compatibility view only, kept for legacy reads
+SIGNAL_CACHE_TABLE = "signal_cache_current"
+SIGNAL_SNAPSHOT_TABLE = "signal_snapshots"
+LEGACY_SIGNAL_CACHE_TABLE = "signals_snapshot_legacy_cache"
+LEGACY_SIGNAL_HISTORY_TABLE = "signals_snapshot_legacy_history"
+TOKENS_META_TABLE = "tokens_meta"
+PERFORMANCE_LABELS_TABLE = "performance_labels"
+GOLDEN_DOG_TABLE = "golden_dog_morphology"
+SMART_WALLET_TABLE = "smart_wallet_intel"
+WALLET_CLUSTERS_TABLE = "wallet_clusters"
+SIGNALS_SNAPSHOT_VIEW = "signals_snapshot"
+
+
+async def ensure_schema(conn: asyncpg.Connection) -> None:
+    # Single schema authority for init, upgrade, and compatibility migrations.
+    async with conn.transaction():
+        await _ensure_tokens_meta(conn)
+        await _ensure_signal_cache_table(conn)
+        await _ensure_signal_snapshot_table(conn)
+        await _migrate_legacy_signals_snapshot(conn)
+        await _ensure_signal_metric_columns(conn, SIGNAL_CACHE_TABLE)
+        await _ensure_signal_metric_columns(conn, SIGNAL_SNAPSHOT_TABLE)
+        await _backfill_signal_metric_columns(conn, SIGNAL_CACHE_TABLE)
+        await _backfill_signal_metric_columns(conn, SIGNAL_SNAPSHOT_TABLE)
+        await _ensure_performance_labels(conn)
+        await _ensure_golden_dog_table(conn)
+        await _backfill_golden_dog_metric_columns(conn)
+        await _ensure_smart_wallet_table(conn)
+        await _ensure_wallet_clusters_table(conn)
+        await _ensure_signals_snapshot_view(conn)
+
+
+async def migrate_database(dsn: Optional[str] = None) -> None:
+    target_dsn = dsn or os.getenv("DATABASE_URL") or os.getenv("DB_DSN")
+    if not target_dsn:
+        raise RuntimeError("DATABASE_URL or DB_DSN must be configured before running migrations.")
+
+    conn = await asyncpg.connect(target_dsn)
+    try:
+        await ensure_schema(conn)
+    finally:
+        await conn.close()
+
+
+async def _ensure_tokens_meta(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {TOKENS_META_TABLE} (
+            ca TEXT PRIMARY KEY,
+            symbol TEXT,
+            name TEXT,
+            decimals INT DEFAULT 9,
+            security_flags JSONB,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+
+    await _add_column_if_missing(conn, TOKENS_META_TABLE, "symbol", "TEXT")
+    await _add_column_if_missing(conn, TOKENS_META_TABLE, "name", "TEXT")
+    await _add_column_if_missing(conn, TOKENS_META_TABLE, "decimals", "INT DEFAULT 9")
+    await _add_column_if_missing(conn, TOKENS_META_TABLE, "security_flags", "JSONB")
+    await _add_column_if_missing(conn, TOKENS_META_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+    await _add_column_if_missing(conn, TOKENS_META_TABLE, "updated_at", "TIMESTAMP DEFAULT NOW()")
+
+
+async def _ensure_signal_cache_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {SIGNAL_CACHE_TABLE} (
+            ca TEXT PRIMARY KEY,
+            source TEXT,
+            status TEXT DEFAULT 'pending',
+            rank_score DOUBLE PRECISION,
+            ai_narrative TEXT,
+            entry_price DOUBLE PRECISION,
+            last_notified_price DOUBLE PRECISION,
+            initial_msg_id BIGINT,
+            top10_raw_pct DOUBLE PRECISION,
+            top10_adjusted_pct DOUBLE PRECISION,
+            pair_liquidity_usd DOUBLE PRECISION,
+            exit_liquidity_usd DOUBLE PRECISION,
+            metric_confidence JSONB,
+            source_conflict JSONB,
+            terminal_states JSONB DEFAULT '{{}}'::jsonb,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "source", "TEXT")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "status", "TEXT DEFAULT 'pending'")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "rank_score", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "ai_narrative", "TEXT")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "entry_price", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "last_notified_price", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "initial_msg_id", "BIGINT")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "top10_raw_pct", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "top10_adjusted_pct", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "pair_liquidity_usd", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "exit_liquidity_usd", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "metric_confidence", "JSONB")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "source_conflict", "JSONB")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "terminal_states", "JSONB DEFAULT '{}'::jsonb")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+    await _add_column_if_missing(conn, SIGNAL_CACHE_TABLE, "updated_at", "TIMESTAMP DEFAULT NOW()")
+
+
+async def _ensure_signal_snapshot_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {SIGNAL_SNAPSHOT_TABLE} (
+            id BIGSERIAL PRIMARY KEY,
+            legacy_signal_id BIGINT UNIQUE,
+            ca TEXT NOT NULL,
+            snapshot_time TIMESTAMP DEFAULT NOW(),
+            source TEXT,
+            status TEXT DEFAULT 'pending',
+            rank_score DOUBLE PRECISION,
+            features JSONB,
+            ai_narrative TEXT,
+            entry_price DOUBLE PRECISION,
+            last_notified_price DOUBLE PRECISION,
+            initial_msg_id BIGINT,
+            top10_raw_pct DOUBLE PRECISION,
+            top10_adjusted_pct DOUBLE PRECISION,
+            pair_liquidity_usd DOUBLE PRECISION,
+            exit_liquidity_usd DOUBLE PRECISION,
+            metric_confidence JSONB,
+            source_conflict JSONB,
+            terminal_states JSONB,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "legacy_signal_id", "BIGINT")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "snapshot_time", "TIMESTAMP DEFAULT NOW()")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "source", "TEXT")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "status", "TEXT DEFAULT 'pending'")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "rank_score", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "features", "JSONB")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "ai_narrative", "TEXT")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "entry_price", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "last_notified_price", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "initial_msg_id", "BIGINT")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "top10_raw_pct", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "top10_adjusted_pct", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "pair_liquidity_usd", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "exit_liquidity_usd", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "metric_confidence", "JSONB")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "source_conflict", "JSONB")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "terminal_states", "JSONB")
+    await _add_column_if_missing(conn, SIGNAL_SNAPSHOT_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+
+    await conn.execute(
+        f"""
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_{SIGNAL_SNAPSHOT_TABLE}_legacy_signal_id
+        ON {SIGNAL_SNAPSHOT_TABLE} (legacy_signal_id)
+        WHERE legacy_signal_id IS NOT NULL;
+        """
+    )
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{SIGNAL_SNAPSHOT_TABLE}_ca_snapshot_time
+        ON {SIGNAL_SNAPSHOT_TABLE} (ca, snapshot_time DESC);
+        """
+    )
+
+
+async def _ensure_signal_metric_columns(conn: asyncpg.Connection, table_name: str) -> None:
+    await _add_column_if_missing(conn, table_name, "top10_raw_pct", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, table_name, "top10_adjusted_pct", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, table_name, "pair_liquidity_usd", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, table_name, "exit_liquidity_usd", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, table_name, "metric_confidence", "JSONB")
+    await _add_column_if_missing(conn, table_name, "source_conflict", "JSONB")
+
+
+async def _backfill_signal_metric_columns(conn: asyncpg.Connection, table_name: str) -> None:
+    top10_raw_expr = _coalesce_numeric_from_json(
+        "terminal_states",
+        [
+            ("stable_snapshot", "top10_raw_pct"),
+            ("top10_raw_pct",),
+            ("stable_snapshot", "top10_ratio"),
+            ("top10_ratio",),
+        ],
+    )
+    top10_adjusted_expr = _coalesce_numeric_from_json(
+        "terminal_states",
+        [
+            ("stable_snapshot", "top10_adjusted_pct"),
+            ("top10_adjusted_pct",),
+            ("stable_snapshot", "top10_ratio"),
+            ("top10_ratio",),
+        ],
+    )
+    pair_liq_expr = _coalesce_numeric_from_json(
+        "terminal_states",
+        [
+            ("stable_snapshot", "pair_liquidity_usd"),
+            ("pair_liquidity_usd",),
+            ("stable_snapshot", "liquidity_usd"),
+            ("liquidity_usd",),
+        ],
+    )
+    exit_liq_expr = _coalesce_numeric_from_json(
+        "terminal_states",
+        [
+            ("stable_snapshot", "exit_liquidity_usd"),
+            ("exit_liquidity_usd",),
+            ("stable_snapshot", "liquidity_usd"),
+            ("liquidity_usd",),
+        ],
+    )
+    metric_confidence_expr = _coalesce_jsonb_from_paths(
+        "terminal_states",
+        [
+            ("stable_snapshot", "metric_confidence"),
+            ("metric_confidence",),
+        ],
+    )
+    source_conflict_expr = _coalesce_jsonb_from_paths(
+        "terminal_states",
+        [
+            ("stable_snapshot", "source_conflict"),
+            ("source_conflict",),
+        ],
+    )
+
+    await conn.execute(
+        f"""
+        UPDATE {table_name}
+        SET top10_raw_pct = COALESCE(top10_raw_pct, {top10_raw_expr}),
+            top10_adjusted_pct = COALESCE(top10_adjusted_pct, {top10_adjusted_expr}),
+            pair_liquidity_usd = COALESCE(pair_liquidity_usd, {pair_liq_expr}),
+            exit_liquidity_usd = COALESCE(exit_liquidity_usd, {exit_liq_expr}),
+            metric_confidence = COALESCE(metric_confidence, {metric_confidence_expr}),
+            source_conflict = COALESCE(source_conflict, {source_conflict_expr})
+        WHERE terminal_states IS NOT NULL
+          AND (
+              top10_raw_pct IS NULL
+              OR top10_adjusted_pct IS NULL
+              OR pair_liquidity_usd IS NULL
+              OR exit_liquidity_usd IS NULL
+              OR metric_confidence IS NULL
+              OR source_conflict IS NULL
+          );
+        """
+    )
+
+
+async def _migrate_legacy_signals_snapshot(conn: asyncpg.Connection) -> None:
+    if await _table_exists(conn, SIGNALS_SNAPSHOT_VIEW):
+        legacy_columns = await _get_columns(conn, SIGNALS_SNAPSHOT_VIEW)
+        if "id" in legacy_columns:
+            if not await _table_exists(conn, LEGACY_SIGNAL_HISTORY_TABLE):
+                await conn.execute(
+                    f"ALTER TABLE {SIGNALS_SNAPSHOT_VIEW} RENAME TO {LEGACY_SIGNAL_HISTORY_TABLE};"
+                )
+        else:
+            if not await _table_exists(conn, LEGACY_SIGNAL_CACHE_TABLE):
+                await conn.execute(
+                    f"ALTER TABLE {SIGNALS_SNAPSHOT_VIEW} RENAME TO {LEGACY_SIGNAL_CACHE_TABLE};"
+                )
+
+    if await _table_exists(conn, LEGACY_SIGNAL_CACHE_TABLE):
+        legacy_columns = await _get_columns(conn, LEGACY_SIGNAL_CACHE_TABLE)
+        await conn.execute(
+            f"""
+            INSERT INTO {SIGNAL_CACHE_TABLE}
+                (ca, source, status, rank_score, ai_narrative, entry_price,
+                 last_notified_price, initial_msg_id, top10_raw_pct, top10_adjusted_pct,
+                 pair_liquidity_usd, exit_liquidity_usd, metric_confidence, source_conflict,
+                 terminal_states, created_at, updated_at)
+            SELECT
+                ca,
+                {_legacy_expr(legacy_columns, 'source', 'NULL::text')},
+                {_legacy_expr(legacy_columns, 'status', "'pending'::text")},
+                {_legacy_expr(legacy_columns, 'rank_score', 'NULL::double precision')},
+                {_legacy_expr(legacy_columns, 'ai_narrative', 'NULL::text')},
+                {_legacy_expr(legacy_columns, 'entry_price', 'NULL::double precision')},
+                {_legacy_expr(legacy_columns, 'last_notified_price', 'NULL::double precision')},
+                {_legacy_expr(legacy_columns, 'initial_msg_id', 'NULL::bigint')},
+                {_legacy_numeric_expr(legacy_columns, ('top10_raw_pct', 'top10_ratio'))},
+                {_legacy_numeric_expr(legacy_columns, ('top10_adjusted_pct', 'top10_raw_pct', 'top10_ratio'))},
+                {_legacy_numeric_expr(legacy_columns, ('pair_liquidity_usd', 'liquidity_usd'))},
+                {_legacy_numeric_expr(legacy_columns, ('exit_liquidity_usd', 'liquidity_usd', 'pair_liquidity_usd'))},
+                {_legacy_json_first_expr(legacy_columns, ('metric_confidence',), 'NULL::jsonb')},
+                {_legacy_json_first_expr(legacy_columns, ('source_conflict',), 'NULL::jsonb')},
+                {_legacy_json_expr(legacy_columns, 'terminal_states', "'{}'::jsonb")},
+                {_first_available_expr(legacy_columns, ('created_at', 'updated_at'), 'NOW()')},
+                {_first_available_expr(legacy_columns, ('updated_at', 'created_at'), 'NOW()')}
+            FROM {LEGACY_SIGNAL_CACHE_TABLE}
+            WHERE ca IS NOT NULL
+            ON CONFLICT (ca) DO UPDATE
+            SET source = COALESCE(EXCLUDED.source, {SIGNAL_CACHE_TABLE}.source),
+                status = COALESCE(EXCLUDED.status, {SIGNAL_CACHE_TABLE}.status),
+                rank_score = COALESCE(EXCLUDED.rank_score, {SIGNAL_CACHE_TABLE}.rank_score),
+                ai_narrative = COALESCE(EXCLUDED.ai_narrative, {SIGNAL_CACHE_TABLE}.ai_narrative),
+                entry_price = COALESCE(EXCLUDED.entry_price, {SIGNAL_CACHE_TABLE}.entry_price),
+                last_notified_price = COALESCE(EXCLUDED.last_notified_price, {SIGNAL_CACHE_TABLE}.last_notified_price),
+                initial_msg_id = COALESCE(EXCLUDED.initial_msg_id, {SIGNAL_CACHE_TABLE}.initial_msg_id),
+                top10_raw_pct = COALESCE(EXCLUDED.top10_raw_pct, {SIGNAL_CACHE_TABLE}.top10_raw_pct),
+                top10_adjusted_pct = COALESCE(EXCLUDED.top10_adjusted_pct, {SIGNAL_CACHE_TABLE}.top10_adjusted_pct),
+                pair_liquidity_usd = COALESCE(EXCLUDED.pair_liquidity_usd, {SIGNAL_CACHE_TABLE}.pair_liquidity_usd),
+                exit_liquidity_usd = COALESCE(EXCLUDED.exit_liquidity_usd, {SIGNAL_CACHE_TABLE}.exit_liquidity_usd),
+                metric_confidence = COALESCE(EXCLUDED.metric_confidence, {SIGNAL_CACHE_TABLE}.metric_confidence),
+                source_conflict = COALESCE(EXCLUDED.source_conflict, {SIGNAL_CACHE_TABLE}.source_conflict),
+                terminal_states = COALESCE(EXCLUDED.terminal_states, {SIGNAL_CACHE_TABLE}.terminal_states),
+                updated_at = GREATEST({SIGNAL_CACHE_TABLE}.updated_at, EXCLUDED.updated_at);
+            """
+        )
+
+    if await _table_exists(conn, LEGACY_SIGNAL_HISTORY_TABLE):
+        legacy_columns = await _get_columns(conn, LEGACY_SIGNAL_HISTORY_TABLE)
+        await conn.execute(
+            f"""
+            INSERT INTO {SIGNAL_SNAPSHOT_TABLE}
+                (legacy_signal_id, ca, snapshot_time, source, status, rank_score,
+                 features, ai_narrative, entry_price, last_notified_price,
+                 initial_msg_id, top10_raw_pct, top10_adjusted_pct, pair_liquidity_usd,
+                 exit_liquidity_usd, metric_confidence, source_conflict, terminal_states, created_at)
+            SELECT
+                id,
+                ca,
+                {_first_available_expr(legacy_columns, ('snapshot_time', 'trigger_time', 'created_at'), 'NOW()')},
+                {_legacy_expr(legacy_columns, 'source', 'NULL::text')},
+                {_legacy_expr(legacy_columns, 'status', "'pending'::text")},
+                {_legacy_expr(legacy_columns, 'rank_score', 'NULL::double precision')},
+                {_legacy_json_expr(legacy_columns, 'features', 'NULL::jsonb')},
+                {_legacy_expr(legacy_columns, 'ai_narrative', 'NULL::text')},
+                {_legacy_expr(legacy_columns, 'entry_price', 'NULL::double precision')},
+                {_legacy_expr(legacy_columns, 'last_notified_price', 'NULL::double precision')},
+                {_legacy_expr(legacy_columns, 'initial_msg_id', 'NULL::bigint')},
+                {_legacy_numeric_expr(legacy_columns, ('top10_raw_pct', 'top10_ratio'))},
+                {_legacy_numeric_expr(legacy_columns, ('top10_adjusted_pct', 'top10_raw_pct', 'top10_ratio'))},
+                {_legacy_numeric_expr(legacy_columns, ('pair_liquidity_usd', 'liquidity_usd'))},
+                {_legacy_numeric_expr(legacy_columns, ('exit_liquidity_usd', 'liquidity_usd', 'pair_liquidity_usd'))},
+                {_legacy_json_first_expr(legacy_columns, ('metric_confidence',), 'NULL::jsonb')},
+                {_legacy_json_first_expr(legacy_columns, ('source_conflict',), 'NULL::jsonb')},
+                {_legacy_json_expr(legacy_columns, 'terminal_states', 'NULL::jsonb')},
+                {_first_available_expr(legacy_columns, ('created_at', 'trigger_time', 'snapshot_time'), 'NOW()')}
+            FROM {LEGACY_SIGNAL_HISTORY_TABLE}
+            WHERE ca IS NOT NULL
+            ON CONFLICT (legacy_signal_id) DO UPDATE
+            SET ca = EXCLUDED.ca,
+                snapshot_time = EXCLUDED.snapshot_time,
+                source = COALESCE(EXCLUDED.source, {SIGNAL_SNAPSHOT_TABLE}.source),
+                status = COALESCE(EXCLUDED.status, {SIGNAL_SNAPSHOT_TABLE}.status),
+                rank_score = COALESCE(EXCLUDED.rank_score, {SIGNAL_SNAPSHOT_TABLE}.rank_score),
+                features = COALESCE(EXCLUDED.features, {SIGNAL_SNAPSHOT_TABLE}.features),
+                ai_narrative = COALESCE(EXCLUDED.ai_narrative, {SIGNAL_SNAPSHOT_TABLE}.ai_narrative),
+                entry_price = COALESCE(EXCLUDED.entry_price, {SIGNAL_SNAPSHOT_TABLE}.entry_price),
+                last_notified_price = COALESCE(EXCLUDED.last_notified_price, {SIGNAL_SNAPSHOT_TABLE}.last_notified_price),
+                initial_msg_id = COALESCE(EXCLUDED.initial_msg_id, {SIGNAL_SNAPSHOT_TABLE}.initial_msg_id),
+                top10_raw_pct = COALESCE(EXCLUDED.top10_raw_pct, {SIGNAL_SNAPSHOT_TABLE}.top10_raw_pct),
+                top10_adjusted_pct = COALESCE(EXCLUDED.top10_adjusted_pct, {SIGNAL_SNAPSHOT_TABLE}.top10_adjusted_pct),
+                pair_liquidity_usd = COALESCE(EXCLUDED.pair_liquidity_usd, {SIGNAL_SNAPSHOT_TABLE}.pair_liquidity_usd),
+                exit_liquidity_usd = COALESCE(EXCLUDED.exit_liquidity_usd, {SIGNAL_SNAPSHOT_TABLE}.exit_liquidity_usd),
+                metric_confidence = COALESCE(EXCLUDED.metric_confidence, {SIGNAL_SNAPSHOT_TABLE}.metric_confidence),
+                source_conflict = COALESCE(EXCLUDED.source_conflict, {SIGNAL_SNAPSHOT_TABLE}.source_conflict),
+                terminal_states = COALESCE(EXCLUDED.terminal_states, {SIGNAL_SNAPSHOT_TABLE}.terminal_states),
+                created_at = LEAST({SIGNAL_SNAPSHOT_TABLE}.created_at, EXCLUDED.created_at);
+            """
+        )
+
+        await conn.execute(
+            f"""
+            INSERT INTO {SIGNAL_CACHE_TABLE}
+                (ca, source, status, rank_score, ai_narrative, entry_price,
+                 last_notified_price, initial_msg_id, top10_raw_pct, top10_adjusted_pct,
+                 pair_liquidity_usd, exit_liquidity_usd, metric_confidence, source_conflict,
+                 terminal_states, created_at, updated_at)
+            SELECT DISTINCT ON (ca)
+                ca,
+                source,
+                status,
+                rank_score,
+                ai_narrative,
+                entry_price,
+                last_notified_price,
+                initial_msg_id,
+                top10_raw_pct,
+                top10_adjusted_pct,
+                pair_liquidity_usd,
+                exit_liquidity_usd,
+                metric_confidence,
+                source_conflict,
+                COALESCE(terminal_states, '{{}}'::jsonb),
+                created_at,
+                COALESCE(snapshot_time, created_at, NOW())
+            FROM {SIGNAL_SNAPSHOT_TABLE}
+            WHERE ca IS NOT NULL
+            ORDER BY ca, snapshot_time DESC, id DESC
+            ON CONFLICT (ca) DO UPDATE
+            SET source = COALESCE(EXCLUDED.source, {SIGNAL_CACHE_TABLE}.source),
+                status = COALESCE(EXCLUDED.status, {SIGNAL_CACHE_TABLE}.status),
+                rank_score = COALESCE(EXCLUDED.rank_score, {SIGNAL_CACHE_TABLE}.rank_score),
+                ai_narrative = COALESCE(EXCLUDED.ai_narrative, {SIGNAL_CACHE_TABLE}.ai_narrative),
+                entry_price = COALESCE(EXCLUDED.entry_price, {SIGNAL_CACHE_TABLE}.entry_price),
+                last_notified_price = COALESCE(EXCLUDED.last_notified_price, {SIGNAL_CACHE_TABLE}.last_notified_price),
+                initial_msg_id = COALESCE(EXCLUDED.initial_msg_id, {SIGNAL_CACHE_TABLE}.initial_msg_id),
+                top10_raw_pct = COALESCE(EXCLUDED.top10_raw_pct, {SIGNAL_CACHE_TABLE}.top10_raw_pct),
+                top10_adjusted_pct = COALESCE(EXCLUDED.top10_adjusted_pct, {SIGNAL_CACHE_TABLE}.top10_adjusted_pct),
+                pair_liquidity_usd = COALESCE(EXCLUDED.pair_liquidity_usd, {SIGNAL_CACHE_TABLE}.pair_liquidity_usd),
+                exit_liquidity_usd = COALESCE(EXCLUDED.exit_liquidity_usd, {SIGNAL_CACHE_TABLE}.exit_liquidity_usd),
+                metric_confidence = COALESCE(EXCLUDED.metric_confidence, {SIGNAL_CACHE_TABLE}.metric_confidence),
+                source_conflict = COALESCE(EXCLUDED.source_conflict, {SIGNAL_CACHE_TABLE}.source_conflict),
+                terminal_states = COALESCE(EXCLUDED.terminal_states, {SIGNAL_CACHE_TABLE}.terminal_states),
+                updated_at = GREATEST({SIGNAL_CACHE_TABLE}.updated_at, EXCLUDED.updated_at);
+            """
+        )
+
+
+async def _ensure_performance_labels(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {PERFORMANCE_LABELS_TABLE} (
+            signal_id BIGINT,
+            snapshot_id BIGINT,
+            max_pnl_1h DOUBLE PRECISION,
+            max_pnl_6h DOUBLE PRECISION,
+            max_pnl_24h DOUBLE PRECISION,
+            is_winner BOOLEAN DEFAULT FALSE,
+            updated_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+
+    await _add_column_if_missing(conn, PERFORMANCE_LABELS_TABLE, "signal_id", "BIGINT")
+    await _add_column_if_missing(conn, PERFORMANCE_LABELS_TABLE, "snapshot_id", "BIGINT")
+    await _add_column_if_missing(conn, PERFORMANCE_LABELS_TABLE, "max_pnl_1h", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PERFORMANCE_LABELS_TABLE, "max_pnl_6h", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PERFORMANCE_LABELS_TABLE, "max_pnl_24h", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PERFORMANCE_LABELS_TABLE, "is_winner", "BOOLEAN DEFAULT FALSE")
+    await _add_column_if_missing(conn, PERFORMANCE_LABELS_TABLE, "updated_at", "TIMESTAMP DEFAULT NOW()")
+
+    await conn.execute(
+        f"""
+        UPDATE {PERFORMANCE_LABELS_TABLE} AS labels
+        SET snapshot_id = snaps.id
+        FROM {SIGNAL_SNAPSHOT_TABLE} AS snaps
+        WHERE labels.snapshot_id IS NULL
+          AND labels.signal_id IS NOT NULL
+          AND snaps.legacy_signal_id = labels.signal_id;
+        """
+    )
+
+    if not await _constraint_exists(conn, PERFORMANCE_LABELS_TABLE, "performance_labels_snapshot_id_fkey"):
+        await conn.execute(
+            f"""
+            ALTER TABLE {PERFORMANCE_LABELS_TABLE}
+            ADD CONSTRAINT performance_labels_snapshot_id_fkey
+            FOREIGN KEY (snapshot_id)
+            REFERENCES {SIGNAL_SNAPSHOT_TABLE}(id)
+            ON DELETE SET NULL;
+            """
+        )
+
+    await conn.execute(
+        f"""
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_{PERFORMANCE_LABELS_TABLE}_snapshot_id
+        ON {PERFORMANCE_LABELS_TABLE} (snapshot_id)
+        WHERE snapshot_id IS NOT NULL;
+        """
+    )
+
+
+async def _ensure_golden_dog_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {GOLDEN_DOG_TABLE} (
+            ca TEXT NOT NULL,
+            snapshot_time TIMESTAMP DEFAULT NOW(),
+            token_age_mins_at_snap DOUBLE PRECISION DEFAULT 0,
+            market_cap_at_snap DOUBLE PRECISION DEFAULT 0,
+            liquidity_at_snap DOUBLE PRECISION DEFAULT 0,
+            top10_raw_pct DOUBLE PRECISION,
+            top10_adjusted_pct DOUBLE PRECISION,
+            pair_liquidity_usd DOUBLE PRECISION,
+            exit_liquidity_usd DOUBLE PRECISION,
+            metric_confidence JSONB,
+            source_conflict JSONB,
+            holder_distribution TEXT,
+            smart_money_metrics TEXT,
+            momentum_metrics TEXT,
+            social_signal TEXT,
+            peak_multiplier DOUBLE PRECISION DEFAULT 1,
+            created_at TIMESTAMP DEFAULT NOW(),
+            time_stage VARCHAR(20) DEFAULT 'T_0',
+            price_usd DOUBLE PRECISION DEFAULT 0,
+            smart_money_delta INT DEFAULT 0,
+            maker_vol_ratio DOUBLE PRECISION DEFAULT 0,
+            overhang_ratio DOUBLE PRECISION DEFAULT 0,
+            breakout_vol_ratio DOUBLE PRECISION DEFAULT 0,
+            label INT DEFAULT -1,
+            PRIMARY KEY (ca, snapshot_time)
+        );
+        """
+    )
+
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "snapshot_time", "TIMESTAMP DEFAULT NOW()")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "token_age_mins_at_snap", "DOUBLE PRECISION DEFAULT 0")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "market_cap_at_snap", "DOUBLE PRECISION DEFAULT 0")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "liquidity_at_snap", "DOUBLE PRECISION DEFAULT 0")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "top10_raw_pct", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "top10_adjusted_pct", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "pair_liquidity_usd", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "exit_liquidity_usd", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "metric_confidence", "JSONB")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "source_conflict", "JSONB")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "holder_distribution", "TEXT")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "smart_money_metrics", "TEXT")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "momentum_metrics", "TEXT")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "social_signal", "TEXT")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "peak_multiplier", "DOUBLE PRECISION DEFAULT 1")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "time_stage", "VARCHAR(20) DEFAULT 'T_0'")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "price_usd", "DOUBLE PRECISION DEFAULT 0")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "smart_money_delta", "INT DEFAULT 0")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "maker_vol_ratio", "DOUBLE PRECISION DEFAULT 0")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "overhang_ratio", "DOUBLE PRECISION DEFAULT 0")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "breakout_vol_ratio", "DOUBLE PRECISION DEFAULT 0")
+    await _add_column_if_missing(conn, GOLDEN_DOG_TABLE, "label", "INT DEFAULT -1")
+
+    pk_name, pk_columns = await _primary_key_info(conn, GOLDEN_DOG_TABLE)
+    if pk_name and pk_columns != ["ca", "snapshot_time"]:
+        await conn.execute(f"ALTER TABLE {GOLDEN_DOG_TABLE} DROP CONSTRAINT {pk_name};")
+
+    for constraint_name, columns in await _unique_constraints(conn, GOLDEN_DOG_TABLE):
+        if list(columns) == ["ca"]:
+            await conn.execute(f"ALTER TABLE {GOLDEN_DOG_TABLE} DROP CONSTRAINT {constraint_name};")
+
+    if not await _has_unique_or_primary_constraint(conn, GOLDEN_DOG_TABLE, ["ca", "snapshot_time"]):
+        await conn.execute(
+            f"""
+            ALTER TABLE {GOLDEN_DOG_TABLE}
+            ADD CONSTRAINT golden_dog_morphology_ca_snapshot_time_key
+            UNIQUE (ca, snapshot_time);
+            """
+        )
+
+
+async def _backfill_golden_dog_metric_columns(conn: asyncpg.Connection) -> None:
+    holder_json_expr = _holder_distribution_jsonb_expr()
+    top10_raw_expr = _coalesce_numeric_from_json(
+        holder_json_expr,
+        [
+            ("top10_raw_pct",),
+            ("top10_adjusted_pct",),
+            ("top10",),
+            ("top10_ratio",),
+        ],
+    )
+    top10_adjusted_expr = _coalesce_numeric_from_json(
+        holder_json_expr,
+        [
+            ("top10_adjusted_pct",),
+            ("top10_raw_pct",),
+            ("top10",),
+            ("top10_ratio",),
+        ],
+    )
+    pair_liq_expr = _coalesce_numeric_from_json(
+        holder_json_expr,
+        [
+            ("pair_liquidity_usd",),
+            ("exit_liquidity_usd",),
+        ],
+    )
+    exit_liq_expr = _coalesce_numeric_from_json(
+        holder_json_expr,
+        [
+            ("exit_liquidity_usd",),
+            ("pair_liquidity_usd",),
+        ],
+    )
+    metric_confidence_expr = _coalesce_jsonb_from_paths(
+        holder_json_expr,
+        [("metric_confidence",)],
+    )
+    source_conflict_expr = _coalesce_jsonb_from_paths(
+        holder_json_expr,
+        [("source_conflict",)],
+    )
+
+    await conn.execute(
+        f"""
+        UPDATE {GOLDEN_DOG_TABLE}
+        SET top10_raw_pct = COALESCE(top10_raw_pct, {top10_raw_expr}),
+            top10_adjusted_pct = COALESCE(top10_adjusted_pct, {top10_adjusted_expr}),
+            pair_liquidity_usd = COALESCE(pair_liquidity_usd, {pair_liq_expr}, NULLIF(liquidity_at_snap, 0)),
+            exit_liquidity_usd = COALESCE(exit_liquidity_usd, {exit_liq_expr}, NULLIF(liquidity_at_snap, 0)),
+            metric_confidence = COALESCE(metric_confidence, {metric_confidence_expr}),
+            source_conflict = COALESCE(source_conflict, {source_conflict_expr})
+        WHERE
+            top10_raw_pct IS NULL
+            OR top10_adjusted_pct IS NULL
+            OR pair_liquidity_usd IS NULL
+            OR exit_liquidity_usd IS NULL
+            OR metric_confidence IS NULL
+            OR source_conflict IS NULL;
+        """
+    )
+
+
+async def _ensure_smart_wallet_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {SMART_WALLET_TABLE} (
+            wallet_address TEXT PRIMARY KEY,
+            tags TEXT,
+            total_trades INT DEFAULT 0,
+            avg_entry_mcap DOUBLE PRECISION DEFAULT 0,
+            last_active TIMESTAMP DEFAULT NOW(),
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+
+    await _add_column_if_missing(conn, SMART_WALLET_TABLE, "tags", "TEXT")
+    await _add_column_if_missing(conn, SMART_WALLET_TABLE, "total_trades", "INT DEFAULT 0")
+    await _add_column_if_missing(conn, SMART_WALLET_TABLE, "avg_entry_mcap", "DOUBLE PRECISION DEFAULT 0")
+    await _add_column_if_missing(conn, SMART_WALLET_TABLE, "last_active", "TIMESTAMP DEFAULT NOW()")
+    await _add_column_if_missing(conn, SMART_WALLET_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+
+    await conn.execute(
+        f"""
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_{SMART_WALLET_TABLE}_wallet_address
+        ON {SMART_WALLET_TABLE} (wallet_address);
+        """
+    )
+
+
+async def _ensure_wallet_clusters_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {WALLET_CLUSTERS_TABLE} (
+            cluster_id TEXT NOT NULL,
+            wallet_address TEXT NOT NULL,
+            discovered_in_token TEXT,
+            behavior_tag TEXT,
+            risk_level INT DEFAULT 0,
+            total_wallets_in_cluster INT DEFAULT 0,
+            created_at TIMESTAMP DEFAULT NOW(),
+            PRIMARY KEY (cluster_id, wallet_address)
+        );
+        """
+    )
+
+    await _add_column_if_missing(conn, WALLET_CLUSTERS_TABLE, "discovered_in_token", "TEXT")
+    await _add_column_if_missing(conn, WALLET_CLUSTERS_TABLE, "behavior_tag", "TEXT")
+    await _add_column_if_missing(conn, WALLET_CLUSTERS_TABLE, "risk_level", "INT DEFAULT 0")
+    await _add_column_if_missing(conn, WALLET_CLUSTERS_TABLE, "total_wallets_in_cluster", "INT DEFAULT 0")
+    await _add_column_if_missing(conn, WALLET_CLUSTERS_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+
+    await conn.execute(
+        f"""
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_{WALLET_CLUSTERS_TABLE}_cluster_wallet
+        ON {WALLET_CLUSTERS_TABLE} (cluster_id, wallet_address);
+        """
+    )
+
+
+async def _ensure_signals_snapshot_view(conn: asyncpg.Connection) -> None:
+    # Compatibility-only surface for older reads; do not extend with new ownership.
+    if await _view_exists(conn, SIGNALS_SNAPSHOT_VIEW):
+        await conn.execute(f"DROP VIEW {SIGNALS_SNAPSHOT_VIEW};")
+
+    if not await _table_exists(conn, SIGNALS_SNAPSHOT_VIEW):
+        await conn.execute(
+            f"""
+            CREATE VIEW {SIGNALS_SNAPSHOT_VIEW} AS
+            SELECT
+                NULL::bigint AS id,
+                ca,
+                updated_at AS trigger_time,
+                source,
+                status,
+                rank_score,
+                NULL::jsonb AS features,
+                ai_narrative,
+                entry_price,
+                last_notified_price,
+                initial_msg_id,
+                top10_raw_pct,
+                top10_adjusted_pct,
+                pair_liquidity_usd,
+                exit_liquidity_usd,
+                metric_confidence,
+                source_conflict,
+                terminal_states,
+                created_at,
+                updated_at
+            FROM {SIGNAL_CACHE_TABLE};
+            """
+        )
+
+
+async def _table_exists(conn: asyncpg.Connection, table_name: str) -> bool:
+    return bool(
+        await conn.fetchval(
+            """
+            SELECT EXISTS (
+                SELECT 1
+                FROM information_schema.tables
+                WHERE table_schema = 'public'
+                  AND table_name = $1
+                  AND table_type = 'BASE TABLE'
+            );
+            """,
+            table_name,
+        )
+    )
+
+
+async def _view_exists(conn: asyncpg.Connection, view_name: str) -> bool:
+    return bool(
+        await conn.fetchval(
+            """
+            SELECT EXISTS (
+                SELECT 1
+                FROM information_schema.views
+                WHERE table_schema = 'public'
+                  AND table_name = $1
+            );
+            """,
+            view_name,
+        )
+    )
+
+
+async def _get_columns(conn: asyncpg.Connection, table_name: str) -> List[str]:
+    rows = await conn.fetch(
+        """
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = $1
+        ORDER BY ordinal_position;
+        """,
+        table_name,
+    )
+    return [row["column_name"] for row in rows]
+
+
+async def _add_column_if_missing(
+    conn: asyncpg.Connection,
+    table_name: str,
+    column_name: str,
+    column_definition: str,
+) -> None:
+    columns = await _get_columns(conn, table_name)
+    if column_name not in columns:
+        await conn.execute(
+            f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition};"
+        )
+
+
+async def _constraint_exists(
+    conn: asyncpg.Connection,
+    table_name: str,
+    constraint_name: str,
+) -> bool:
+    return bool(
+        await conn.fetchval(
+            """
+            SELECT EXISTS (
+                SELECT 1
+                FROM information_schema.table_constraints
+                WHERE table_schema = 'public'
+                  AND table_name = $1
+                  AND constraint_name = $2
+            );
+            """,
+            table_name,
+            constraint_name,
+        )
+    )
+
+
+async def _primary_key_info(conn: asyncpg.Connection, table_name: str) -> Tuple[Optional[str], List[str]]:
+    rows = await conn.fetch(
+        """
+        SELECT tc.constraint_name, kcu.column_name, kcu.ordinal_position
+        FROM information_schema.table_constraints tc
+        JOIN information_schema.key_column_usage kcu
+          ON tc.constraint_name = kcu.constraint_name
+         AND tc.table_schema = kcu.table_schema
+         AND tc.table_name = kcu.table_name
+        WHERE tc.table_schema = 'public'
+          AND tc.table_name = $1
+          AND tc.constraint_type = 'PRIMARY KEY'
+        ORDER BY kcu.ordinal_position;
+        """,
+        table_name,
+    )
+    if not rows:
+        return None, []
+
+    name = rows[0]["constraint_name"]
+    return name, [row["column_name"] for row in rows]
+
+
+async def _unique_constraints(
+    conn: asyncpg.Connection,
+    table_name: str,
+) -> List[Tuple[str, List[str]]]:
+    rows = await conn.fetch(
+        """
+        SELECT tc.constraint_name, kcu.column_name, kcu.ordinal_position
+        FROM information_schema.table_constraints tc
+        JOIN information_schema.key_column_usage kcu
+          ON tc.constraint_name = kcu.constraint_name
+         AND tc.table_schema = kcu.table_schema
+         AND tc.table_name = kcu.table_name
+        WHERE tc.table_schema = 'public'
+          AND tc.table_name = $1
+          AND tc.constraint_type = 'UNIQUE'
+        ORDER BY tc.constraint_name, kcu.ordinal_position;
+        """,
+        table_name,
+    )
+
+    grouped = {}
+    for row in rows:
+        grouped.setdefault(row["constraint_name"], []).append(row["column_name"])
+    return [(name, columns) for name, columns in grouped.items()]
+
+
+async def _has_unique_or_primary_constraint(
+    conn: asyncpg.Connection,
+    table_name: str,
+    columns: Sequence[str],
+) -> bool:
+    pk_name, pk_columns = await _primary_key_info(conn, table_name)
+    if pk_name and list(pk_columns) == list(columns):
+        return True
+
+    for _, unique_columns in await _unique_constraints(conn, table_name):
+        if list(unique_columns) == list(columns):
+            return True
+    return False
+
+
+def _legacy_expr(legacy_columns: Iterable[str], column_name: str, fallback_sql: str) -> str:
+    legacy_column_set = set(legacy_columns)
+    return column_name if column_name in legacy_column_set else fallback_sql
+
+
+def _legacy_json_expr(legacy_columns: Iterable[str], column_name: str, fallback_sql: str) -> str:
+    legacy_column_set = set(legacy_columns)
+    return f"{column_name}::jsonb" if column_name in legacy_column_set else fallback_sql
+
+
+def _first_available_expr(
+    legacy_columns: Iterable[str],
+    candidates: Sequence[str],
+    fallback_sql: str,
+) -> str:
+    legacy_column_set = set(legacy_columns)
+    for name in candidates:
+        if name in legacy_column_set:
+            return name
+    return fallback_sql
+
+
+def _json_text_path(base_expr: str, path: Sequence[str]) -> str:
+    if not path:
+        raise ValueError("JSON path cannot be empty.")
+
+    expr = f"({base_expr})"
+    for part in path[:-1]:
+        expr = f"{expr}->'{part}'"
+    return f"{expr}->>'{path[-1]}'"
+
+
+def _json_jsonb_path(base_expr: str, path: Sequence[str]) -> str:
+    if not path:
+        raise ValueError("JSON path cannot be empty.")
+
+    expr = f"({base_expr})"
+    for part in path:
+        expr = f"{expr}->'{part}'"
+    return expr
+
+
+def _numeric_text_expr(text_expr: str) -> str:
+    return (
+        "NULLIF("
+        f"regexp_replace(COALESCE(({text_expr})::text, ''), '[^0-9.\\-]', '', 'g')"
+        ", '')::double precision"
+    )
+
+
+def _legacy_numeric_expr(
+    legacy_columns: Iterable[str],
+    candidates: Sequence[str],
+    fallback_sql: str = "NULL::double precision",
+) -> str:
+    legacy_column_set = set(legacy_columns)
+    exprs = [_numeric_text_expr(name) for name in candidates if name in legacy_column_set]
+    exprs.append(fallback_sql)
+    return f"COALESCE({', '.join(exprs)})"
+
+
+def _legacy_json_first_expr(
+    legacy_columns: Iterable[str],
+    candidates: Sequence[str],
+    fallback_sql: str = "NULL::jsonb",
+) -> str:
+    legacy_column_set = set(legacy_columns)
+    for name in candidates:
+        if name in legacy_column_set:
+            return f"{name}::jsonb"
+    return fallback_sql
+
+
+def _coalesce_numeric_from_json(
+    base_expr: str,
+    paths: Sequence[Sequence[str]],
+    fallback_sql: str = "NULL::double precision",
+) -> str:
+    exprs = [_numeric_text_expr(_json_text_path(base_expr, path)) for path in paths]
+    exprs.append(fallback_sql)
+    return f"COALESCE({', '.join(exprs)})"
+
+
+def _coalesce_jsonb_from_paths(
+    base_expr: str,
+    paths: Sequence[Sequence[str]],
+    fallback_sql: str = "NULL::jsonb",
+) -> str:
+    exprs = [_json_jsonb_path(base_expr, path) for path in paths]
+    exprs.append(fallback_sql)
+    return f"COALESCE({', '.join(exprs)})"
+
+
+def _holder_distribution_jsonb_expr() -> str:
+    return (
+        "CASE "
+        "WHEN holder_distribution IS NULL THEN NULL::jsonb "
+        "WHEN btrim(holder_distribution::text) = '' THEN NULL::jsonb "
+        "WHEN left(btrim(holder_distribution::text), 1) IN ('{', '[') "
+        "THEN holder_distribution::text::jsonb "
+        "ELSE NULL::jsonb "
+        "END"
+    )

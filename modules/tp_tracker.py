@@ -432,4 +432,299 @@ class TPTracker:
         return milestone_event
 
 
+    def _is_pre_entry_state(self, pos: Optional[dict]) -> bool:
+        if not pos or not isinstance(pos, dict):
+            return True
+
+        entry = _safe_float(pos.get("entry"), 0.0)
+        status = str(pos.get("status", "")).upper()
+        return entry <= 0 and status in {"OBSERVE", "ARMED"}
+
+    def _make_placeholder(self, ca: str, current_price: float) -> Dict[str, Any]:
+        now = time.time()
+        return {
+            "ca": ca,
+            "created_at": now,
+            "updated_at": now,
+            "status": "OBSERVE",
+            "signal_state": "OBSERVING",
+            "strategy": "UNKNOWN",
+            "strategy_id": "UNKNOWN",
+            "entry": 0.0,
+            "entry_price": 0.0,
+            "anchor_price": current_price if current_price > 0 else 0.0,
+            "current_price": current_price if current_price > 0 else 0.0,
+            "peak_price": current_price if current_price > 0 else 0.0,
+            "peak_multiplier": 1.0,
+            "peak_change_pct": 0.0,
+            "rel_change_pct": 0.0,
+            "sl_price": 0.0,
+            "sl_pct": 0.0,
+            "tp_targets": [],
+            "tp_hit_index": -1,
+            "sl_moved_to_entry": False,
+            "reply_chat_id": None,
+            "reply_msg_id": None,
+            "initial_mcap": 0.0,
+            "current_mcap": 0.0,
+            "custom_image": "",
+        }
+
+    def _apply_observation(self, pos: Dict[str, Any], current_price: float):
+        if current_price <= 0:
+            return
+
+        pos["updated_at"] = time.time()
+        pos["current_price"] = current_price
+
+        peak = _safe_float(pos.get("peak_price"), 0.0)
+        if peak <= 0 or current_price > peak:
+            pos["peak_price"] = current_price
+            peak = current_price
+
+        entry = _safe_float(pos.get("entry"), 0.0)
+        if entry <= 0:
+            entry = _safe_float(pos.get("anchor_price"), 0.0)
+
+        if entry > 0:
+            rel_change_pct = (current_price - entry) / entry * 100.0
+            peak_change_pct = (peak - entry) / entry * 100.0
+            peak_multiplier = peak / entry if entry > 0 else 1.0
+        else:
+            rel_change_pct = 0.0
+            peak_change_pct = 0.0
+            peak_multiplier = 1.0
+
+        pos["rel_change_pct"] = rel_change_pct
+        pos["peak_change_pct"] = peak_change_pct
+        pos["peak_multiplier"] = peak_multiplier
+
+    async def init_position(
+        self,
+        ca: str,
+        entry_price: float,
+        strategy_id: str,
+        config: Optional[dict] = None,
+        initial_mcap: float = 0.0,
+        reply_chat_id: Optional[int] = None,
+        reply_msg_id: Optional[int] = None,
+    ):
+        await self._ensure_loaded()
+        ca = (ca or "").strip()
+        if not ca:
+            return
+
+        entry_price = _safe_float(entry_price, 0.0)
+        if entry_price <= 0:
+            return
+
+        strategy_id = str(strategy_id or "DEFAULT")
+        merged = self._merged_config(strategy_id, config)
+
+        existing = self.data.get(ca)
+        if existing and not self._is_pre_entry_state(existing):
+            if reply_chat_id is not None:
+                existing["reply_chat_id"] = reply_chat_id
+            if reply_msg_id is not None:
+                existing["reply_msg_id"] = reply_msg_id
+            if _safe_float(existing.get("initial_mcap"), 0.0) <= 0 and initial_mcap > 0:
+                existing["initial_mcap"] = float(initial_mcap)
+            existing["signal_state"] = "ENTERED"
+            existing["updated_at"] = time.time()
+            await self._save_debounced()
+            return
+
+        now = time.time()
+        peak_price = entry_price
+        sl_pct = _safe_float(merged.get("sl_pct"), 0.10)
+        sl_price = entry_price * (1.0 - sl_pct)
+        tp_targets = merged.get("tp_targets") or [1.2, 1.5, 2.0]
+
+        new_pos = {
+            "ca": ca,
+            "created_at": existing.get("created_at", now) if isinstance(existing, dict) else now,
+            "updated_at": now,
+            "status": "ACTIVE",
+            "signal_state": "ENTERED",
+            "strategy": strategy_id,
+            "strategy_id": strategy_id,
+            "entry": entry_price,
+            "entry_price": entry_price,
+            "anchor_price": _safe_float((existing or {}).get("anchor_price"), entry_price),
+            "current_price": entry_price,
+            "peak_price": peak_price,
+            "peak_multiplier": 1.0,
+            "peak_change_pct": 0.0,
+            "rel_change_pct": 0.0,
+            "sl_price": sl_price,
+            "sl_pct": sl_pct,
+            "tp_targets": tp_targets,
+            "tp_hit_index": -1,
+            "sl_moved_to_entry": False,
+            "reply_chat_id": reply_chat_id,
+            "reply_msg_id": reply_msg_id,
+            "initial_mcap": float(initial_mcap or 0.0),
+            "current_mcap": float(initial_mcap or 0.0),
+            "custom_image": (existing.get("custom_image") if isinstance(existing, dict) else "") or "",
+        }
+
+        self.data[ca] = new_pos
+        await self._save_debounced()
+
+    async def ensure_observing(
+        self,
+        ca: str,
+        current_price: float = 0.0,
+        *,
+        anchor_price: float = 0.0,
+        reply_chat_id: Optional[int] = None,
+        reply_msg_id: Optional[int] = None,
+    ):
+        await self._ensure_loaded()
+        ca = (ca or "").strip()
+        if not ca:
+            return
+
+        current_price = _safe_float(current_price, 0.0)
+        anchor_price = _safe_float(anchor_price, current_price)
+        existing = self.data.get(ca)
+        if existing and not self._is_pre_entry_state(existing):
+            if reply_chat_id is not None:
+                existing["reply_chat_id"] = reply_chat_id
+            if reply_msg_id is not None:
+                existing["reply_msg_id"] = reply_msg_id
+            existing["signal_state"] = "ENTERED" if str(existing.get("status", "")).upper() == "ACTIVE" else existing.get("signal_state", "OBSERVING")
+            if current_price > 0:
+                self._apply_observation(existing, current_price)
+            await self._save_debounced()
+            return
+
+        pos = dict(existing) if isinstance(existing, dict) else self._make_placeholder(ca, current_price)
+        pos["status"] = "OBSERVE"
+        pos["signal_state"] = "OBSERVING"
+        pos["entry"] = 0.0
+        pos["entry_price"] = 0.0
+        pos["sl_price"] = 0.0
+        pos["sl_pct"] = 0.0
+        pos["tp_targets"] = []
+        if anchor_price > 0 and (_safe_float(pos.get("anchor_price"), 0.0) <= 0 or not existing):
+            pos["anchor_price"] = anchor_price
+        if current_price > 0:
+            pos["current_price"] = current_price
+            pos["peak_price"] = max(_safe_float(pos.get("peak_price"), 0.0), current_price)
+            self._apply_observation(pos, current_price)
+        if reply_chat_id is not None:
+            pos["reply_chat_id"] = reply_chat_id
+        if reply_msg_id is not None:
+            pos["reply_msg_id"] = reply_msg_id
+        self.data[ca] = pos
+        await self._save_debounced()
+
+    async def arm_position(
+        self,
+        ca: str,
+        strategy_id: str,
+        config: Optional[dict] = None,
+        *,
+        current_price: float = 0.0,
+        current_mcap: float = 0.0,
+        reply_chat_id: Optional[int] = None,
+        reply_msg_id: Optional[int] = None,
+    ):
+        await self._ensure_loaded()
+        ca = (ca or "").strip()
+        if not ca:
+            return
+
+        existing = self.data.get(ca)
+        if existing and not self._is_pre_entry_state(existing):
+            if reply_chat_id is not None:
+                existing["reply_chat_id"] = reply_chat_id
+            if reply_msg_id is not None:
+                existing["reply_msg_id"] = reply_msg_id
+            await self._save_debounced()
+            return
+
+        merged = self._merged_config(strategy_id, config)
+        pos = dict(existing) if isinstance(existing, dict) else self._make_placeholder(ca, _safe_float(current_price, 0.0))
+        pos["status"] = "ARMED"
+        pos["signal_state"] = "ARMED"
+        pos["strategy"] = strategy_id or "DEFAULT"
+        pos["strategy_id"] = strategy_id or "DEFAULT"
+        pos["tp_targets"] = merged.get("tp_targets") or []
+        pos["sl_pct"] = _safe_float(merged.get("sl_pct"), 0.10)
+        pos["sl_price"] = 0.0
+        pos["entry"] = 0.0
+        pos["entry_price"] = 0.0
+        if _safe_float(pos.get("anchor_price"), 0.0) <= 0 and _safe_float(current_price, 0.0) > 0:
+            pos["anchor_price"] = _safe_float(current_price, 0.0)
+        if _safe_float(current_price, 0.0) > 0:
+            self._apply_observation(pos, _safe_float(current_price, 0.0))
+        if _safe_float(current_mcap, 0.0) > 0:
+            pos["initial_mcap"] = _safe_float(pos.get("initial_mcap"), _safe_float(current_mcap, 0.0)) or _safe_float(current_mcap, 0.0)
+            pos["current_mcap"] = _safe_float(current_mcap, 0.0)
+        if reply_chat_id is not None:
+            pos["reply_chat_id"] = reply_chat_id
+        if reply_msg_id is not None:
+            pos["reply_msg_id"] = reply_msg_id
+        pos["updated_at"] = time.time()
+        self.data[ca] = pos
+        await self._save_debounced()
+
+    async def reset_to_observing(
+        self,
+        ca: str,
+        current_price: float = 0.0,
+        *,
+        anchor_price: float = 0.0,
+        reply_chat_id: Optional[int] = None,
+        reply_msg_id: Optional[int] = None,
+    ):
+        await self._ensure_loaded()
+        ca = (ca or "").strip()
+        if not ca:
+            return
+
+        existing = self.data.get(ca)
+        pos = self._make_placeholder(ca, _safe_float(current_price, 0.0))
+        if isinstance(existing, dict):
+            pos["created_at"] = existing.get("created_at", pos["created_at"])
+            pos["custom_image"] = existing.get("custom_image", "")
+            pos["reply_chat_id"] = existing.get("reply_chat_id")
+            pos["reply_msg_id"] = existing.get("reply_msg_id")
+            pos["initial_mcap"] = _safe_float(existing.get("initial_mcap"), 0.0)
+            pos["current_mcap"] = _safe_float(existing.get("current_mcap"), 0.0)
+            pos["anchor_price"] = _safe_float(existing.get("anchor_price"), _safe_float(anchor_price, _safe_float(current_price, 0.0)))
+        if reply_chat_id is not None:
+            pos["reply_chat_id"] = reply_chat_id
+        if reply_msg_id is not None:
+            pos["reply_msg_id"] = reply_msg_id
+        if _safe_float(anchor_price, 0.0) > 0:
+            pos["anchor_price"] = _safe_float(anchor_price, 0.0)
+        if _safe_float(current_price, 0.0) > 0:
+            self._apply_observation(pos, _safe_float(current_price, 0.0))
+        self.data[ca] = pos
+        await self._save_debounced()
+
+    async def get_baseline_metrics(self, ca: str, current_price: Optional[float] = None) -> Dict[str, Any]:
+        await self._ensure_loaded()
+        ca = (ca or "").strip()
+        if not ca or ca not in self.data:
+            return {}
+
+        pos = self.data[ca]
+        cp = _safe_float(current_price, _safe_float(pos.get("current_price"), 0.0))
+        if cp > 0:
+            self._apply_observation(pos, cp)
+
+        return {
+            "entry_price": _safe_float(pos.get("entry"), _safe_float(pos.get("anchor_price"), 0.0)),
+            "current_price": _safe_float(pos.get("current_price"), 0.0),
+            "peak_price": _safe_float(pos.get("peak_price"), 0.0),
+            "rel_change_pct": _safe_float(pos.get("rel_change_pct"), 0.0),
+            "peak_change_pct": _safe_float(pos.get("peak_change_pct"), 0.0),
+            "peak_multiplier": _safe_float(pos.get("peak_multiplier"), 1.0),
+        }
+
+
 tp_tracker = TPTracker()

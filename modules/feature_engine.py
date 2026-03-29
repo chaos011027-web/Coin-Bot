@@ -1,6 +1,8 @@
 import logging
 from typing import Any, Dict
 
+from modules.canonical_metrics import get_canonical_top10_pct, get_decision_liquidity_usd
+
 logger = logging.getLogger("FeatureEngine")
 
 
@@ -44,24 +46,7 @@ def _extract_smart_count(analytics: dict) -> float:
 
 
 def _extract_top10_ratio(current_data: dict, analytics: dict) -> float:
-    """
-    优先级：
-    1) analytics["top10_ratio"]
-    2) current_data["top10_ratio"]
-    3) analytics["gmgn_top10_ratio"]（兼容未来扩展）
-    """
-    for source in (analytics, current_data):
-        if isinstance(source, dict):
-            val = _get_float(source, "top10_ratio", None)
-            if val is not None:
-                return val
-
-    if isinstance(analytics, dict):
-        val = _get_float(analytics, "gmgn_top10_ratio", None)
-        if val is not None:
-            return val
-
-    return 0.0
+    return _get_float({"value": get_canonical_top10_pct(current_data)}, "value", 0.0)
 
 
 def _extract_volume_h24(current_data: dict) -> float:
@@ -78,7 +63,7 @@ def _extract_volume_h24(current_data: dict) -> float:
 
 
 def _extract_liquidity(current_data: dict) -> float:
-    liq = _get_float(current_data, "liquidity_usd", 0.0)
+    liq = _get_float({"value": get_decision_liquidity_usd(current_data)}, "value", 0.0)
     if liq > 0:
         return liq
 
