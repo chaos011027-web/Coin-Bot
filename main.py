@@ -42,6 +42,7 @@ from modules.risk_engine import apply_final_gate
 from modules.image_generator import generate_milestone_image
 from modules.paper_portfolio_engine import paper_portfolio_engine
 from modules.paper_ledger_service import create_paper_order
+import modules.training_sample_builder as training_sample_builder
 from modules.decision_event_logger import (
     end_analysis_context,
     finish_analysis_run,
@@ -3690,6 +3691,7 @@ async def run_deep_analysis(
         ai_verdict = ACTION_WATCH
         risk_adjusted_action = ACTION_WATCH
         final_action = ACTION_WATCH
+        decision_ml_features = {}
 
         strat_res = detect_strategy(token_data)
         strategy_id = str(strat_res[0]) if isinstance(strat_res, tuple) else str(strat_res)
@@ -3724,6 +3726,7 @@ async def run_deep_analysis(
         if LGB_AVAILABLE and lgb_model:
             try:
                 features = calculate_ml_features(token_data, analytics_for_ai or {}, {})
+                decision_ml_features = dict(features or {})
                 ml_features_array = np.array([[
                     _safe_float(token_data.get("cap_usd"), 0),
                     _safe_float(get_decision_liquidity_usd(token_data), 0),
@@ -3874,6 +3877,28 @@ async def run_deep_analysis(
                 },
             ),
         )
+        try:
+            frozen_features = dict(stable_snapshot or {})
+            feature_sources = {str(key): "stable_snapshot" for key in frozen_features.keys()}
+            for key, value in dict(decision_ml_features or {}).items():
+                frozen_features[str(key)] = value
+                feature_sources[str(key)] = "feature_engine"
+            if "lgb_win_prob" in token_data:
+                frozen_features["lgb_win_prob"] = token_data.get("lgb_win_prob")
+                feature_sources["lgb_win_prob"] = "lightgbm"
+            await training_sample_builder.create_training_sample(
+                ca=ca,
+                final_action=final_action,
+                strategy_id=strategy_id,
+                frozen_features=frozen_features,
+                feature_sources=feature_sources,
+                metadata={
+                    "signal_state": next_state,
+                    "decision_reason": token_data.get("decision_reason", ""),
+                },
+            )
+        except Exception as e:
+            logger.warning(f"Training sample build failed: {e}", exc_info=True)
         await update_user_message(chat_id=chat_id, message_id=message_id, ca=ca, token_data=token_data, decision=decision)
         if late_gmgn_pending:
             logger.info("LateGMGN | ca=%s | scheduled", ca[:8])

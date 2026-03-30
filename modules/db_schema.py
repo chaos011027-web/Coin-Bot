@@ -26,6 +26,8 @@ PAPER_FILLS_TABLE = "paper_fills"
 PAPER_POSITIONS_LEDGER_TABLE = "paper_positions_ledger"
 PAPER_CASH_LEDGER_TABLE = "paper_cash_ledger"
 PAPER_TRADE_CLOSES_TABLE = "paper_trade_closes"
+TRAINING_SAMPLES_TABLE = "training_samples"
+TRAINING_LABELS_TABLE = "training_labels"
 
 
 async def ensure_schema(conn: asyncpg.Connection) -> None:
@@ -53,6 +55,8 @@ async def ensure_schema(conn: asyncpg.Connection) -> None:
         await _ensure_paper_positions_ledger_table(conn)
         await _ensure_paper_cash_ledger_table(conn)
         await _ensure_paper_trade_closes_table(conn)
+        await _ensure_training_samples_table(conn)
+        await _ensure_training_labels_table(conn)
         await _ensure_signals_snapshot_view(conn)
 
 
@@ -1146,6 +1150,96 @@ async def _ensure_paper_trade_closes_table(conn: asyncpg.Connection) -> None:
         f"""
         CREATE INDEX IF NOT EXISTS idx_{PAPER_TRADE_CLOSES_TABLE}_ca_recorded_at
         ON {PAPER_TRADE_CLOSES_TABLE} (ca, recorded_at DESC);
+        """
+    )
+
+
+async def _ensure_training_samples_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {TRAINING_SAMPLES_TABLE} (
+            sample_id TEXT PRIMARY KEY,
+            analysis_run_id BIGINT,
+            ca TEXT NOT NULL,
+            final_action TEXT,
+            strategy_id TEXT,
+            trace_link TEXT,
+            path_kind TEXT,
+            source TEXT,
+            legacy_path BOOLEAN DEFAULT FALSE,
+            frozen_features JSONB,
+            feature_sources JSONB,
+            metadata JSONB,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+    await _add_column_if_missing(conn, TRAINING_SAMPLES_TABLE, "analysis_run_id", "BIGINT")
+    await _add_column_if_missing(conn, TRAINING_SAMPLES_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, TRAINING_SAMPLES_TABLE, "final_action", "TEXT")
+    await _add_column_if_missing(conn, TRAINING_SAMPLES_TABLE, "strategy_id", "TEXT")
+    await _add_column_if_missing(conn, TRAINING_SAMPLES_TABLE, "trace_link", "TEXT")
+    await _add_column_if_missing(conn, TRAINING_SAMPLES_TABLE, "path_kind", "TEXT")
+    await _add_column_if_missing(conn, TRAINING_SAMPLES_TABLE, "source", "TEXT")
+    await _add_column_if_missing(conn, TRAINING_SAMPLES_TABLE, "legacy_path", "BOOLEAN DEFAULT FALSE")
+    await _add_column_if_missing(conn, TRAINING_SAMPLES_TABLE, "frozen_features", "JSONB")
+    await _add_column_if_missing(conn, TRAINING_SAMPLES_TABLE, "feature_sources", "JSONB")
+    await _add_column_if_missing(conn, TRAINING_SAMPLES_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, TRAINING_SAMPLES_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{TRAINING_SAMPLES_TABLE}_analysis_run_id
+        ON {TRAINING_SAMPLES_TABLE} (analysis_run_id);
+        """
+    )
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{TRAINING_SAMPLES_TABLE}_ca_created_at
+        ON {TRAINING_SAMPLES_TABLE} (ca, created_at DESC);
+        """
+    )
+
+
+async def _ensure_training_labels_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {TRAINING_LABELS_TABLE} (
+            sample_id TEXT PRIMARY KEY,
+            analysis_run_id BIGINT,
+            ca TEXT NOT NULL,
+            label_kind TEXT,
+            label_source TEXT,
+            position_ids JSONB,
+            close_legs INT DEFAULT 0,
+            close_reasons JSONB,
+            realized_pnl_sol DOUBLE PRECISION,
+            realized_return_pct DOUBLE PRECISION,
+            metadata JSONB,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+    await _add_column_if_missing(conn, TRAINING_LABELS_TABLE, "analysis_run_id", "BIGINT")
+    await _add_column_if_missing(conn, TRAINING_LABELS_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, TRAINING_LABELS_TABLE, "label_kind", "TEXT")
+    await _add_column_if_missing(conn, TRAINING_LABELS_TABLE, "label_source", "TEXT")
+    await _add_column_if_missing(conn, TRAINING_LABELS_TABLE, "position_ids", "JSONB")
+    await _add_column_if_missing(conn, TRAINING_LABELS_TABLE, "close_legs", "INT DEFAULT 0")
+    await _add_column_if_missing(conn, TRAINING_LABELS_TABLE, "close_reasons", "JSONB")
+    await _add_column_if_missing(conn, TRAINING_LABELS_TABLE, "realized_pnl_sol", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, TRAINING_LABELS_TABLE, "realized_return_pct", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, TRAINING_LABELS_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, TRAINING_LABELS_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{TRAINING_LABELS_TABLE}_analysis_run_id
+        ON {TRAINING_LABELS_TABLE} (analysis_run_id);
+        """
+    )
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{TRAINING_LABELS_TABLE}_ca_created_at
+        ON {TRAINING_LABELS_TABLE} (ca, created_at DESC);
         """
     )
 
