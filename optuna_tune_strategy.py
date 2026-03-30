@@ -1,10 +1,10 @@
+from __future__ import annotations
+
 import json
 import logging
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
-
-import optuna
 
 logging.basicConfig(
     level=logging.INFO,
@@ -13,6 +13,8 @@ logging.basicConfig(
 logger = logging.getLogger("OptunaTuneStrategy")
 
 RECORD_CANDIDATES = [
+    Path("data/replay_dataset_bridge.json"),
+    Path("replay_dataset_bridge.json"),
     Path("data/strategy_backtest_records.json"),
     Path("data/backtest_records.json"),
 ]
@@ -50,7 +52,7 @@ def _safe_float(v: Any, default: float = 0.0) -> float:
 def resolve_records_path() -> Path:
     for path in RECORD_CANDIDATES:
         if path.exists():
-            return path
+            return path.resolve()
     raise FileNotFoundError(
         "找不到策略回测 records 文件。请先运行 export_backtest_records.py，或自行准备："
         f" {[str(p) for p in RECORD_CANDIDATES]}"
@@ -384,6 +386,8 @@ def save_outputs(best_params: Dict[str, Any], best_summary: Dict[str, Any], stud
 
 
 def main():
+    import optuna
+
     records_path = resolve_records_path()
     records = load_records(records_path)
 

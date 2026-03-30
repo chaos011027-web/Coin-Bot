@@ -1,21 +1,10 @@
+from __future__ import annotations
+
 import os
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any
-
-import optuna
-import pandas as pd
-import numpy as np
-import lightgbm as lgb
-
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import (
-    precision_score,
-    recall_score,
-    f1_score,
-    roc_auc_score,
-)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -32,6 +21,8 @@ BEST_FEATURES_PATH = MODEL_DIR / "meme_strategy_v1_features.json"
 OPTUNA_SUMMARY_PATH = MODEL_DIR / "optuna_model_summary.json"
 
 DATASET_CANDIDATES = [
+    Path("data/training_dataset_bridge.csv"),
+    Path("training_dataset_bridge.csv"),
     Path("data/ml_training_dataset.csv"),
     Path("ml_training_dataset.csv"),
 ]
@@ -50,11 +41,13 @@ LABEL_COLUMN = "label"
 def resolve_dataset_path() -> Path:
     for path in DATASET_CANDIDATES:
         if path.exists():
-            return path
+            return path.resolve()
     raise FileNotFoundError(f"找不到训练集文件。已检查: {[str(p) for p in DATASET_CANDIDATES]}")
 
 
 def load_dataset(path: Path) -> pd.DataFrame:
+    import numpy as np
+    import pandas as pd
     logger.info(f"📥 读取训练集: {path}")
     df = pd.read_csv(path)
 
@@ -87,6 +80,14 @@ def load_dataset(path: Path) -> pd.DataFrame:
 
 def build_objective(X_train, X_valid, y_train, y_valid):
     def objective(trial: optuna.Trial) -> float:
+        import lightgbm as lgb
+        from sklearn.metrics import (
+            f1_score,
+            precision_score,
+            recall_score,
+            roc_auc_score,
+        )
+
         params = {
             "objective": "binary",
             "boosting_type": "gbdt",
@@ -143,6 +144,8 @@ def build_objective(X_train, X_valid, y_train, y_valid):
 
 
 def train_final_model(best_params: Dict[str, Any], X_train, X_valid, y_train, y_valid):
+    import lightgbm as lgb
+
     params = {
         "objective": "binary",
         "boosting_type": "gbdt",
@@ -169,6 +172,13 @@ def train_final_model(best_params: Dict[str, Any], X_train, X_valid, y_train, y_
 
 
 def evaluate_model(model, X_valid, y_valid) -> dict:
+    from sklearn.metrics import (
+        f1_score,
+        precision_score,
+        recall_score,
+        roc_auc_score,
+    )
+
     prob = model.predict(X_valid, num_iteration=model.best_iteration)
     pred = (prob >= 0.5).astype(int)
 
@@ -220,6 +230,9 @@ def save_outputs(model, metrics: dict, best_params: dict, study: optuna.Study):
 
 
 def main():
+    import optuna
+    from sklearn.model_selection import train_test_split
+
     dataset_path = resolve_dataset_path()
     df = load_dataset(dataset_path)
 

@@ -1,22 +1,10 @@
+from __future__ import annotations
+
 import os
 import json
 import logging
 from pathlib import Path
 from typing import List, Tuple
-
-import pandas as pd
-import numpy as np
-import lightgbm as lgb
-
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    roc_auc_score,
-    confusion_matrix,
-)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -32,6 +20,8 @@ METRICS_PATH = MODEL_DIR / "meme_strategy_v1_metrics.json"
 FEATURES_PATH = MODEL_DIR / "meme_strategy_v1_features.json"
 
 DATASET_CANDIDATES = [
+    Path("data/training_dataset_bridge.csv"),
+    Path("training_dataset_bridge.csv"),
     Path("data/ml_training_dataset.csv"),
     Path("ml_training_dataset.csv"),
 ]
@@ -51,13 +41,15 @@ LABEL_COLUMN = "label"
 def resolve_dataset_path() -> Path:
     for path in DATASET_CANDIDATES:
         if path.exists():
-            return path
+            return path.resolve()
     raise FileNotFoundError(
         f"找不到训练集文件。已检查: {[str(p) for p in DATASET_CANDIDATES]}"
     )
 
 
 def load_dataset(path: Path) -> pd.DataFrame:
+    import numpy as np
+    import pandas as pd
     logger.info(f"📥 读取训练集: {path}")
     df = pd.read_csv(path)
 
@@ -104,6 +96,7 @@ def split_xy(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
 
 
 def build_model() -> lgb.LGBMClassifier:
+    import lightgbm as lgb
     # 这里先给稳定默认参数，后续再交给 Optuna 搜索
     return lgb.LGBMClassifier(
         objective="binary",
@@ -124,6 +117,14 @@ def build_model() -> lgb.LGBMClassifier:
 
 
 def evaluate_model(model: lgb.LGBMClassifier, X_test: pd.DataFrame, y_test: pd.Series) -> dict:
+    from sklearn.metrics import (
+        accuracy_score,
+        confusion_matrix,
+        f1_score,
+        precision_score,
+        recall_score,
+        roc_auc_score,
+    )
     prob = model.predict_proba(X_test)[:, 1]
     pred = (prob >= 0.5).astype(int)
 
@@ -164,6 +165,7 @@ def save_outputs(model: lgb.LGBMClassifier, metrics: dict):
 
 
 def train_meme_hunter_model():
+    from sklearn.model_selection import train_test_split
     dataset_path = resolve_dataset_path()
     df = load_dataset(dataset_path)
     X, y = split_xy(df)
