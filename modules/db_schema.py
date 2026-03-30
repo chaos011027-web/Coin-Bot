@@ -21,6 +21,11 @@ ANALYSIS_RUNS_TABLE = "analysis_runs"
 STATE_TRANSITIONS_TABLE = "strategy_state_transitions"
 DECISION_EVENTS_TABLE = "decision_events"
 EXECUTION_EVENTS_TABLE = "execution_events"
+PAPER_ORDERS_TABLE = "paper_orders"
+PAPER_FILLS_TABLE = "paper_fills"
+PAPER_POSITIONS_LEDGER_TABLE = "paper_positions_ledger"
+PAPER_CASH_LEDGER_TABLE = "paper_cash_ledger"
+PAPER_TRADE_CLOSES_TABLE = "paper_trade_closes"
 
 
 async def ensure_schema(conn: asyncpg.Connection) -> None:
@@ -43,6 +48,11 @@ async def ensure_schema(conn: asyncpg.Connection) -> None:
         await _ensure_strategy_state_transitions_table(conn)
         await _ensure_decision_events_table(conn)
         await _ensure_execution_events_table(conn)
+        await _ensure_paper_orders_table(conn)
+        await _ensure_paper_fills_table(conn)
+        await _ensure_paper_positions_ledger_table(conn)
+        await _ensure_paper_cash_ledger_table(conn)
+        await _ensure_paper_trade_closes_table(conn)
         await _ensure_signals_snapshot_view(conn)
 
 
@@ -865,6 +875,277 @@ async def _ensure_execution_events_table(conn: asyncpg.Connection) -> None:
         f"""
         CREATE INDEX IF NOT EXISTS idx_{EXECUTION_EVENTS_TABLE}_analysis_run_id
         ON {EXECUTION_EVENTS_TABLE} (analysis_run_id);
+        """
+    )
+
+
+async def _ensure_paper_orders_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {PAPER_ORDERS_TABLE} (
+            order_id TEXT PRIMARY KEY,
+            analysis_run_id BIGINT,
+            ca TEXT NOT NULL,
+            position_id TEXT,
+            side TEXT,
+            intent TEXT,
+            requested_qty DOUBLE PRECISION,
+            requested_notional_sol DOUBLE PRECISION,
+            requested_price DOUBLE PRECISION,
+            strategy_id TEXT,
+            source TEXT,
+            path_kind TEXT,
+            legacy_path BOOLEAN DEFAULT FALSE,
+            reason TEXT,
+            metadata JSONB,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "analysis_run_id", "BIGINT")
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "position_id", "TEXT")
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "side", "TEXT")
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "intent", "TEXT")
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "requested_qty", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "requested_notional_sol", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "requested_price", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "strategy_id", "TEXT")
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "source", "TEXT")
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "path_kind", "TEXT")
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "legacy_path", "BOOLEAN DEFAULT FALSE")
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "reason", "TEXT")
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, PAPER_ORDERS_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{PAPER_ORDERS_TABLE}_ca_created_at
+        ON {PAPER_ORDERS_TABLE} (ca, created_at DESC);
+        """
+    )
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{PAPER_ORDERS_TABLE}_position_id
+        ON {PAPER_ORDERS_TABLE} (position_id);
+        """
+    )
+
+
+async def _ensure_paper_fills_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {PAPER_FILLS_TABLE} (
+            fill_id TEXT PRIMARY KEY,
+            order_id TEXT NOT NULL,
+            analysis_run_id BIGINT,
+            ca TEXT NOT NULL,
+            position_id TEXT,
+            side TEXT,
+            fill_qty DOUBLE PRECISION,
+            fill_price DOUBLE PRECISION,
+            gross_notional_sol DOUBLE PRECISION,
+            fee_sol DOUBLE PRECISION,
+            slippage_sol DOUBLE PRECISION,
+            fixed_cost_sol DOUBLE PRECISION,
+            total_cost_sol DOUBLE PRECISION,
+            source TEXT,
+            path_kind TEXT,
+            legacy_path BOOLEAN DEFAULT FALSE,
+            metadata JSONB,
+            filled_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "analysis_run_id", "BIGINT")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "position_id", "TEXT")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "side", "TEXT")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "fill_qty", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "fill_price", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "gross_notional_sol", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "fee_sol", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "slippage_sol", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "fixed_cost_sol", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "total_cost_sol", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "source", "TEXT")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "path_kind", "TEXT")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "legacy_path", "BOOLEAN DEFAULT FALSE")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, PAPER_FILLS_TABLE, "filled_at", "TIMESTAMP DEFAULT NOW()")
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{PAPER_FILLS_TABLE}_order_id
+        ON {PAPER_FILLS_TABLE} (order_id);
+        """
+    )
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{PAPER_FILLS_TABLE}_ca_filled_at
+        ON {PAPER_FILLS_TABLE} (ca, filled_at DESC);
+        """
+    )
+
+
+async def _ensure_paper_positions_ledger_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {PAPER_POSITIONS_LEDGER_TABLE} (
+            position_event_id TEXT PRIMARY KEY,
+            position_id TEXT NOT NULL,
+            order_id TEXT,
+            fill_id TEXT,
+            analysis_run_id BIGINT,
+            ca TEXT NOT NULL,
+            event_type TEXT,
+            qty_delta DOUBLE PRECISION,
+            qty_after DOUBLE PRECISION,
+            invested_sol_after DOUBLE PRECISION,
+            realized_pnl_sol_after DOUBLE PRECISION,
+            avg_entry_price_after DOUBLE PRECISION,
+            source TEXT,
+            path_kind TEXT,
+            legacy_path BOOLEAN DEFAULT FALSE,
+            metadata JSONB,
+            event_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "order_id", "TEXT")
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "fill_id", "TEXT")
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "analysis_run_id", "BIGINT")
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "event_type", "TEXT")
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "qty_delta", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "qty_after", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "invested_sol_after", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "realized_pnl_sol_after", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "avg_entry_price_after", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "source", "TEXT")
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "path_kind", "TEXT")
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "legacy_path", "BOOLEAN DEFAULT FALSE")
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, PAPER_POSITIONS_LEDGER_TABLE, "event_at", "TIMESTAMP DEFAULT NOW()")
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{PAPER_POSITIONS_LEDGER_TABLE}_position_id
+        ON {PAPER_POSITIONS_LEDGER_TABLE} (position_id, event_at DESC);
+        """
+    )
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{PAPER_POSITIONS_LEDGER_TABLE}_ca_event_at
+        ON {PAPER_POSITIONS_LEDGER_TABLE} (ca, event_at DESC);
+        """
+    )
+
+
+async def _ensure_paper_cash_ledger_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {PAPER_CASH_LEDGER_TABLE} (
+            cash_event_id TEXT PRIMARY KEY,
+            ref_type TEXT,
+            ref_id TEXT,
+            analysis_run_id BIGINT,
+            ca TEXT,
+            position_id TEXT,
+            event_type TEXT,
+            delta_sol DOUBLE PRECISION,
+            balance_after_sol DOUBLE PRECISION,
+            source TEXT,
+            path_kind TEXT,
+            legacy_path BOOLEAN DEFAULT FALSE,
+            metadata JSONB,
+            event_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+    await _add_column_if_missing(conn, PAPER_CASH_LEDGER_TABLE, "ref_type", "TEXT")
+    await _add_column_if_missing(conn, PAPER_CASH_LEDGER_TABLE, "ref_id", "TEXT")
+    await _add_column_if_missing(conn, PAPER_CASH_LEDGER_TABLE, "analysis_run_id", "BIGINT")
+    await _add_column_if_missing(conn, PAPER_CASH_LEDGER_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, PAPER_CASH_LEDGER_TABLE, "position_id", "TEXT")
+    await _add_column_if_missing(conn, PAPER_CASH_LEDGER_TABLE, "event_type", "TEXT")
+    await _add_column_if_missing(conn, PAPER_CASH_LEDGER_TABLE, "delta_sol", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_CASH_LEDGER_TABLE, "balance_after_sol", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_CASH_LEDGER_TABLE, "source", "TEXT")
+    await _add_column_if_missing(conn, PAPER_CASH_LEDGER_TABLE, "path_kind", "TEXT")
+    await _add_column_if_missing(conn, PAPER_CASH_LEDGER_TABLE, "legacy_path", "BOOLEAN DEFAULT FALSE")
+    await _add_column_if_missing(conn, PAPER_CASH_LEDGER_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, PAPER_CASH_LEDGER_TABLE, "event_at", "TIMESTAMP DEFAULT NOW()")
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{PAPER_CASH_LEDGER_TABLE}_position_id
+        ON {PAPER_CASH_LEDGER_TABLE} (position_id, event_at DESC);
+        """
+    )
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{PAPER_CASH_LEDGER_TABLE}_event_at
+        ON {PAPER_CASH_LEDGER_TABLE} (event_at DESC);
+        """
+    )
+
+
+async def _ensure_paper_trade_closes_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {PAPER_TRADE_CLOSES_TABLE} (
+            trade_close_id TEXT PRIMARY KEY,
+            position_id TEXT NOT NULL,
+            order_id TEXT,
+            fill_id TEXT,
+            analysis_run_id BIGINT,
+            ca TEXT NOT NULL,
+            strategy TEXT,
+            opened_at DOUBLE PRECISION,
+            closed_at DOUBLE PRECISION,
+            close_reason TEXT,
+            partial BOOLEAN DEFAULT FALSE,
+            close_ratio DOUBLE PRECISION,
+            entry_notional_sol DOUBLE PRECISION,
+            exit_notional_sol DOUBLE PRECISION,
+            total_fee_sol DOUBLE PRECISION,
+            realized_pnl_sol DOUBLE PRECISION,
+            realized_return_pct DOUBLE PRECISION,
+            source TEXT,
+            path_kind TEXT,
+            legacy_path BOOLEAN DEFAULT FALSE,
+            metadata JSONB,
+            recorded_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "order_id", "TEXT")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "fill_id", "TEXT")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "analysis_run_id", "BIGINT")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "strategy", "TEXT")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "opened_at", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "closed_at", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "close_reason", "TEXT")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "partial", "BOOLEAN DEFAULT FALSE")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "close_ratio", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "entry_notional_sol", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "exit_notional_sol", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "total_fee_sol", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "realized_pnl_sol", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "realized_return_pct", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "source", "TEXT")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "path_kind", "TEXT")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "legacy_path", "BOOLEAN DEFAULT FALSE")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, PAPER_TRADE_CLOSES_TABLE, "recorded_at", "TIMESTAMP DEFAULT NOW()")
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{PAPER_TRADE_CLOSES_TABLE}_position_id
+        ON {PAPER_TRADE_CLOSES_TABLE} (position_id, recorded_at DESC);
+        """
+    )
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{PAPER_TRADE_CLOSES_TABLE}_ca_recorded_at
+        ON {PAPER_TRADE_CLOSES_TABLE} (ca, recorded_at DESC);
         """
     )
 

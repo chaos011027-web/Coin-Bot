@@ -5,6 +5,18 @@ from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Optional, Tuple
 
 from modules.execution_event_logger import log_execution_event_sync
+from modules.paper_ledger_accounting import (
+    build_final_close_settlement,
+    build_open_settlement,
+    build_partial_close_settlement,
+    compute_current_equity,
+    compute_portfolio_summary,
+)
+from modules.paper_ledger_service import (
+    record_paper_final_close_sync,
+    record_paper_open_fill_sync,
+    record_paper_partial_close_sync,
+)
 from modules.strategy_state import ExecutionEventType, StrategyAction, StrategySignalState
 
 
@@ -173,6 +185,7 @@ class PaperPortfolioEngine:
         entry_price: float,
         entry_mcap: float,
         opened_at: Optional[float] = None,
+        order_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         ok, reason = self.can_open(ca)
         if not ok:
@@ -196,10 +209,22 @@ class PaperPortfolioEngine:
         if alloc_sol <= 0:
             return {"ok": False, "reason": "扣除成本后无可用头寸"}
 
-        qty = alloc_sol / entry_price
+        cash_before = self.cash_sol
+        settlement = build_open_settlement(
+            cash_before=cash_before,
+            alloc_sol=alloc_sol,
+            entry_price=entry_price,
+            entry_mcap=entry_mcap,
+            fee_rate_per_side=self.fee_rate_per_side,
+            slippage_rate_per_side=self.slippage_rate_per_side,
+            fixed_cost_per_order_sol=self.fixed_cost_per_order_sol,
+        )
+        entry_cost = settlement.total_cost_sol
         now = opened_at or time.time()
+        position_id = str(order_id or "")
+        ledger_excluded = not bool(position_id)
 
-        self.cash_sol -= (alloc_sol + entry_cost)
+        self.cash_sol = settlement.cash_after
         self.open_positions[ca] = {
             "ca": ca,
             "symbol": symbol or "UNK",
@@ -207,8 +232,10 @@ class PaperPortfolioEngine:
             "opened_at": now,
             "entry_price": entry_price,
             "entry_mcap": _safe_float(entry_mcap, 0.0),
-            "qty": qty,
-            "remaining_qty": qty,
+            "current_price": entry_price,
+            "current_mcap": _safe_float(entry_mcap, 0.0),
+            "qty": settlement.qty,
+            "remaining_qty": settlement.qty,
             "invested_sol": alloc_sol,
             "entry_cost_sol": entry_cost,
             "realized_pnl_sol": 0.0,
@@ -217,8 +244,18 @@ class PaperPortfolioEngine:
             "peak_mcap": _safe_float(entry_mcap, 0.0),
             "tp1_done": False,
             "tp2_done": False,
+            "position_id": position_id,
+            "ledger_excluded": ledger_excluded,
         }
         self.save()
+        record_paper_open_fill_sync(
+            ca=ca,
+            symbol=str(symbol or "UNK"),
+            strategy=str(strategy or "MIXED"),
+            order_id=order_id,
+            position_id=position_id,
+            settlement=settlement,
+        )
         log_execution_event_sync(
             ca,
             ExecutionEventType.PAPER_OPEN.value,
@@ -239,7 +276,7 @@ class PaperPortfolioEngine:
             "ok": True,
             "allocated_sol": round(alloc_sol, 6),
             "entry_cost_sol": round(entry_cost, 6),
-            "qty": round(qty, 8),
+            "qty": round(settlement.qty, 8),
             "cash_left_sol": round(self.cash_sol, 6),
         }
 
@@ -252,8 +289,10 @@ class PaperPortfolioEngine:
         current_mcap = _safe_float(current_mcap, 0.0)
 
         if current_price > 0:
+            pos["current_price"] = current_price
             pos["peak_price"] = max(_safe_float(pos.get("peak_price"), current_price), current_price)
         if current_mcap > 0:
+            pos["current_mcap"] = current_mcap
             pos["peak_mcap"] = max(_safe_float(pos.get("peak_mcap"), current_mcap), current_mcap)
 
     def partial_take_profit(
@@ -264,6 +303,7 @@ class PaperPortfolioEngine:
         ratio: float,
         exit_reason: str,
         closed_at: Optional[float] = None,
+        order_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         部分止盈：
@@ -288,37 +328,40 @@ class PaperPortfolioEngine:
         if sell_qty <= 0:
             return {"ok": False, "reason": "卖出数量无效"}
 
-        gross_exit_sol = sell_qty * exit_price
-        exit_cost = self._exit_cost_sol(gross_exit_sol)
+        settlement = build_partial_close_settlement(
+            position=pos,
+            cash_before=self.cash_sol,
+            exit_price=exit_price,
+            exit_mcap=exit_mcap,
+            ratio=ratio,
+            fee_rate_per_side=self.fee_rate_per_side,
+            slippage_rate_per_side=self.slippage_rate_per_side,
+            fixed_cost_per_order_sol=self.fixed_cost_per_order_sol,
+            closed_at=closed_at,
+            exit_reason=exit_reason,
+        )
 
-        total_qty = _safe_float(pos.get("qty"), 0.0)
-        invested_sol = _safe_float(pos.get("invested_sol"), 0.0)
-        allocated_invest_cost = invested_sol * (sell_qty / total_qty) if total_qty > 0 else 0.0
-
-        net_pnl_sol = gross_exit_sol - exit_cost - allocated_invest_cost
-        net_return_pct = (net_pnl_sol / allocated_invest_cost * 100.0) if allocated_invest_cost > 0 else 0.0
-
-        self.cash_sol += max(0.0, gross_exit_sol - exit_cost)
-        pos["remaining_qty"] = max(0.0, remaining_qty - sell_qty)
-        pos["realized_pnl_sol"] = _safe_float(pos.get("realized_pnl_sol"), 0.0) + net_pnl_sol
-        pos["realized_fee_sol"] = _safe_float(pos.get("realized_fee_sol"), 0.0) + exit_cost
+        self.cash_sol = settlement.cash_after
+        pos["remaining_qty"] = settlement.remaining_qty_after
+        pos["realized_pnl_sol"] = settlement.realized_pnl_sol_after
+        pos["realized_fee_sol"] = settlement.realized_fee_sol_after
 
         leg = ClosedLeg(
             ca=ca,
             symbol=str(pos.get("symbol") or "UNK"),
             strategy=str(pos.get("strategy") or "MIXED"),
-            opened_at=_safe_float(pos.get("opened_at"), time.time()),
-            closed_at=closed_at or time.time(),
+            opened_at=settlement.opened_at,
+            closed_at=settlement.closed_at,
             entry_price=_safe_float(pos.get("entry_price"), 0.0),
-            exit_price=exit_price,
+            exit_price=settlement.exit_price,
             entry_mcap=_safe_float(pos.get("entry_mcap"), 0.0),
-            exit_mcap=exit_mcap,
-            qty=sell_qty,
-            invested_sol=allocated_invest_cost,
-            gross_exit_sol=gross_exit_sol,
-            total_cost_sol=exit_cost,
-            net_pnl_sol=net_pnl_sol,
-            net_return_pct=net_return_pct,
+            exit_mcap=settlement.exit_mcap,
+            qty=settlement.sell_qty,
+            invested_sol=settlement.allocated_invested_sol,
+            gross_exit_sol=settlement.gross_exit_sol,
+            total_cost_sol=settlement.total_cost_sol,
+            net_pnl_sol=settlement.net_pnl_sol,
+            net_return_pct=settlement.net_return_pct,
             exit_reason=exit_reason,
             partial=True,
             partial_ratio=ratio,
@@ -329,6 +372,14 @@ class PaperPortfolioEngine:
             self.open_positions.pop(ca, None)
 
         self.save()
+        record_paper_partial_close_sync(
+            ca=ca,
+            symbol=str(pos.get("symbol") or "UNK"),
+            strategy=str(pos.get("strategy") or "MIXED"),
+            order_id=order_id,
+            position_id=str(pos.get("position_id") or ""),
+            settlement=settlement,
+        )
         log_execution_event_sync(
             ca,
             ExecutionEventType.PAPER_TP.value,
@@ -341,13 +392,14 @@ class PaperPortfolioEngine:
                 "exit_mcap": exit_mcap,
                 "ratio": ratio,
                 "exit_reason": exit_reason,
-                "net_pnl_sol": net_pnl_sol,
+                "net_pnl_sol": settlement.net_pnl_sol,
             },
         )
         return {
             "ok": True,
             "partial": True,
-            "net_pnl_sol": round(net_pnl_sol, 6),
+            "net_pnl_sol": round(settlement.net_pnl_sol, 6),
+            "net_return_pct": round(settlement.net_return_pct, 2),
             "cash_sol": round(self.cash_sol, 6),
             "remaining_qty": round(pos.get("remaining_qty", 0.0), 8) if ca in self.open_positions else 0.0,
         }
@@ -359,6 +411,7 @@ class PaperPortfolioEngine:
         exit_mcap: float,
         exit_reason: str,
         closed_at: Optional[float] = None,
+        order_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         pos = self.open_positions.get(ca)
         if not pos:
@@ -375,41 +428,51 @@ class PaperPortfolioEngine:
             self.save()
             return {"ok": False, "reason": "剩余仓位为0"}
 
-        gross_exit_sol = remaining_qty * exit_price
-        exit_cost = self._exit_cost_sol(gross_exit_sol)
-
-        total_qty = _safe_float(pos.get("qty"), 0.0)
-        invested_sol = _safe_float(pos.get("invested_sol"), 0.0)
-        allocated_invest_sol = invested_sol * (remaining_qty / total_qty) if total_qty > 0 else 0.0
-
-        net_pnl_sol = gross_exit_sol - exit_cost - allocated_invest_sol
-        net_return_pct = (net_pnl_sol / allocated_invest_sol * 100.0) if allocated_invest_sol > 0 else 0.0
-
-        self.cash_sol += max(0.0, gross_exit_sol - exit_cost)
+        settlement = build_final_close_settlement(
+            position=pos,
+            cash_before=self.cash_sol,
+            exit_price=exit_price,
+            exit_mcap=exit_mcap,
+            fee_rate_per_side=self.fee_rate_per_side,
+            slippage_rate_per_side=self.slippage_rate_per_side,
+            fixed_cost_per_order_sol=self.fixed_cost_per_order_sol,
+            closed_at=closed_at,
+            exit_reason=exit_reason,
+        )
+        self.cash_sol = settlement.cash_after
 
         leg = ClosedLeg(
             ca=ca,
             symbol=str(pos.get("symbol") or "UNK"),
             strategy=str(pos.get("strategy") or "MIXED"),
-            opened_at=_safe_float(pos.get("opened_at"), time.time()),
-            closed_at=closed_at or time.time(),
+            opened_at=settlement.opened_at,
+            closed_at=settlement.closed_at,
             entry_price=_safe_float(pos.get("entry_price"), 0.0),
-            exit_price=exit_price,
+            exit_price=settlement.exit_price,
             entry_mcap=_safe_float(pos.get("entry_mcap"), 0.0),
-            exit_mcap=exit_mcap,
-            qty=remaining_qty,
-            invested_sol=allocated_invest_sol,
-            gross_exit_sol=gross_exit_sol,
-            total_cost_sol=exit_cost,
-            net_pnl_sol=net_pnl_sol,
-            net_return_pct=net_return_pct,
+            exit_mcap=settlement.exit_mcap,
+            qty=settlement.sell_qty,
+            invested_sol=settlement.allocated_invested_sol,
+            gross_exit_sol=settlement.gross_exit_sol,
+            total_cost_sol=settlement.total_cost_sol,
+            net_pnl_sol=settlement.net_pnl_sol,
+            net_return_pct=settlement.net_return_pct,
             exit_reason=exit_reason,
             partial=False,
             partial_ratio=1.0,
         )
         self.closed_legs.append(asdict(leg))
+        position_id = str(pos.get("position_id") or "")
         self.open_positions.pop(ca, None)
         self.save()
+        record_paper_final_close_sync(
+            ca=ca,
+            symbol=str(pos.get("symbol") or "UNK"),
+            strategy=str(pos.get("strategy") or "MIXED"),
+            order_id=order_id,
+            position_id=position_id,
+            settlement=settlement,
+        )
         log_execution_event_sync(
             ca,
             ExecutionEventType.PAPER_CLOSE.value,
@@ -421,16 +484,16 @@ class PaperPortfolioEngine:
                 "exit_price": exit_price,
                 "exit_mcap": exit_mcap,
                 "exit_reason": exit_reason,
-                "net_pnl_sol": net_pnl_sol,
-                "net_return_pct": net_return_pct,
+                "net_pnl_sol": settlement.net_pnl_sol,
+                "net_return_pct": settlement.net_return_pct,
             },
         )
 
         return {
             "ok": True,
             "partial": False,
-            "net_pnl_sol": round(net_pnl_sol, 6),
-            "net_return_pct": round(net_return_pct, 2),
+            "net_pnl_sol": round(settlement.net_pnl_sol, 6),
+            "net_return_pct": round(settlement.net_return_pct, 2),
             "cash_sol": round(self.cash_sol, 6),
         }
 
@@ -467,6 +530,7 @@ class PaperPortfolioEngine:
         exit_mcap: float,
         event_type: str,
         closed_at: Optional[float] = None,
+        order_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         兼容 main.py 的阶段止盈接口。
@@ -496,6 +560,7 @@ class PaperPortfolioEngine:
             ratio=ratio,
             exit_reason=str(event_type or f"TP{stage}"),
             closed_at=closed_at,
+            order_id=order_id,
         )
 
         if ret.get("ok"):
@@ -519,6 +584,7 @@ class PaperPortfolioEngine:
         exit_mcap: float,
         reason: str = "FINAL_CLOSE",
         closed_at: Optional[float] = None,
+        order_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         兼容 main.py 的最终平仓接口。
@@ -529,78 +595,22 @@ class PaperPortfolioEngine:
             exit_mcap=exit_mcap,
             exit_reason=str(reason or "FINAL_CLOSE"),
             closed_at=closed_at,
+            order_id=order_id,
         )
 
     # =========================
     # 组合统计
     # =========================
     def current_equity(self, mark_prices: Optional[Dict[str, float]] = None) -> float:
-        total = self.cash_sol
-        mark_prices = mark_prices or {}
-
-        for ca, pos in self.open_positions.items():
-            px = _safe_float(mark_prices.get(ca), _safe_float(pos.get("entry_price"), 0.0))
-            qty = _safe_float(pos.get("remaining_qty"), 0.0)
-            total += qty * px
-
-        return total
+        return compute_current_equity(self.cash_sol, self.open_positions, mark_prices)
 
     def summary(self) -> Dict[str, Any]:
-        trades = self.closed_legs
-        total_trades = len(trades)
-
-        wins = [t for t in trades if _safe_float(t.get("net_pnl_sol"), 0.0) > 0]
-        losses = [t for t in trades if _safe_float(t.get("net_pnl_sol"), 0.0) <= 0]
-
-        total_net = sum(_safe_float(t.get("net_pnl_sol"), 0.0) for t in trades)
-        total_cost = sum(_safe_float(t.get("total_cost_sol"), 0.0) for t in trades)
-
-        running = self.initial_capital_sol
-        peak = running
-        max_dd = 0.0
-
-        ordered = sorted(trades, key=lambda x: _safe_float(x.get("closed_at"), 0.0))
-        for t in ordered:
-            running += _safe_float(t.get("net_pnl_sol"), 0.0)
-            if running > peak:
-                peak = running
-            dd = (peak - running) / peak if peak > 0 else 0.0
-            max_dd = max(max_dd, dd)
-
-        by_strategy: Dict[str, Dict[str, Any]] = {}
-        for t in ordered:
-            strategy = str(t.get("strategy") or "MIXED")
-            row = by_strategy.setdefault(
-                strategy,
-                {"trades": 0, "wins": 0, "net_pnl_sol": 0.0, "cost_sol": 0.0}
-            )
-            row["trades"] += 1
-            pnl = _safe_float(t.get("net_pnl_sol"), 0.0)
-            row["net_pnl_sol"] += pnl
-            row["cost_sol"] += _safe_float(t.get("total_cost_sol"), 0.0)
-            if pnl > 0:
-                row["wins"] += 1
-
-        for strategy, row in by_strategy.items():
-            row["win_rate_pct"] = round((row["wins"] / row["trades"] * 100.0), 2) if row["trades"] > 0 else 0.0
-            row["net_pnl_sol"] = round(row["net_pnl_sol"], 6)
-            row["cost_sol"] = round(row["cost_sol"], 6)
-
-        equity = self.current_equity()
-
-        return {
-            "initial_capital_sol": round(self.initial_capital_sol, 6),
-            "cash_sol": round(self.cash_sol, 6),
-            "equity_sol": round(equity, 6),
-            "open_positions": len(self.open_positions),
-            "closed_trades": total_trades,
-            "win_rate_pct": round((len(wins) / total_trades * 100.0), 2) if total_trades > 0 else 0.0,
-            "total_net_pnl_sol": round(total_net, 6),
-            "total_cost_sol": round(total_cost, 6),
-            "roi_pct": round(((equity - self.initial_capital_sol) / self.initial_capital_sol * 100.0), 2) if self.initial_capital_sol > 0 else 0.0,
-            "max_drawdown_pct": round(max_dd * 100.0, 2),
-            "by_strategy": by_strategy,
-        }
+        return compute_portfolio_summary(
+            initial_capital_sol=self.initial_capital_sol,
+            cash_sol=self.cash_sol,
+            open_positions=self.open_positions,
+            closed_legs=self.closed_legs,
+        )
 
     # =========================
     # 最小离线回测

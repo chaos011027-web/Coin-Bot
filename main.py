@@ -41,6 +41,7 @@ from modules.stats_engine import stats_engine
 from modules.risk_engine import apply_final_gate
 from modules.image_generator import generate_milestone_image
 from modules.paper_portfolio_engine import paper_portfolio_engine
+from modules.paper_ledger_service import create_paper_order
 from modules.decision_event_logger import (
     end_analysis_context,
     finish_analysis_run,
@@ -1895,7 +1896,28 @@ async def _apply_execution_state_machine(
 
     if current_state == SIGNAL_STATE_ENTERED:
         if action == ACTION_EXIT and current_price > 0:
-            _paper_portfolio_call("on_final_close", ca, current_price, current_mcap, reason="AI_EXIT")
+            paper_order_id = None
+            paper_pos = ((getattr(paper_portfolio_engine, "open_positions", {}) or {}).get(ca) or {})
+            if paper_pos and not bool(paper_pos.get("ledger_excluded")):
+                paper_order_id = await create_paper_order(
+                    ca=ca,
+                    side="SELL",
+                    intent="close",
+                    requested_qty=_safe_float(paper_pos.get("remaining_qty"), 0.0),
+                    requested_price=current_price,
+                    strategy_id=str(paper_pos.get("strategy") or strategy_id or "MIXED"),
+                    position_id=str(paper_pos.get("position_id") or ""),
+                    reason="AI_EXIT",
+                    metadata={"symbol": str(token_data.get("symbol") or paper_pos.get("symbol") or "UNK")},
+                )
+            _paper_portfolio_call(
+                "on_final_close",
+                ca,
+                current_price,
+                current_mcap,
+                reason="AI_EXIT",
+                order_id=paper_order_id,
+            )
             await tp_tracker.reset_to_observing(
                 ca,
                 current_price,
@@ -1919,6 +1941,15 @@ async def _apply_execution_state_machine(
 
         existing_open = getattr(paper_portfolio_engine, "open_positions", {}) or {}
         if ca not in existing_open:
+            paper_order_id = await create_paper_order(
+                ca=ca,
+                side="BUY",
+                intent="open",
+                requested_price=current_price,
+                strategy_id=str(strategy_id or "MIXED"),
+                reason="ACTION_ENTER",
+                metadata={"symbol": str(token_data.get("symbol") or "UNK")},
+            )
             paper_ret = paper_portfolio_engine.open_position(
                 ca=ca,
                 symbol=str(token_data.get("symbol") or "UNK"),
@@ -1926,6 +1957,7 @@ async def _apply_execution_state_machine(
                 entry_price=current_price,
                 entry_mcap=current_mcap,
                 opened_at=time.time(),
+                order_id=paper_order_id,
             )
             if paper_ret.get("ok"):
                 logger.info(
@@ -4062,7 +4094,28 @@ async def price_monitor_loop():
                                 "lifecycle_key": f"{lifecycle_key}:close",
                             },
                         ):
-                            paper_ret = _paper_portfolio_call("on_final_close", ca, price_f, mcap_f, reason=event_type)
+                            paper_order_id = None
+                            paper_pos = ((getattr(paper_portfolio_engine, "open_positions", {}) or {}).get(ca) or {})
+                            if paper_pos and not bool(paper_pos.get("ledger_excluded")):
+                                paper_order_id = await create_paper_order(
+                                    ca=ca,
+                                    side="SELL",
+                                    intent="close",
+                                    requested_qty=_safe_float(paper_pos.get("remaining_qty"), 0.0),
+                                    requested_price=price_f,
+                                    strategy_id=str(paper_pos.get("strategy") or strategy_id or "MIXED"),
+                                    position_id=str(paper_pos.get("position_id") or ""),
+                                    reason=str(event_type or "FINAL_CLOSE"),
+                                    metadata={"symbol": str(paper_pos.get("symbol") or "UNK")},
+                                )
+                            paper_ret = _paper_portfolio_call(
+                                "on_final_close",
+                                ca,
+                                price_f,
+                                mcap_f,
+                                reason=event_type,
+                                order_id=paper_order_id,
+                            )
                         if paper_ret.get("ok"):
                             logger.info(
                                 f"📒 PaperPortfolio 平仓成功: {ca[:6]}... | reason={event_type} | "
@@ -4070,12 +4123,13 @@ async def price_monitor_loop():
                             )
 
                         if t_chat_id and t_msg_id:
+                            display_pnl_pct = _safe_float(paper_ret.get("net_return_pct"), 0.0)
                             if event_type == "CLOSED_SL":
                                 report_text = (
                                     f"🛑 <b>铁血止损触发</b>\n\n"
                                     f"代币: <code>{ca}</code>\n"
                                     f"操作: <b>市价清仓</b>\n"
-                                    f"最终盈亏: <b>{pnl_pct:+.2f}%</b>\n"
+                                    f"最终盈亏: <b>{display_pnl_pct:+.2f}%</b>\n"
                                     f"说明: 留得青山在，不怕没柴烧。"
                                 )
                             else:
@@ -4083,14 +4137,13 @@ async def price_monitor_loop():
                                     f"🎯 <b>完美止盈落袋</b>\n\n"
                                     f"代币: <code>{ca}</code>\n"
                                     f"操作: <b>全量获利了结</b>\n"
-                                    f"最终盈亏: <b>{pnl_pct:+.2f}%</b>\n"
+                                    f"最终盈亏: <b>{display_pnl_pct:+.2f}%</b>\n"
                                     f"说明: 恭喜猎手，利润已安全入库。"
                                 )
 
                             await send_thread_reply(t_chat_id, t_msg_id, report_text)
 
                     elif str(event_type).startswith("止盈"):
-                        pnl_pct = event_dict.get("pnl", 0.0)
                         with lifecycle_context_scope(
                             path_kind=AnalysisPathKind.PRICE_MONITOR.value,
                             source="price_monitor_loop",
@@ -4103,7 +4156,28 @@ async def price_monitor_loop():
                                 "lifecycle_key": f"{lifecycle_key}:tp",
                             },
                         ):
-                            paper_ret = _paper_portfolio_call("on_tp_event", ca, price_f, mcap_f, str(event_type))
+                            paper_order_id = None
+                            paper_pos = ((getattr(paper_portfolio_engine, "open_positions", {}) or {}).get(ca) or {})
+                            if paper_pos and not bool(paper_pos.get("ledger_excluded")):
+                                paper_order_id = await create_paper_order(
+                                    ca=ca,
+                                    side="SELL",
+                                    intent="reduce",
+                                    requested_qty=_safe_float(paper_pos.get("remaining_qty"), 0.0),
+                                    requested_price=price_f,
+                                    strategy_id=str(paper_pos.get("strategy") or pos.get("strategy_id") or "MIXED"),
+                                    position_id=str(paper_pos.get("position_id") or ""),
+                                    reason=str(event_type or "TP"),
+                                    metadata={"symbol": str(paper_pos.get("symbol") or "UNK")},
+                                )
+                            paper_ret = _paper_portfolio_call(
+                                "on_tp_event",
+                                ca,
+                                price_f,
+                                mcap_f,
+                                str(event_type),
+                                order_id=paper_order_id,
+                            )
                         if paper_ret.get("ok"):
                             logger.info(
                                 f"📒 PaperPortfolio 部分止盈: {ca[:6]}... | {event_type} | "
@@ -4111,11 +4185,12 @@ async def price_monitor_loop():
                             )
 
                         if t_chat_id and t_msg_id:
+                            display_pnl_pct = _safe_float(paper_ret.get("net_return_pct"), 0.0)
                             report_text = (
                                 f"💸 <b>阶段止盈触发</b>\n\n"
                                 f"代币: <code>{ca}</code>\n"
                                 f"进度: <b>{event_type}</b>\n"
-                                f"当前收益: <b>{pnl_pct:+.2f}%</b>\n"
+                                f"当前收益: <b>{display_pnl_pct:+.2f}%</b>\n"
                                 f"说明: 已抛售部分仓位锁定利润，剩余仓位继续博取更高倍数。"
                             )
                             await send_thread_reply(t_chat_id, t_msg_id, report_text)
