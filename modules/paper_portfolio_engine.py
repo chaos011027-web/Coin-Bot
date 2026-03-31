@@ -5,6 +5,7 @@ from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Optional, Tuple
 
 from modules.execution_event_logger import log_execution_event_sync
+from modules.action_to_size_bridge import build_action_to_size_decision
 from modules.paper_ledger_accounting import (
     build_final_close_settlement,
     build_open_settlement,
@@ -186,6 +187,13 @@ class PaperPortfolioEngine:
         entry_mcap: float,
         opened_at: Optional[float] = None,
         order_id: Optional[str] = None,
+        signal_state: str = StrategySignalState.ARMED.value,
+        analysis_run_id: Optional[int] = None,
+        token_score_snapshot: Optional[Dict[str, Any]] = None,
+        token_risk_flags: Optional[List[Dict[str, Any]]] = None,
+        wallet_labels: Optional[List[Dict[str, Any]]] = None,
+        path_kind: str = "",
+        legacy_path: bool = False,
     ) -> Dict[str, Any]:
         ok, reason = self.can_open(ca)
         if not ok:
@@ -195,19 +203,50 @@ class PaperPortfolioEngine:
         if entry_price <= 0:
             return {"ok": False, "reason": "entry_price 无效"}
 
-        alloc_sol = self._strategy_alloc_sol(strategy, entry_mcap)
         free_cap = max(0.0, self.cash_sol - self.reserve_cash_sol)
-        alloc_sol = min(alloc_sol, free_cap)
+        sizing_decision = build_action_to_size_decision(
+            analysis_run_id=analysis_run_id if analysis_run_id is not None else 0,
+            ca=ca,
+            state=signal_state or StrategySignalState.ARMED.value,
+            cash=self.cash_sol,
+            equity=self.current_equity(),
+            reserve_cash_sol=self.reserve_cash_sol,
+            token_score_snapshot=token_score_snapshot or {
+                "analysis_run_id": analysis_run_id if analysis_run_id is not None else 0,
+                "ca": ca,
+            },
+            token_risk_flag_rows=token_risk_flags or [],
+            wallet_label_rows=wallet_labels or [],
+            current_position_value=0.0,
+            position_id=order_id or "",
+            path_kind=path_kind,
+            legacy_path=legacy_path,
+        )
+        alloc_sol = min(_safe_float(sizing_decision.get("new_entry_size"), 0.0), free_cap)
 
         if alloc_sol <= 0:
-            return {"ok": False, "reason": "可用现金不足"}
+            return {
+                "ok": False,
+                "reason": str(
+                    sizing_decision.get("size_clamp_reason")
+                    or sizing_decision.get("budget_reason")
+                    or "可用现金不足"
+                ),
+            }
 
         entry_cost = self._entry_cost_sol(alloc_sol)
         if alloc_sol + entry_cost > self.cash_sol:
             alloc_sol = max(0.0, self.cash_sol - self.reserve_cash_sol - entry_cost)
 
         if alloc_sol <= 0:
-            return {"ok": False, "reason": "扣除成本后无可用头寸"}
+            return {
+                "ok": False,
+                "reason": str(
+                    sizing_decision.get("size_clamp_reason")
+                    or sizing_decision.get("budget_reason")
+                    or "扣除成本后无可用头寸"
+                ),
+            }
 
         cash_before = self.cash_sol
         settlement = build_open_settlement(
@@ -269,6 +308,8 @@ class PaperPortfolioEngine:
                 "entry_mcap": _safe_float(entry_mcap, 0.0),
                 "allocated_sol": alloc_sol,
                 "entry_cost_sol": entry_cost,
+                "budget_reason": sizing_decision.get("budget_reason"),
+                "size_clamp_reason": sizing_decision.get("size_clamp_reason"),
             },
         )
 
@@ -278,6 +319,8 @@ class PaperPortfolioEngine:
             "entry_cost_sol": round(entry_cost, 6),
             "qty": round(settlement.qty, 8),
             "cash_left_sol": round(self.cash_sol, 6),
+            "budget_reason": sizing_decision.get("budget_reason"),
+            "size_clamp_reason": sizing_decision.get("size_clamp_reason"),
         }
 
     def mark_price(self, ca: str, current_price: float, current_mcap: float = 0.0) -> None:
