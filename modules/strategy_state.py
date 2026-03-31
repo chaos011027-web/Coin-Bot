@@ -105,6 +105,16 @@ _RUNTIME_ACTION_VALUES = {
     StrategyAction.ENTER.value,
     StrategyAction.EXIT.value,
 }
+PRIMARY_STRATEGY_STATES = (
+    StrategySignalState.NEW_SIGNAL.value,
+    StrategySignalState.OBSERVING.value,
+    StrategySignalState.ARMED.value,
+    StrategySignalState.ENTERED.value,
+    StrategySignalState.MANAGING.value,
+    StrategySignalState.EXITED.value,
+    StrategySignalState.REJECTED.value,
+)
+PRIMARY_STRATEGY_STATE_VALUES = set(PRIMARY_STRATEGY_STATES)
 
 _CURRENT_CONTEXT: ContextVar[Optional[LifecycleContext]] = ContextVar(
     "strategy_lifecycle_context",
@@ -131,6 +141,25 @@ def normalize_strategy_state(state: Any, default: str = StrategySignalState.NEW_
     text = str(state or default).upper().strip()
     text = _STATE_ALIASES.get(text, text)
     return text if text in _STATE_VALUES else default
+
+
+def normalize_primary_strategy_state(
+    state: Any,
+    default: str = StrategySignalState.NEW_SIGNAL.value,
+) -> str:
+    normalized = normalize_strategy_state(state, "")
+    if normalized in PRIMARY_STRATEGY_STATE_VALUES:
+        return normalized
+
+    default_text = str(default or "").upper().strip()
+    default_text = _STATE_ALIASES.get(default_text, default_text)
+    if default_text in PRIMARY_STRATEGY_STATE_VALUES:
+        return default_text
+    return StrategySignalState.NEW_SIGNAL.value
+
+
+def is_primary_strategy_state(state: Any) -> bool:
+    return normalize_strategy_state(state, "") in PRIMARY_STRATEGY_STATE_VALUES
 
 
 def normalize_shadow_action(action: Any, default: str = StrategyAction.WATCH.value) -> str:

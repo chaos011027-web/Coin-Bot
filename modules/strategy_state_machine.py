@@ -3,23 +3,51 @@ from __future__ import annotations
 from typing import Any, Dict, Optional, Set
 
 from modules.lifecycle_models import DecisionChain
-from modules.strategy_state import StrategyAction, StrategySignalState, normalize_shadow_action, normalize_strategy_state
+from modules.strategy_state import (
+    PRIMARY_STRATEGY_STATE_VALUES,
+    StrategyAction,
+    StrategySignalState,
+    normalize_shadow_action,
+    normalize_strategy_state,
+)
 
 
-ALLOWED_TRANSITIONS: Dict[str, Set[str]] = {
+PRIMARY_ALLOWED_TRANSITIONS: Dict[str, Set[str]] = {
     StrategySignalState.NEW_SIGNAL.value: {
         StrategySignalState.OBSERVING.value,
         StrategySignalState.REJECTED.value,
-        StrategySignalState.BLOCKED.value,
-        StrategySignalState.INVALIDATED.value,
     },
     StrategySignalState.OBSERVING.value: {
         StrategySignalState.OBSERVING.value,
-        StrategySignalState.WATCH.value,
         StrategySignalState.ARMED.value,
-        StrategySignalState.ENTER_PENDING.value,
         StrategySignalState.REJECTED.value,
+    },
+    StrategySignalState.ARMED.value: {
+        StrategySignalState.ARMED.value,
+        StrategySignalState.ENTERED.value,
+        StrategySignalState.REJECTED.value,
+    },
+    StrategySignalState.ENTERED.value: {
+        StrategySignalState.ENTERED.value,
+        StrategySignalState.MANAGING.value,
+    },
+    StrategySignalState.MANAGING.value: {
+        StrategySignalState.MANAGING.value,
+        StrategySignalState.EXITED.value,
+    },
+    StrategySignalState.EXITED.value: {
+        StrategySignalState.EXITED.value,
+    },
+    StrategySignalState.REJECTED.value: {
+        StrategySignalState.REJECTED.value,
+    },
+}
+
+
+COMPATIBILITY_ALLOWED_TRANSITIONS: Dict[str, Set[str]] = {
+    StrategySignalState.BLOCKED.value: {
         StrategySignalState.BLOCKED.value,
+        StrategySignalState.OBSERVING.value,
         StrategySignalState.INVALIDATED.value,
     },
     StrategySignalState.WATCH.value: {
@@ -31,50 +59,14 @@ ALLOWED_TRANSITIONS: Dict[str, Set[str]] = {
         StrategySignalState.BLOCKED.value,
         StrategySignalState.INVALIDATED.value,
     },
-    StrategySignalState.ARMED.value: {
-        StrategySignalState.ARMED.value,
-        StrategySignalState.OBSERVING.value,
-        StrategySignalState.ENTER_PENDING.value,
-        StrategySignalState.REJECTED.value,
-        StrategySignalState.BLOCKED.value,
-        StrategySignalState.INVALIDATED.value,
-    },
     StrategySignalState.ENTER_PENDING.value: {
         StrategySignalState.ENTERED.value,
         StrategySignalState.BLOCKED.value,
         StrategySignalState.REJECTED.value,
         StrategySignalState.INVALIDATED.value,
     },
-    StrategySignalState.ENTERED.value: {
-        StrategySignalState.ENTERED.value,
-        StrategySignalState.MANAGING.value,
-        StrategySignalState.EXIT_PENDING.value,
-        StrategySignalState.EXITED.value,
-        StrategySignalState.INVALIDATED.value,
-    },
-    StrategySignalState.MANAGING.value: {
-        StrategySignalState.MANAGING.value,
-        StrategySignalState.EXIT_PENDING.value,
-        StrategySignalState.EXITED.value,
-        StrategySignalState.INVALIDATED.value,
-    },
     StrategySignalState.EXIT_PENDING.value: {
         StrategySignalState.EXITED.value,
-        StrategySignalState.OBSERVING.value,
-        StrategySignalState.INVALIDATED.value,
-    },
-    StrategySignalState.EXITED.value: {
-        StrategySignalState.OBSERVING.value,
-        StrategySignalState.INVALIDATED.value,
-        StrategySignalState.EXITED.value,
-    },
-    StrategySignalState.REJECTED.value: {
-        StrategySignalState.REJECTED.value,
-        StrategySignalState.OBSERVING.value,
-        StrategySignalState.INVALIDATED.value,
-    },
-    StrategySignalState.BLOCKED.value: {
-        StrategySignalState.BLOCKED.value,
         StrategySignalState.OBSERVING.value,
         StrategySignalState.INVALIDATED.value,
     },
@@ -84,10 +76,28 @@ ALLOWED_TRANSITIONS: Dict[str, Set[str]] = {
 }
 
 
+def is_primary_transition_allowed(from_state: Any, to_state: Any) -> bool:
+    src = normalize_strategy_state(from_state)
+    dst = normalize_strategy_state(to_state)
+    if src not in PRIMARY_ALLOWED_TRANSITIONS:
+        return False
+    return dst in PRIMARY_ALLOWED_TRANSITIONS[src]
+
+
+def assert_primary_transition_allowed(from_state: Any, to_state: Any) -> None:
+    if not is_primary_transition_allowed(from_state, to_state):
+        raise ValueError(
+            f"Illegal strategy state transition: {from_state!r} -> {to_state!r}"
+        )
+
+
 def is_transition_allowed(from_state: Any, to_state: Any) -> bool:
     src = normalize_strategy_state(from_state)
     dst = normalize_strategy_state(to_state)
-    allowed = ALLOWED_TRANSITIONS.get(src, set())
+    if src in PRIMARY_ALLOWED_TRANSITIONS:
+        allowed = PRIMARY_ALLOWED_TRANSITIONS.get(src, set())
+        return dst in allowed
+    allowed = COMPATIBILITY_ALLOWED_TRANSITIONS.get(src, set())
     return dst in allowed
 
 
