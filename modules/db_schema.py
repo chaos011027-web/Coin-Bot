@@ -28,6 +28,11 @@ PAPER_CASH_LEDGER_TABLE = "paper_cash_ledger"
 PAPER_TRADE_CLOSES_TABLE = "paper_trade_closes"
 TRAINING_SAMPLES_TABLE = "training_samples"
 TRAINING_LABELS_TABLE = "training_labels"
+WALLET_BEHAVIOR_FEATURES_TABLE = "wallet_behavior_features"
+WALLET_LABEL_EVIDENCE_TABLE = "wallet_label_evidence"
+WALLET_LABELS_TABLE = "wallet_labels"
+TOKEN_RISK_FLAGS_TABLE = "token_risk_flags"
+TOKEN_SCORE_SNAPSHOTS_TABLE = "token_score_snapshots"
 
 
 async def ensure_schema(conn: asyncpg.Connection) -> None:
@@ -57,6 +62,11 @@ async def ensure_schema(conn: asyncpg.Connection) -> None:
         await _ensure_paper_trade_closes_table(conn)
         await _ensure_training_samples_table(conn)
         await _ensure_training_labels_table(conn)
+        await _ensure_wallet_behavior_features_table(conn)
+        await _ensure_wallet_label_evidence_table(conn)
+        await _ensure_wallet_labels_table(conn)
+        await _ensure_token_risk_flags_table(conn)
+        await _ensure_token_score_snapshots_table(conn)
         await _ensure_signals_snapshot_view(conn)
 
 
@@ -1240,6 +1250,204 @@ async def _ensure_training_labels_table(conn: asyncpg.Connection) -> None:
         f"""
         CREATE INDEX IF NOT EXISTS idx_{TRAINING_LABELS_TABLE}_ca_created_at
         ON {TRAINING_LABELS_TABLE} (ca, created_at DESC);
+        """
+    )
+
+
+async def _ensure_wallet_behavior_features_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {WALLET_BEHAVIOR_FEATURES_TABLE} (
+            feature_snapshot_id BIGSERIAL PRIMARY KEY,
+            wallet_address TEXT NOT NULL,
+            snapshot_at TIMESTAMP DEFAULT NOW(),
+            tag_count INT DEFAULT 0,
+            smart_money_tag_hits INT DEFAULT 0,
+            suspicious_cluster_hits INT DEFAULT 0,
+            cluster_risk_level_max DOUBLE PRECISION,
+            cluster_wallets_total_max INT DEFAULT 0,
+            total_trades INT DEFAULT 0,
+            avg_entry_mcap DOUBLE PRECISION,
+            observed_token_count INT DEFAULT 0,
+            social_signal_token_count INT DEFAULT 0,
+            holder_token_count INT DEFAULT 0,
+            last_seen_ca TEXT,
+            last_seen_analysis_run_id BIGINT,
+            source_keys JSONB,
+            metadata JSONB,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "wallet_address", "TEXT")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "snapshot_at", "TIMESTAMP DEFAULT NOW()")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "tag_count", "INT DEFAULT 0")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "smart_money_tag_hits", "INT DEFAULT 0")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "suspicious_cluster_hits", "INT DEFAULT 0")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "cluster_risk_level_max", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "cluster_wallets_total_max", "INT DEFAULT 0")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "total_trades", "INT DEFAULT 0")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "avg_entry_mcap", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "observed_token_count", "INT DEFAULT 0")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "social_signal_token_count", "INT DEFAULT 0")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "holder_token_count", "INT DEFAULT 0")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "last_seen_ca", "TEXT")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "last_seen_analysis_run_id", "BIGINT")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "source_keys", "JSONB")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, WALLET_BEHAVIOR_FEATURES_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{WALLET_BEHAVIOR_FEATURES_TABLE}_wallet_snapshot
+        ON {WALLET_BEHAVIOR_FEATURES_TABLE} (wallet_address, snapshot_at DESC);
+        """
+    )
+
+
+async def _ensure_wallet_label_evidence_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {WALLET_LABEL_EVIDENCE_TABLE} (
+            evidence_id TEXT PRIMARY KEY,
+            wallet_address TEXT NOT NULL,
+            label_candidate TEXT NOT NULL,
+            source TEXT NOT NULL,
+            source_key TEXT NOT NULL,
+            ca TEXT,
+            analysis_run_id BIGINT,
+            trace_link TEXT,
+            sample_id TEXT,
+            evidence_payload JSONB,
+            confidence_hint DOUBLE PRECISION,
+            observed_at TIMESTAMP DEFAULT NOW(),
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+    await _add_column_if_missing(conn, WALLET_LABEL_EVIDENCE_TABLE, "wallet_address", "TEXT")
+    await _add_column_if_missing(conn, WALLET_LABEL_EVIDENCE_TABLE, "label_candidate", "TEXT")
+    await _add_column_if_missing(conn, WALLET_LABEL_EVIDENCE_TABLE, "source", "TEXT")
+    await _add_column_if_missing(conn, WALLET_LABEL_EVIDENCE_TABLE, "source_key", "TEXT")
+    await _add_column_if_missing(conn, WALLET_LABEL_EVIDENCE_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, WALLET_LABEL_EVIDENCE_TABLE, "analysis_run_id", "BIGINT")
+    await _add_column_if_missing(conn, WALLET_LABEL_EVIDENCE_TABLE, "trace_link", "TEXT")
+    await _add_column_if_missing(conn, WALLET_LABEL_EVIDENCE_TABLE, "sample_id", "TEXT")
+    await _add_column_if_missing(conn, WALLET_LABEL_EVIDENCE_TABLE, "evidence_payload", "JSONB")
+    await _add_column_if_missing(conn, WALLET_LABEL_EVIDENCE_TABLE, "confidence_hint", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, WALLET_LABEL_EVIDENCE_TABLE, "observed_at", "TIMESTAMP DEFAULT NOW()")
+    await _add_column_if_missing(conn, WALLET_LABEL_EVIDENCE_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{WALLET_LABEL_EVIDENCE_TABLE}_wallet_observed
+        ON {WALLET_LABEL_EVIDENCE_TABLE} (wallet_address, observed_at DESC);
+        """
+    )
+
+
+async def _ensure_wallet_labels_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {WALLET_LABELS_TABLE} (
+            label_snapshot_id BIGSERIAL PRIMARY KEY,
+            wallet_address TEXT NOT NULL,
+            label_name TEXT NOT NULL,
+            confidence DOUBLE PRECISION,
+            confidence_score DOUBLE PRECISION,
+            evidence_count INT DEFAULT 0,
+            snapshot_at TIMESTAMP DEFAULT NOW(),
+            rule_version TEXT,
+            metadata JSONB,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+    await _add_column_if_missing(conn, WALLET_LABELS_TABLE, "wallet_address", "TEXT")
+    await _add_column_if_missing(conn, WALLET_LABELS_TABLE, "label_name", "TEXT")
+    await _add_column_if_missing(conn, WALLET_LABELS_TABLE, "confidence", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, WALLET_LABELS_TABLE, "confidence_score", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, WALLET_LABELS_TABLE, "evidence_count", "INT DEFAULT 0")
+    await _add_column_if_missing(conn, WALLET_LABELS_TABLE, "snapshot_at", "TIMESTAMP DEFAULT NOW()")
+    await _add_column_if_missing(conn, WALLET_LABELS_TABLE, "rule_version", "TEXT")
+    await _add_column_if_missing(conn, WALLET_LABELS_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, WALLET_LABELS_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{WALLET_LABELS_TABLE}_wallet_snapshot
+        ON {WALLET_LABELS_TABLE} (wallet_address, snapshot_at DESC);
+        """
+    )
+
+
+async def _ensure_token_risk_flags_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {TOKEN_RISK_FLAGS_TABLE} (
+            risk_snapshot_id BIGSERIAL PRIMARY KEY,
+            ca TEXT NOT NULL,
+            risk_flag TEXT NOT NULL,
+            risk_value DOUBLE PRECISION,
+            risk_score DOUBLE PRECISION,
+            snapshot_at TIMESTAMP DEFAULT NOW(),
+            analysis_run_id BIGINT,
+            rule_version TEXT,
+            metadata JSONB,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+    await _add_column_if_missing(conn, TOKEN_RISK_FLAGS_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, TOKEN_RISK_FLAGS_TABLE, "risk_flag", "TEXT")
+    await _add_column_if_missing(conn, TOKEN_RISK_FLAGS_TABLE, "risk_value", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, TOKEN_RISK_FLAGS_TABLE, "risk_score", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, TOKEN_RISK_FLAGS_TABLE, "snapshot_at", "TIMESTAMP DEFAULT NOW()")
+    await _add_column_if_missing(conn, TOKEN_RISK_FLAGS_TABLE, "analysis_run_id", "BIGINT")
+    await _add_column_if_missing(conn, TOKEN_RISK_FLAGS_TABLE, "rule_version", "TEXT")
+    await _add_column_if_missing(conn, TOKEN_RISK_FLAGS_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, TOKEN_RISK_FLAGS_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{TOKEN_RISK_FLAGS_TABLE}_ca_snapshot
+        ON {TOKEN_RISK_FLAGS_TABLE} (ca, snapshot_at DESC);
+        """
+    )
+
+
+async def _ensure_token_score_snapshots_table(conn: asyncpg.Connection) -> None:
+    await conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {TOKEN_SCORE_SNAPSHOTS_TABLE} (
+            score_snapshot_id BIGSERIAL PRIMARY KEY,
+            ca TEXT NOT NULL,
+            snapshot_at TIMESTAMP DEFAULT NOW(),
+            analysis_run_id BIGINT,
+            score_version TEXT,
+            liquidity_structure_score DOUBLE PRECISION,
+            top10_concentration_score DOUBLE PRECISION,
+            gmgn_behavior_score DOUBLE PRECISION,
+            source_confidence_score DOUBLE PRECISION,
+            total_score DOUBLE PRECISION,
+            summary TEXT,
+            metadata JSONB,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+    )
+    await _add_column_if_missing(conn, TOKEN_SCORE_SNAPSHOTS_TABLE, "ca", "TEXT")
+    await _add_column_if_missing(conn, TOKEN_SCORE_SNAPSHOTS_TABLE, "snapshot_at", "TIMESTAMP DEFAULT NOW()")
+    await _add_column_if_missing(conn, TOKEN_SCORE_SNAPSHOTS_TABLE, "analysis_run_id", "BIGINT")
+    await _add_column_if_missing(conn, TOKEN_SCORE_SNAPSHOTS_TABLE, "score_version", "TEXT")
+    await _add_column_if_missing(conn, TOKEN_SCORE_SNAPSHOTS_TABLE, "liquidity_structure_score", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, TOKEN_SCORE_SNAPSHOTS_TABLE, "top10_concentration_score", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, TOKEN_SCORE_SNAPSHOTS_TABLE, "gmgn_behavior_score", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, TOKEN_SCORE_SNAPSHOTS_TABLE, "source_confidence_score", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, TOKEN_SCORE_SNAPSHOTS_TABLE, "total_score", "DOUBLE PRECISION")
+    await _add_column_if_missing(conn, TOKEN_SCORE_SNAPSHOTS_TABLE, "summary", "TEXT")
+    await _add_column_if_missing(conn, TOKEN_SCORE_SNAPSHOTS_TABLE, "metadata", "JSONB")
+    await _add_column_if_missing(conn, TOKEN_SCORE_SNAPSHOTS_TABLE, "created_at", "TIMESTAMP DEFAULT NOW()")
+    await conn.execute(
+        f"""
+        CREATE INDEX IF NOT EXISTS idx_{TOKEN_SCORE_SNAPSHOTS_TABLE}_ca_snapshot
+        ON {TOKEN_SCORE_SNAPSHOTS_TABLE} (ca, snapshot_at DESC);
         """
     )
 
